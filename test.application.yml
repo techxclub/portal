@@ -1,0 +1,10 @@
+APP_NAME: portal
+API:
+  LISTEN_ADDR: :3000
+  DEBUG_MODE: true
+SWAGGER:
+  ENABLED: true
+  PATH: ./swagger
+LOG_LEVEL: "debug"
+LOG_OUTPUT: "console"
+LOG_FORMAT: "text"

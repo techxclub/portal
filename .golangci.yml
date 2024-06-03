@@ -1,0 +1,71 @@
+run:
+  timeout: 10m
+  tests: true
+  go: 1.22.3
+linters:
+  enable:
+    - bodyclose
+    - stylecheck
+    - gosec
+    - unconvert
+    - dupl
+    - goconst
+    - gci
+    - revive
+    - gofumpt
+    - misspell
+    - unparam
+    - nakedret
+    - forbidigo
+    - gocognit
+    - gocritic
+    - gochecknoinits
+    - prealloc
+    - testpackage
+    - usestdlibvars
+    - paralleltest
+    - durationcheck
+    - noctx
+    - ineffassign
+    - unused
+linters-settings:
+#  gocognit:
+#    min-complexity: 15
+  gocritic:
+    enabled-checks:
+      - commentedOutCode # Detects commented-out code inside function bodies
+      - nilValReturn # Detects return statements those results evaluate to nil
+      - sloppyReassign # Detects suspicious/confusing re-assignments
+      - truncateCmp # Detects potential truncation issues when comparing ints of different sizes
+      - weakCond # Detects conditions that are unsafe due to not being exhaustive
+      - boolExprSimplify # Detects bool expressions that can be simplified
+      - builtinShadow # Detects when predeclared identifiers are shadowed in assignments
+      - commentedOutImport # Detects commented-out imports
+      - emptyFallthrough # Detects fallthrough that can be avoided by using multi case values
+      - regexpSimplify # Detects regexp patterns that can be simplified
+      - appendCombine # Detects `append` chains to the same slice that can be done in a single `append` call
+issues:
+  exclude-rules:
+    - linters:
+        - staticcheck
+      text: "\"github.com/golang/protobuf/proto\" is deprecated:"
+    - linters:
+        - dupl
+        - goconst
+        - gocognit
+        - noctx
+      path: "_test\\.go"
+    - linters:
+        - goconst
+      path: "testfactory/"
+    - text: "ST1003"
+      path: "_test\\.go"
+    - linters:
+        - gosec
+      path: "cmd/portal/api_server.go"
+      text: "G112: Potential Slowloris Attack"
+
+  max-issues-per-linter: 0
+  max-same-issues: 0
+severity:
+  default-severity: blocker # Supported info, minor, major, critical, blocker. In case if this needed for override

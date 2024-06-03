@@ -1,0 +1,19 @@
+with-expecter: false
+filename: "{{.InterfaceNameSnake}}.go"
+dir: "{{ replaceAll .PackagePath \"github.com/techx/portal/\" \"\" }}/mocks"
+mockname: "{{.InterfaceName}}"
+outpkg: "mocks"
+recursive: True
+packages:
+  github.com/techx/portal/appworker:
+    config:
+      all: True
+  github.com/techx/portal/builders:
+    config:
+      all: True
+  github.com/techx/portal/client:
+    config:
+      all: True
+  github.com/techx/portal/service:
+    config:
+      all: True
