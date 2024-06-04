@@ -1,7 +1,8 @@
 package domain
 
 type User struct {
-	UserID            int64   `db:"user_id"`
+	UserIDNum         int64   `db:"user_id_num"` // Only for internal use
+	UserID            string  `db:"user_id"`
 	FirstName         string  `db:"first_name"`
 	LastName          string  `db:"last_name"`
 	YearsOfExperience float32 `db:"years_of_experience"`
@@ -10,4 +11,9 @@ type User struct {
 	PhoneNumber       string  `db:"phone_number"`
 	LinkedIn          string  `db:"linkedin"`
 	Role              string  `db:"role"`
+}
+
+type UserDetailsRequest struct {
+	UserID string
+	Phone  string
 }

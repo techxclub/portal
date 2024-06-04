@@ -10,7 +10,7 @@ import (
 
 // swagger:model
 type UserDetailsResponse struct {
-	UserID            int64   `json:"user_id"`
+	UserID            string  `json:"user_id"`
 	FirstName         string  `json:"first_name"`
 	LastName          string  `json:"last_name"`
 	YearsOfExperience float32 `json:"years_of_experience"`
@@ -21,7 +21,7 @@ type UserDetailsResponse struct {
 	Role              string  `json:"role"`
 }
 
-func NewGetUserResponse(_ context.Context, _ config.Config, user domain.User) (UserDetailsResponse, http.Header) {
+func NewUserDetailsResponse(_ context.Context, _ config.Config, user domain.User) (UserDetailsResponse, http.Header) {
 	respBody := UserDetailsResponse{
 		UserID:            user.UserID,
 		FirstName:         user.FirstName,

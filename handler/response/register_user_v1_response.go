@@ -10,8 +10,8 @@ import (
 
 // swagger:model
 type RegisterUserV1Response struct {
-	Success bool  `json:"success"`
-	UserID  int64 `json:"user_id"`
+	Success bool   `json:"success"`
+	UserID  string `json:"user_id"`
 }
 
 func NewRegisterUserV1Response(_ context.Context, _ config.Config, user domain.User) (RegisterUserV1Response, http.Header) {

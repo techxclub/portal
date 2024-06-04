@@ -53,8 +53,7 @@ definitions:
                 type: boolean
                 x-go-name: Success
             user_id:
-                format: int64
-                type: integer
+                type: string
                 x-go-name: UserID
         type: object
         x-go-package: github.com/techx/portal/handler/response
@@ -79,8 +78,7 @@ definitions:
                 type: string
                 x-go-name: Role
             user_id:
-                format: int64
-                type: integer
+                type: string
                 x-go-name: UserID
             work_email:
                 type: string
@@ -92,16 +90,18 @@ definitions:
         type: object
         x-go-package: github.com/techx/portal/handler/response
 paths:
-    /portal/user/{userID}:
+    /portal/user/details:
         get:
-            operationId: getUserDetails
+            operationId: userDetails
             parameters:
-                - format: int64
-                  in: path
-                  name: userID
-                  required: true
-                  type: integer
+                - in: query
+                  name: user_id
+                  type: string
                   x-go-name: UserID
+                - in: query
+                  name: phone_number
+                  type: string
+                  x-go-name: PhoneNumber
             responses:
                 "200":
                     description: UserDetailsResponse

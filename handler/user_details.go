@@ -11,14 +11,14 @@ import (
 	"github.com/techx/portal/service"
 )
 
-func GetUserByIDHandler(cfg config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
+func UserDetailsHandler(cfg config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
 	return Handler(
-		request.NewGetUserByIDRequest,
-		func(ctx context.Context, req request.GetUserByIDRequest) (*domain.User, error) {
-			return serviceRegistry.UserService.GetUserByID(ctx, req.UserID)
+		request.NewUserDetailsRequest,
+		func(ctx context.Context, req request.UserDetailsRequest) (*domain.User, error) {
+			return serviceRegistry.UserService.UserDetails(ctx, req.ToDomainObject())
 		},
 		func(ctx context.Context, domainObj domain.User) (response.UserDetailsResponse, http.Header) {
-			return response.NewGetUserResponse(ctx, cfg, domainObj)
+			return response.NewUserDetailsResponse(ctx, cfg, domainObj)
 		},
 	)
 }

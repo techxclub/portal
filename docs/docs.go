@@ -13,13 +13,15 @@ type RegisterRequestHeader struct {
 }
 
 // swagger:parameters registerUserV1
-type RegisterUserV1RequestParams struct {
+type RegisterUserV1Request struct {
 	// in: body
 	RegisterUserV1Request request.RegisterUserV1Request
 }
 
-// swagger:parameters getUserDetails
-type GetUserByIDRequestParams struct {
-	// in: path
-	UserID int64 `json:"userID"`
+// swagger:parameters userDetails
+type UserDetailsRequestParams struct {
+	// in: query
+	UserID string `json:"user_id"`
+	// in: query
+	PhoneNumber string `json:"phone_number"`
 }

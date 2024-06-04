@@ -8,7 +8,6 @@ type ServiceError interface {
 	error
 	GetCode() string
 	GetResponseStatus() int
-	GetAnnotation() string
 	UnWrap() error
 }
 
@@ -40,14 +39,6 @@ func (e *serviceError) GetCode() string {
 
 func (e *serviceError) GetResponseStatus() int {
 	return e.responseStatusCode
-}
-
-func (e *serviceError) GetAnnotation() string {
-	if e.annotation != "" {
-		return e.annotation
-	}
-
-	return e.code
 }
 
 func (e *serviceError) UnWrap() error {

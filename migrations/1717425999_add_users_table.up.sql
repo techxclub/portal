@@ -1,5 +1,6 @@
 CREATE TABLE users
 (
+    user_id             VARCHAR(50)              NOT NULL UNIQUE PRIMARY KEY,
     first_name          VARCHAR(100),
     last_name           VARCHAR(100),
     years_of_experience FLOAT,
@@ -11,6 +12,7 @@ CREATE TABLE users
     created_time        TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE INDEX IF NOT EXISTS users_userid_idx ON users(user_id);
 CREATE INDEX IF NOT EXISTS users_phone_idx ON users(phone_number);
 CREATE INDEX IF NOT EXISTS users_personalemail_idx ON users(personal_email);
 CREATE INDEX IF NOT EXISTS users_workemail_idx ON users(work_email);

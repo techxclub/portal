@@ -10,7 +10,7 @@ import (
 
 type UserService interface {
 	RegisterUser(ctx context.Context, userDetails domain.User) (*domain.User, error)
-	GetUserByID(ctx context.Context, id int64) (*domain.User, error)
+	UserDetails(ctx context.Context, req domain.UserDetailsRequest) (*domain.User, error)
 }
 
 type userService struct {
@@ -34,8 +34,15 @@ func (u userService) RegisterUser(ctx context.Context, userDetails domain.User) 
 	return user, nil
 }
 
-func (u userService) GetUserByID(ctx context.Context, id int64) (*domain.User, error) {
-	user, err := u.registry.UserInfoBuilder.GetUserByID(ctx, id)
+func (u userService) UserDetails(ctx context.Context, req domain.UserDetailsRequest) (*domain.User, error) {
+	getterFunc := u.registry.UserInfoBuilder.GetUserByID
+	selector := req.UserID
+	if req.Phone != "" {
+		getterFunc = u.registry.UserInfoBuilder.GetUserByPhone
+		selector = req.Phone
+	}
+
+	user, err := getterFunc(ctx, selector)
 	if err != nil {
 		return nil, err
 	}
