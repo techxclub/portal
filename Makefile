@@ -31,6 +31,12 @@ APP_EXECUTABLE="./out/portal"
 GIT_VERSION?=$(shell git describe --always --tags --long --dirty --abbrev=40)
 GO_LDFLAGS="-X github.com/techx/portal/version.Version=$(GIT_VERSION)"
 
+assign-vars = $(if $(1),$(1),$(shell grep '$(2):' application.yml | tail -n1| cut -d':' -f2))
+
+DB_HOST:=localhost
+DB_NAME:=portal_local
+DB_USER:=postgres
+
 TOOLS_MOD_DIR = ./tools
 TOOLS_DIR = $(abspath ./.tools)
 
@@ -69,6 +75,31 @@ $(TOOLS_DIR)/goawk: $(TOOLS_MOD_DIR)/go.mod $(TOOLS_MOD_DIR)/go.sum $(TOOLS_MOD_
 $(TOOLS_DIR)/go-junit-report: $(TOOLS_MOD_DIR)/go.mod $(TOOLS_MOD_DIR)/go.sum $(TOOLS_MOD_DIR)/tools.go
 	cd $(TOOLS_MOD_DIR) && \
 	go build -o $(TOOLS_DIR)/go-junit-report github.com/jstemmer/go-junit-report/v2
+
+
+# DB #############
+
+db-setup: db-create db-migrate  ##@database create and migrate
+
+db-create:  ##@database create db
+	createdb -h $(DB_HOST) -U $(DB_USER) -O$(DB_USER) -Eutf8 $(DB_NAME)
+
+db-apply_extension:  ##@database create uuid extension
+	psql -h $(DB_HOST) -d $(DB_NAME) -U $(DB_USER) -c 'CREATE EXTENSION if not exists "uuid-ossp"'
+
+db-migrate: db-apply_extension  ##@database run migrations
+	$(APP_EXECUTABLE) migrate:run --config-file test.application.yml
+
+db-rollback: db-apply_extension  ##@database rollback migrations
+	$(APP_EXECUTABLE) migrate:rollback --config-file test.application.yml
+
+db-create-migration: ##@database create a migration, profile FILENAME env var
+	$(APP_EXECUTABLE) migrate:create $(FILENAME) --config-file test.application.yml
+
+db-drop:  ##@database drop db
+	dropdb -h $(DB_HOST) -U $(DB_USER) --if-exists $(DB_NAME)
+
+db-reset: db-drop db-create db-migrate  ##@database resets local db to fresh db
 
 
 # DEVELOPMENT	###########################################################################################

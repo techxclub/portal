@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/rs/zerolog/log"
 	"github.com/techx/portal/config"
+	"github.com/techx/portal/logger"
 	"github.com/urfave/cli/v2"
 )
 
@@ -18,6 +19,9 @@ func initApplicationContext(ctx *cli.Context) (*ApplicationContext, error) {
 		log.Err(err).Msg("[MAIN] Error while loading config file")
 		return nil, err
 	}
+
+	// Setup Logging
+	logger.SetupLogging(*appConfig)
 
 	return &ApplicationContext{
 		Config: appConfig,

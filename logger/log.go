@@ -12,7 +12,7 @@ import (
 func SetupLogging(cfg config.Config) {
 	level := zerolog.InfoLevel
 
-	switch cfg.LogLevel {
+	switch cfg.Log.Level {
 	case zerolog.DebugLevel.String():
 		level = zerolog.DebugLevel
 	case zerolog.InfoLevel.String():
@@ -30,8 +30,7 @@ func SetupLogging(cfg config.Config) {
 	}
 
 	zerolog.SetGlobalLevel(level)
-
-	if cfg.LogOutput == "console" {
+	if cfg.Log.Output == "console" {
 		console := zerolog.ConsoleWriter{
 			Out: os.Stderr,
 		}

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
 	"github.com/techx/portal/errors"
 )
@@ -46,6 +45,5 @@ func (r RegisterUserV1Request) ToUserDetails() domain.User {
 		WorkEmail:         r.WorkEmail,
 		PhoneNumber:       r.PhoneNumber,
 		LinkedIn:          r.LinkedIn,
-		Role:              constants.RoleSeeker,
 	}
 }

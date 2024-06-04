@@ -9,9 +9,9 @@ type Registry struct {
 	UserService UserService
 }
 
-func NewRegistry(_ config.Config, _ *builder.Registry) *Registry {
+func NewRegistry(cfg config.Config, builderRegistry *builder.Registry) *Registry {
 	registry := &Registry{
-		UserService: NewUserService(),
+		UserService: NewUserService(cfg, builderRegistry),
 	}
 	return registry
 }

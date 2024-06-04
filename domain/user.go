@@ -1,7 +1,7 @@
 package domain
 
 type User struct {
-	ID                int64   `db:"id"`
+	UserID            int64   `db:"user_id"`
 	FirstName         string  `db:"first_name"`
 	LastName          string  `db:"last_name"`
 	YearsOfExperience float64 `db:"years_of_experience"`

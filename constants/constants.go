@@ -1,5 +1,6 @@
 package constants
 
 const (
-	RoleSeeker = "SEEKER"
+	TableNameUsers = "users"
+	RoleSeeker     = "SEEKER"
 )

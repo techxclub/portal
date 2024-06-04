@@ -20,4 +20,9 @@ func addPublicRoutes(router *mux.Router, cfg config.Config, sr *service.Registry
 		Methods("POST").
 		Path("/portal/v1/register").
 		Handler(handler.RegisterUserV1Handler(cfg, sr))
+
+	router.
+		Methods("GET").
+		Path("/portal/user/{userID}").
+		Handler(handler.GetUserHandler(cfg, sr))
 }
