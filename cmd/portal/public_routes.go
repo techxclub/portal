@@ -21,8 +21,16 @@ func addPublicRoutes(router *mux.Router, cfg config.Config, sr *service.Registry
 		Path("/portal/v1/register").
 		Handler(handler.RegisterUserV1Handler(cfg, sr))
 
+	//	swagger:route GET /portal/user/details public userDetails
+	//	Responses:
+	//		200: UserDetailsResponse
+	//		401:
+	// 		400: ErrorResponse
+	//		422: ErrorResponse
+	//		500: ErrorResponse
+	//		503: ErrorResponse
 	router.
 		Methods("GET").
-		Path("/portal/user/{userID}").
-		Handler(handler.GetUserHandler(cfg, sr))
+		Path("/portal/user/details").
+		Handler(handler.UserDetailsHandler(cfg, sr))
 }

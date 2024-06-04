@@ -2,6 +2,7 @@ package logger
 
 import (
 	"context"
+	"io"
 	"net/http"
 
 	"github.com/rs/zerolog"
@@ -23,9 +24,11 @@ func getLogFieldForInterface(key string, val interface{}) map[string]interface{}
 }
 
 func HTTPRequestLogger(r *http.Request) zerolog.Logger {
+	bodyBytes, _ := io.ReadAll(r.Body)
 	logger := log.With().
 		Str(RequestMethodField, r.Method).
 		Str(RequestURLField, r.URL.RequestURI()).
+		Str(RequestBody, string(bodyBytes)).
 		Str(RequestProxyField, r.RemoteAddr).
 		Str(RequestTraceID, apicontext.RequestContextFromContext(r.Context()).TraceID)
 

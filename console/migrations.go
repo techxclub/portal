@@ -32,8 +32,10 @@ func RollbackLatestMigration(dbConfig config.DB) error {
 	return RollbackLatest()
 }
 
-var appMigrationFilesPath string
-var appMigrate *migrate.Migrate
+var (
+	appMigrationFilesPath string
+	appMigrate            *migrate.Migrate
+)
 
 func InitPostgres(dbConfig config.DB, migrationFilesPath string) {
 	appMigrationFilesPath = migrationFilesPath

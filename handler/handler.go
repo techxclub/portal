@@ -96,7 +96,7 @@ func setHeaders(w http.ResponseWriter, respHeaders http.Header) {
 }
 
 func renderErrorResponse(r *http.Request, w http.ResponseWriter, serviceError errors.ServiceError) {
-	instrumentErrorResponse(r, serviceError)
+	logErrorResponse(r, serviceError)
 
 	errResponse := customErrorResponse(r.Context(), serviceError)
 	writeJSON(w, serviceError.GetResponseStatus(), errResponse)
@@ -114,13 +114,10 @@ func customErrorResponse(_ context.Context, serviceError errors.ServiceError) Er
 	}
 }
 
-func instrumentErrorResponse(r *http.Request, serviceError errors.ServiceError) {
+func logErrorResponse(r *http.Request, serviceError errors.ServiceError) {
 	fields := map[string]interface{}{
 		logger.ResponseStatusField: serviceError.GetResponseStatus(),
 		"code":                     serviceError.GetCode(),
-	}
-	if serviceError.GetAnnotation() != serviceError.GetCode() {
-		fields["annotation"] = serviceError.GetAnnotation()
 	}
 	logger.HTTPError(r, serviceError, fields)
 }

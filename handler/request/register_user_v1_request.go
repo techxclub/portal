@@ -11,7 +11,7 @@ import (
 type RegisterUserV1Request struct {
 	FirstName         string  `json:"first_name"`
 	LastName          string  `json:"last_name"`
-	YearsOfExperience float64 `json:"years_of_experience"`
+	YearsOfExperience float32 `json:"years_of_experience"`
 	PersonalEmail     string  `json:"personal_email"`
 	WorkEmail         string  `json:"work_email"`
 	PhoneNumber       string  `json:"phone_number"`

@@ -42,29 +42,91 @@ definitions:
                 type: string
                 x-go-name: WorkEmail
             years_of_experience:
-                format: double
+                format: float
                 type: number
                 x-go-name: YearsOfExperience
         type: object
         x-go-package: github.com/techx/portal/handler/request
     RegisterUserV1Response:
         properties:
-            error:
-                type: string
-                x-go-name: Error
-            name:
-                type: string
-                x-go-name: Name
             success:
                 type: boolean
                 x-go-name: Success
             user_id:
-                format: int64
-                type: integer
+                type: string
                 x-go-name: UserID
         type: object
         x-go-package: github.com/techx/portal/handler/response
+    UserDetailsResponse:
+        properties:
+            first_name:
+                type: string
+                x-go-name: FirstName
+            last_name:
+                type: string
+                x-go-name: LastName
+            linkedin:
+                type: string
+                x-go-name: LinkedIn
+            personal_email:
+                type: string
+                x-go-name: PersonalEmail
+            phone_number:
+                type: string
+                x-go-name: PhoneNumber
+            role:
+                type: string
+                x-go-name: Role
+            user_id:
+                type: string
+                x-go-name: UserID
+            work_email:
+                type: string
+                x-go-name: WorkEmail
+            years_of_experience:
+                format: float
+                type: number
+                x-go-name: YearsOfExperience
+        type: object
+        x-go-package: github.com/techx/portal/handler/response
 paths:
+    /portal/user/details:
+        get:
+            operationId: userDetails
+            parameters:
+                - in: query
+                  name: user_id
+                  type: string
+                  x-go-name: UserID
+                - in: query
+                  name: phone_number
+                  type: string
+                  x-go-name: PhoneNumber
+            responses:
+                "200":
+                    description: UserDetailsResponse
+                    schema:
+                        $ref: '#/definitions/UserDetailsResponse'
+                "400":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "401":
+                    description: ""
+                "422":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "503":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            tags:
+                - public
     /portal/v1/register:
         post:
             operationId: registerUserV1

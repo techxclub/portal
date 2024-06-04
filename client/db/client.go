@@ -10,9 +10,7 @@ import (
 	"github.com/techx/portal/errors"
 )
 
-var (
-	ErrZeroRowsAffected = errors.New("no rows affected")
-)
+var ErrZeroRowsAffected = errors.New("no rows affected")
 
 type Repository struct {
 	db        *sqlx.DB
@@ -34,6 +32,7 @@ func NewRepository(cfg config.Config, tableName string) (*Repository, error) {
 		TxRunner:  NewTxRunner(postgresDB),
 	}, nil
 }
+
 func (r *Repository) DBGet(ctx context.Context, dest interface{}, query string, args ...interface{}) error {
 	return r.db.GetContext(ctx, dest, query, args...)
 }
