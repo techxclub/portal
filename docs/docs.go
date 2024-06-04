@@ -17,3 +17,9 @@ type RegisterUserV1RequestParams struct {
 	// in: body
 	RegisterUserV1Request request.RegisterUserV1Request
 }
+
+// swagger:parameters getUserDetails
+type GetUserByIDRequestParams struct {
+	// in: path
+	UserID int64 `json:"userID"`
+}

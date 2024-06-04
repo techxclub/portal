@@ -12,6 +12,7 @@ import (
 type UserInfoBuilder interface {
 	NextUserID(ctx context.Context) (int64, error)
 	CreateUser(ctx context.Context, details domain.User) (*domain.User, error)
+	GetUserByID(ctx context.Context, id int64) (*domain.User, error)
 }
 
 type usersInfoBuilder struct {
@@ -28,6 +29,9 @@ const (
 	nextUserIDSeq = `SELECT nextval('users_user_id_seq')`
 
 	interUserQuery = `INSERT INTO users (user_id, first_name, last_name, years_of_experience, personal_email, work_email, phone_number, linkedin, role) VALUES (:user_id, :first_name, :last_name, :years_of_experience, :personal_email, :work_email, :phone_number, :linkedin, :role)`
+
+	getUserSelectorFields = `user_id, first_name, last_name, years_of_experience, personal_email, work_email, phone_number, linkedin, role`
+	getUserByIDQuery      = `SELECT ` + getUserSelectorFields + ` FROM users WHERE user_id = $1`
 )
 
 func (u usersInfoBuilder) NextUserID(ctx context.Context) (int64, error) {
@@ -67,16 +71,27 @@ func (u usersInfoBuilder) CreateUser(ctx context.Context, details domain.User) (
 		Role:              constants.RoleSeeker,
 	}
 
-	userId, err := u.NextUserID(ctx)
+	userID, err := u.NextUserID(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	user.UserID = userId
+	user.UserID = userID
 	err = u.InsertUser(ctx, user)
 	if err != nil {
 		return nil, err
 	}
 
 	return user, nil
+}
+
+func (u usersInfoBuilder) GetUserByID(ctx context.Context, id int64) (*domain.User, error) {
+	var user domain.User
+
+	err := u.dbClient.DBGet(ctx, &user, getUserByIDQuery, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }

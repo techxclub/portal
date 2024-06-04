@@ -84,13 +84,10 @@ db-setup: db-create db-migrate  ##@database create and migrate
 db-create:  ##@database create db
 	createdb -h $(DB_HOST) -U $(DB_USER) -O$(DB_USER) -Eutf8 $(DB_NAME)
 
-db-apply_extension:  ##@database create uuid extension
-	psql -h $(DB_HOST) -d $(DB_NAME) -U $(DB_USER) -c 'CREATE EXTENSION if not exists "uuid-ossp"'
-
-db-migrate: db-apply_extension  ##@database run migrations
+db-migrate:  ##@database run migrations
 	$(APP_EXECUTABLE) migrate:run --config-file test.application.yml
 
-db-rollback: db-apply_extension  ##@database rollback migrations
+db-rollback:  ##@database rollback migrations
 	$(APP_EXECUTABLE) migrate:rollback --config-file test.application.yml
 
 db-create-migration: ##@database create a migration, profile FILENAME env var
