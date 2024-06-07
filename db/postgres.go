@@ -11,7 +11,7 @@ import (
 	"github.com/techx/portal/config"
 )
 
-func NewPostgresDB(ctx context.Context, dbConfig config.DB) (*sqlx.DB, error) {
+func NewPostgresDB(_ context.Context, dbConfig config.DB) (*sqlx.DB, error) {
 	connStr := dbConfig.GetConnectionString()
 
 	// Set up connection pool configuration

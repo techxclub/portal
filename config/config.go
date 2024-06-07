@@ -12,6 +12,7 @@ type Config struct {
 	Swagger Swagger       `yaml:"SWAGGER" env:",prefix=SWAGGER_"`
 	DB      DB            `yaml:"DB" env:",prefix=DB_"`
 	Log     Log           `yaml:"LOG" env:",prefix=LOG_"`
+	Twilio  Twilio        `yaml:"TWILIO" env:",prefix=TWILIO_"`
 }
 
 type Swagger struct {
@@ -28,6 +29,12 @@ type Log struct {
 	Level  string `yaml:"LEVEL" env:"LEVEL"`
 	Output string `yaml:"OUTPUT" env:"OUTPUT"` // Should be one of "console" | "stdout"
 	Format string `yaml:"FORMAT" env:"FORMAT"`
+}
+
+type Twilio struct {
+	AccountSID       string `yaml:"ACCOUNT_SID" env:"ACCOUNT_SID"`
+	AuthToken        string `yaml:"AUTH_TOKEN" env:"AUTH_TOKEN"`
+	VerifyServiceSID string `yaml:"VERIFY_SERVICE_SID" env:"VERIFY_SID"`
 }
 
 func NewConfig(path string) (*Config, error) {
@@ -73,5 +80,11 @@ func (cfg *Config) SetDefaults() {
 		Level:  "info",
 		Output: "console",
 		Format: "json",
+	}
+
+	cfg.Twilio = Twilio{
+		AccountSID:       "your_account_sid",
+		AuthToken:        "your_auth_token",
+		VerifyServiceSID: "verify_service_sid",
 	}
 }

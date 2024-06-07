@@ -2,7 +2,6 @@ package response
 
 import (
 	"context"
-	"net/http"
 	"time"
 
 	"github.com/techx/portal/config"
@@ -23,9 +22,9 @@ type UserProfile struct {
 	Role              string     `json:"role"`
 }
 
-func NewUserProfileResponse(_ context.Context, _ config.Config, user domain.UserProfile) (UserProfile, http.Header) {
+func NewUserProfileResponse(_ context.Context, _ config.Config, user domain.UserProfile) (UserProfile, HTTPMetadata) {
 	respBody := getUserProfile(user)
-	return respBody, http.Header{}
+	return respBody, HTTPMetadata{}
 }
 
 func getUserProfile(user domain.UserProfile) UserProfile {

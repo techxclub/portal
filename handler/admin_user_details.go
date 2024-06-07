@@ -17,7 +17,7 @@ func AdminUserDetailsHandler(cfg config.Config, serviceRegistry *service.Registr
 		func(ctx context.Context, req request.BulkUserDetailsRequest) (*domain.Users, error) {
 			return serviceRegistry.UserService.GetUsers(ctx, req.ToDomainObject())
 		},
-		func(ctx context.Context, domainObj domain.Users) (response.BulkUserDetailsResponse, http.Header) {
+		func(ctx context.Context, domainObj domain.Users) (response.BulkUserDetailsResponse, response.HTTPMetadata) {
 			return response.NewBulkUserDetailsResponse(ctx, cfg, domainObj)
 		},
 	)

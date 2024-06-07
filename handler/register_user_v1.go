@@ -17,7 +17,7 @@ func RegisterUserV1Handler(cfg config.Config, serviceRegistry *service.Registry)
 		func(ctx context.Context, req request.RegisterUserV1Request) (*domain.UserProfile, error) {
 			return serviceRegistry.UserService.RegisterUser(ctx, req.ToUserDetails())
 		},
-		func(ctx context.Context, domainObj domain.UserProfile) (response.RegisterUserV1Response, http.Header) {
+		func(ctx context.Context, domainObj domain.UserProfile) (response.RegisterUserV1Response, response.HTTPMetadata) {
 			return response.NewRegisterUserV1Response(ctx, cfg, domainObj)
 		},
 	)

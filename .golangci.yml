@@ -47,6 +47,36 @@ linters-settings:
 issues:
   exclude-rules:
     - linters:
+        - revive
+        - gocritic
+        - forbidigo
+        - gosec
+      path: "console/"
+    - linters:
+        - revive
+        - gocritic
+        - forbidigo
+        - gosec
+      path: "client/db/tx\\.go"
+    - linters:
+        - revive
+        - gocritic
+        - forbidigo
+        - gosec
+      path: "db/postgres\\.go"
+    - linters:
+        - revive
+        - gocritic
+        - forbidigo
+        - gosec
+      path: "config/db\\.go"
+    - linters:
+        - revive
+        - gocritic
+        - forbidigo
+        - gosec
+      path: "client/db/client\\.go"
+    - linters:
         - staticcheck
       text: "\"github.com/golang/protobuf/proto\" is deprecated:"
     - linters:

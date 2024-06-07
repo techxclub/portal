@@ -2,7 +2,6 @@ package response
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/domain"
@@ -14,11 +13,11 @@ type RegisterUserV1Response struct {
 	UserID  string `json:"user_id"`
 }
 
-func NewRegisterUserV1Response(_ context.Context, _ config.Config, user domain.UserProfile) (RegisterUserV1Response, http.Header) {
+func NewRegisterUserV1Response(_ context.Context, _ config.Config, user domain.UserProfile) (RegisterUserV1Response, HTTPMetadata) {
 	respBody := RegisterUserV1Response{
 		Success: true,
 		UserID:  user.UserID,
 	}
 
-	return respBody, http.Header{}
+	return respBody, HTTPMetadata{}
 }
