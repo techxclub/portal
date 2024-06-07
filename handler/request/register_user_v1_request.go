@@ -2,10 +2,10 @@ package request
 
 import (
 	"encoding/json"
-	"net/http"
-
 	"github.com/techx/portal/domain"
 	"github.com/techx/portal/errors"
+	"net/http"
+	"net/mail"
 )
 
 type RegisterUserV1Request struct {
@@ -33,11 +33,19 @@ func (r RegisterUserV1Request) Validate() error {
 		return errors.New("invalid year of experience")
 	}
 
+	if _, err := mail.ParseAddress(r.PersonalEmail); err != nil {
+		return errors.New("invalid personal email")
+	}
+
+	if _, err := mail.ParseAddress(r.WorkEmail); err != nil {
+		return errors.New("invalid work email")
+	}
+
 	return nil
 }
 
-func (r RegisterUserV1Request) ToUserDetails() domain.User {
-	return domain.User{
+func (r RegisterUserV1Request) ToUserDetails() domain.UserProfile {
+	return domain.UserProfile{
 		FirstName:         r.FirstName,
 		LastName:          r.LastName,
 		YearsOfExperience: r.YearsOfExperience,
