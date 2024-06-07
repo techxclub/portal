@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/techx/portal/errors"
+	"github.com/techx/portal/handler/response"
 	"github.com/techx/portal/logger"
 )
 
@@ -28,11 +29,18 @@ type validator interface {
 func Handler[RequestType validator, DomainType, ResponseType any](
 	requestProcessor func(*http.Request) (*RequestType, error),
 	processor func(context.Context, RequestType) (*DomainType, error),
-	respProcessor func(context.Context, DomainType) (ResponseType, http.Header),
+	respProcessor func(context.Context, DomainType) (ResponseType, response.HTTPMetadata),
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		respBody, respHeaders, err := process(r, requestProcessor, processor, respProcessor)
-		setHeaders(w, respHeaders)
+		respBody, httpMetadata, err := process(r, requestProcessor, processor, respProcessor)
+		if httpMetadata.Headers != nil {
+			setHeaders(w, *httpMetadata.Headers)
+		}
+
+		if httpMetadata.Cookies != nil {
+			http.SetCookie(w, httpMetadata.Cookies)
+		}
+
 		if err != nil {
 			renderErrorResponse(r, w, err)
 			return
@@ -65,24 +73,24 @@ func process[RequestType validator, DomainType, ResponseType any](
 	r *http.Request,
 	requestProcessor func(*http.Request) (*RequestType, error),
 	processor func(context.Context, RequestType) (*DomainType, error),
-	respProcessor func(context.Context, DomainType) (ResponseType, http.Header),
-) (*ResponseType, http.Header, errors.ServiceError) {
+	respProcessor func(context.Context, DomainType) (ResponseType, response.HTTPMetadata),
+) (*ResponseType, response.HTTPMetadata, errors.ServiceError) {
 	req, err := requestProcessor(r)
 	if err != nil {
-		return nil, nil, errors.BadRequestError(err)
+		return nil, response.HTTPMetadata{}, errors.BadRequestError(err)
 	}
 
 	if err := (*req).Validate(); err != nil {
-		return nil, nil, errors.AsServiceError(err)
+		return nil, response.HTTPMetadata{}, errors.AsServiceError(err)
 	}
 
 	domainObj, err := processor(r.Context(), *req)
 	if err != nil {
-		return nil, nil, errors.AsServiceError(err)
+		return nil, response.HTTPMetadata{}, errors.AsServiceError(err)
 	}
 
-	respBody, respHeaders := respProcessor(r.Context(), *domainObj)
-	return &respBody, respHeaders, nil
+	respBody, metadata := respProcessor(r.Context(), *domainObj)
+	return &respBody, metadata, nil
 }
 
 func setHeaders(w http.ResponseWriter, respHeaders http.Header) {

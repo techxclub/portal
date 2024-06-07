@@ -15,7 +15,6 @@ type serviceError struct {
 	err                error
 	code               string
 	responseStatusCode int
-	annotation         string
 }
 
 func NewServiceError(code string, responseCode int, err error) ServiceError {

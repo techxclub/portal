@@ -37,9 +37,6 @@ const (
 	interUserQuery = `INSERT INTO users (user_id_num, user_id, created_time, first_name, last_name, years_of_experience, personal_email, work_email, phone_number, linkedin, role) VALUES (:user_id_num, :user_id, :created_time, :first_name, :last_name, :years_of_experience, :personal_email, :work_email, :phone_number, :linkedin, :role)`
 
 	getUserSelectorFields = `user_id_num, user_id, created_time, first_name, last_name, years_of_experience, personal_email, work_email, phone_number, linkedin, role`
-
-	getUserByPhoneQuery = `SELECT ` + getUserSelectorFields + ` FROM users WHERE phone_number = $1`
-	getUserByIDQuery    = `SELECT ` + getUserSelectorFields + ` FROM users WHERE user_id = $1`
 )
 
 func (u usersInfoBuilder) NextUserIDNum(ctx context.Context) (int64, error) {

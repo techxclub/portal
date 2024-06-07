@@ -85,13 +85,13 @@ db-create:  ##@database create db
 	createdb -h $(DB_HOST) -U $(DB_USER) -O$(DB_USER) -Eutf8 $(DB_NAME)
 
 db-migrate:  ##@database run migrations
-	$(APP_EXECUTABLE) migrate:run --config-file test.application.yml
+	$(APP_EXECUTABLE) migrate:run --config-file application.yml
 
 db-rollback:  ##@database rollback migrations
-	$(APP_EXECUTABLE) migrate:rollback --config-file test.application.yml
+	$(APP_EXECUTABLE) migrate:rollback --config-file application.yml
 
 db-create-migration: ##@database create a migration, profile FILENAME env var
-	$(APP_EXECUTABLE) migrate:create $(FILENAME) --config-file test.application.yml
+	$(APP_EXECUTABLE) migrate:create $(FILENAME) --config-file application.yml
 
 db-drop:  ##@database drop db
 	dropdb -h $(DB_HOST) -U $(DB_USER) --if-exists $(DB_NAME)
@@ -102,10 +102,13 @@ db-reset: db-drop db-create db-migrate  ##@database resets local db to fresh db
 # DEVELOPMENT	###########################################################################################
 
 run-local: ##@development runs a local server directly from source
-	go run cmd/portal/*.go start --config-file test.application.yml
+	go run cmd/portal/*.go start --config-file application.yml
 
 sample-config: ##@development generates sample.application.yml
 	go run cmd/portal/*.go generate-config --config-file sample.application.yml
+
+copy-config: ##@development copies sample.application.yml to application.yml
+	cp sample.application.yml application.yml
 
 lint: $(TOOLS_DIR)/golangci-lint ##@development runs linting using golangci-lint
 	$(TOOLS_DIR)/golangci-lint run --config=.golangci.yml

@@ -9,6 +9,15 @@ var (
 	Unwrap = errors.Unwrap
 )
 
+var (
+	ErrInvalidPhoneNumberFormat = NewServiceError("invalid_phone_number_format", 400, nil)
+	ErrInvalidPhoneNumber       = NewServiceError("invalid_phone_number", 400, nil)
+	ErrInvalidYearsOfExperience = NewServiceError("invalid_years_of_experience", 400, nil)
+	ErrInvalidWorkEmail         = NewServiceError("invalid_work_email", 400, nil)
+	ErrInvalidPersonalEmail     = NewServiceError("invalid_personal_email", 400, nil)
+	ErrOTPGenerateFailed        = NewServiceError("otp_generation_failed", 500, nil)
+)
+
 func BadRequestError(err error) ServiceError {
 	return &serviceError{
 		err:                err,

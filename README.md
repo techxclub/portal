@@ -18,7 +18,8 @@ Ensure `$GOPATH/bin` is in `$PATH`
 `git clone https://github.com/techxclub/portal.git`
 
 ## Dev Setup
-* Run `make ci`
+* Run `make copy-config` to create a local config file
+* Run `make db-reset` to setup db
 * Run `make run-local` to start the service on port 3000
 
 ## Testing

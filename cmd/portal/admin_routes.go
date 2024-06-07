@@ -8,16 +8,18 @@ import (
 )
 
 func addAdminRoutes(router *mux.Router, cfg config.Config, sr *service.Registry) {
-	//	swagger:route GET /admin/user/details admin adminDetails
+	adminRouter := router.PathPrefix("/admin").Subrouter()
+
+	//	swagger:route GET /admin/user/details admin bulkGetUsers
 	//	Responses:
-	//		200: AdminDetailsResponse
+	//		200: BulkUserDetailsResponse
 	//		401:
 	// 		400: ErrorResponse
 	//		422: ErrorResponse
 	//		500: ErrorResponse
 	//		503: ErrorResponse
-	router.
+	adminRouter.
 		Methods("GET").
-		Path("/admin/user/details").
+		Path("/user/details").
 		Handler(handler.AdminUserDetailsHandler(cfg, sr))
 }

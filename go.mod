@@ -7,9 +7,11 @@ require (
 	github.com/gorilla/mux v1.8.1
 	github.com/jackc/pgx/v5 v5.6.0
 	github.com/jmoiron/sqlx v1.4.0
+	github.com/nyaruka/phonenumbers v1.3.6
 	github.com/rs/zerolog v1.33.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/sonnes/go-envconfig v0.3.3
+	github.com/twilio/twilio-go v1.21.1
 	github.com/tylerb/graceful v1.2.15
 	github.com/urfave/cli/v2 v2.27.2
 	gopkg.in/yaml.v2 v2.4.0
@@ -17,6 +19,7 @@ require (
 
 require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.4 // indirect
+	github.com/golang/mock v1.6.0 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
@@ -37,4 +40,5 @@ require (
 	golang.org/x/sync v0.5.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
+	google.golang.org/protobuf v1.33.0 // indirect
 )

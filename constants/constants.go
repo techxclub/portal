@@ -11,4 +11,10 @@ const (
 	ParamLastName    = "last_name"
 	ParamCompany     = "company"
 	ParamRole        = "role"
+
+	// User authorization
+	AuthTypePhone    = "phone"
+	AuthTypeWhatsapp = "whatsapp"
+
+	TwilioChannelSMS = "sms"
 )

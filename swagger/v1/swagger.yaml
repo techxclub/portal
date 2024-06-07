@@ -1,4 +1,13 @@
 definitions:
+    BulkUserDetailsResponse:
+        properties:
+            users:
+                items:
+                    $ref: '#/definitions/UserProfile'
+                type: array
+                x-go-name: Users
+        type: object
+        x-go-package: github.com/techx/portal/handler/response
     ErrorDetails:
         properties:
             code:
@@ -21,6 +30,13 @@ definitions:
                 x-go-name: Errors
         type: object
         x-go-package: github.com/techx/portal/handler
+    GenerateOTPResponse:
+        properties:
+            success:
+                type: boolean
+                x-go-name: Success
+        type: object
+        x-go-package: github.com/techx/portal/handler/response
     RegisterUserV1Request:
         properties:
             first_name:
@@ -57,8 +73,12 @@ definitions:
                 x-go-name: UserID
         type: object
         x-go-package: github.com/techx/portal/handler/response
-    UserDetailsResponse:
+    UserProfile:
         properties:
+            created_at:
+                format: date-time
+                type: string
+                x-go-name: CreatedAt
             first_name:
                 type: string
                 x-go-name: FirstName
@@ -90,9 +110,9 @@ definitions:
         type: object
         x-go-package: github.com/techx/portal/handler/response
 paths:
-    /portal/user/details:
+    /admin/user/details:
         get:
-            operationId: userDetails
+            operationId: bulkGetUsers
             parameters:
                 - in: query
                   name: user_id
@@ -102,11 +122,55 @@ paths:
                   name: phone_number
                   type: string
                   x-go-name: PhoneNumber
+                - in: query
+                  name: first_name
+                  type: string
+                  x-go-name: FirstName
+                - in: query
+                  name: last_name
+                  type: string
+                  x-go-name: LastName
+                - in: query
+                  name: company
+                  type: string
+                  x-go-name: Company
+                - in: query
+                  name: role
+                  type: string
+                  x-go-name: Role
             responses:
                 "200":
-                    description: UserDetailsResponse
+                    description: BulkUserDetailsResponse
                     schema:
-                        $ref: '#/definitions/UserDetailsResponse'
+                        $ref: '#/definitions/BulkUserDetailsResponse'
+                "400":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "401":
+                    description: ""
+                "422":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "503":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            tags:
+                - admin
+    /public/auth/generate-otp/phone:
+        post:
+            operationId: generateOTP
+            responses:
+                "200":
+                    description: GenerateOTPResponse
+                    schema:
+                        $ref: '#/definitions/GenerateOTPResponse'
                 "400":
                     description: ErrorResponse
                     schema:
@@ -127,7 +191,44 @@ paths:
                         $ref: '#/definitions/ErrorResponse'
             tags:
                 - public
-    /portal/v1/register:
+    /public/user/profile:
+        get:
+            operationId: userProfile
+            parameters:
+                - in: query
+                  name: user_id
+                  type: string
+                  x-go-name: UserID
+                - in: query
+                  name: phone_number
+                  type: string
+                  x-go-name: PhoneNumber
+            responses:
+                "200":
+                    description: UserProfile
+                    schema:
+                        $ref: '#/definitions/UserProfile'
+                "400":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "401":
+                    description: ""
+                "422":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "503":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            tags:
+                - public
+    /public/user/register/v1:
         post:
             operationId: registerUserV1
             parameters:

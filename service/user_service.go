@@ -19,9 +19,9 @@ type userService struct {
 	registry *builder.Registry
 }
 
-func NewUserService(config config.Config, registry *builder.Registry) UserService {
+func NewUserService(cfg config.Config, registry *builder.Registry) UserService {
 	return &userService{
-		cfg:      config,
+		cfg:      cfg,
 		registry: registry,
 	}
 }

@@ -2,10 +2,11 @@ package request
 
 import (
 	"encoding/json"
-	"github.com/techx/portal/domain"
-	"github.com/techx/portal/errors"
 	"net/http"
 	"net/mail"
+
+	"github.com/techx/portal/domain"
+	"github.com/techx/portal/errors"
 )
 
 type RegisterUserV1Request struct {
@@ -30,18 +31,18 @@ func NewRegisterUserV1Request(r *http.Request) (*RegisterUserV1Request, error) {
 
 func (r RegisterUserV1Request) Validate() error {
 	if r.YearsOfExperience <= 0 {
-		return errors.New("invalid year of experience")
+		return errors.ErrInvalidYearsOfExperience
 	}
 
 	if _, err := mail.ParseAddress(r.PersonalEmail); err != nil {
-		return errors.New("invalid personal email")
+		return errors.ErrInvalidPersonalEmail
 	}
 
 	if _, err := mail.ParseAddress(r.WorkEmail); err != nil {
-		return errors.New("invalid work email")
+		return errors.ErrInvalidWorkEmail
 	}
 
-	return nil
+	return IsValidPhoneNumber(r.PhoneNumber)
 }
 
 func (r RegisterUserV1Request) ToUserDetails() domain.UserProfile {

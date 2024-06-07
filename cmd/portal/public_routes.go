@@ -8,7 +8,9 @@ import (
 )
 
 func addPublicRoutes(router *mux.Router, cfg config.Config, sr *service.Registry) {
-	//	swagger:route POST /portal/v1/register public registerUserV1
+	publicRouter := router.PathPrefix("/public").Subrouter()
+
+	//	swagger:route POST /public/user/register/v1 public registerUserV1
 	//	Responses:
 	//		200: RegisterUserV1Response
 	//		401:
@@ -16,21 +18,36 @@ func addPublicRoutes(router *mux.Router, cfg config.Config, sr *service.Registry
 	//		422: ErrorResponse
 	//		500: ErrorResponse
 	//		503: ErrorResponse
-	router.
+	publicRouter.
 		Methods("POST").
-		Path("/public/user/register/v1").
+		Path("/user/register/v1").
 		Handler(handler.RegisterUserV1Handler(cfg, sr))
 
-	//	swagger:route GET /portal/user/details public userDetails
+	//	swagger:route GET /public/user/profile public userProfile
 	//	Responses:
-	//		200: UserDetailsResponse
+	//		200: UserProfile
 	//		401:
 	// 		400: ErrorResponse
 	//		422: ErrorResponse
 	//		500: ErrorResponse
 	//		503: ErrorResponse
-	router.
+	publicRouter.
 		Methods("GET").
 		Path("/public/user/profile").
 		Handler(handler.UserProfileHandler(cfg, sr))
+
+	authRouter := publicRouter.PathPrefix("/auth/generate-otp").Subrouter()
+
+	//	swagger:route POST /public/auth/generate-otp/phone public generateOTP
+	//	Responses:
+	//		200: GenerateOTPResponse
+	//		401:
+	// 		400: ErrorResponse
+	//		422: ErrorResponse
+	//		500: ErrorResponse
+	//		503: ErrorResponse
+	authRouter.
+		Methods("POST").
+		Path("/phone").
+		Handler(handler.GenerateOTPHandler(cfg, sr, "phone"))
 }
