@@ -9,8 +9,9 @@ import (
 )
 
 type UserService interface {
-	RegisterUser(ctx context.Context, userDetails domain.User) (*domain.User, error)
-	UserDetails(ctx context.Context, req domain.UserDetailsRequest) (*domain.User, error)
+	RegisterUser(ctx context.Context, userDetails domain.UserProfile) (*domain.UserProfile, error)
+	GetProfile(ctx context.Context, req domain.UserProfileParams) (*domain.UserProfile, error)
+	GetUsers(ctx context.Context, req domain.UserProfileParams) (*domain.Users, error)
 }
 
 type userService struct {
@@ -25,7 +26,7 @@ func NewUserService(config config.Config, registry *builder.Registry) UserServic
 	}
 }
 
-func (u userService) RegisterUser(ctx context.Context, userDetails domain.User) (*domain.User, error) {
+func (u userService) RegisterUser(ctx context.Context, userDetails domain.UserProfile) (*domain.UserProfile, error) {
 	user, err := u.registry.UserInfoBuilder.CreateUser(ctx, userDetails)
 	if err != nil {
 		return nil, err
@@ -34,18 +35,20 @@ func (u userService) RegisterUser(ctx context.Context, userDetails domain.User) 
 	return user, nil
 }
 
-func (u userService) UserDetails(ctx context.Context, req domain.UserDetailsRequest) (*domain.User, error) {
-	getterFunc := u.registry.UserInfoBuilder.GetUserByID
-	selector := req.UserID
-	if req.Phone != "" {
-		getterFunc = u.registry.UserInfoBuilder.GetUserByPhone
-		selector = req.Phone
-	}
-
-	user, err := getterFunc(ctx, selector)
+func (u userService) GetProfile(ctx context.Context, params domain.UserProfileParams) (*domain.UserProfile, error) {
+	users, err := u.registry.UserInfoBuilder.GetUserForParams(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	return user, nil
+	return users, nil
+}
+
+func (u userService) GetUsers(ctx context.Context, params domain.UserProfileParams) (*domain.Users, error) {
+	users, err := u.registry.UserInfoBuilder.GetUsersForParams(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }

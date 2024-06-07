@@ -74,7 +74,7 @@ func Create(filename string) error {
 
 func Run() error {
 	err := appMigrate.Up()
-	if err != nil && err != migrate.ErrNoChange {
+	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		return err
 	}
 
@@ -84,7 +84,7 @@ func Run() error {
 
 func RollbackLatest() error {
 	err := appMigrate.Steps(-1)
-	if err != nil && err != migrate.ErrNoChange {
+	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		return err
 	}
 

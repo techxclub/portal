@@ -12,6 +12,7 @@ import (
 	"github.com/techx/portal/builder"
 	"github.com/techx/portal/client"
 	"github.com/techx/portal/config"
+	"github.com/techx/portal/errors"
 	"github.com/techx/portal/middleware"
 	"github.com/techx/portal/service"
 	"github.com/tylerb/graceful"
@@ -75,7 +76,7 @@ func (a *HTTPAPIServer) Start() {
 		log.Info().Msgf("[API.SERVER] PID %d. Starting server on %s", os.Getpid(), a.server.Addr)
 
 		err := a.server.ListenAndServe()
-		if err != nil && err != http.ErrServerClosed {
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatal().Msgf("[API.SERVER] Unhandled server shutdown: %s", err.Error())
 		}
 	}(a)

@@ -16,5 +16,6 @@ func NewRouter(cfg *config.Config, sr *service.Registry) *mux.Router {
 		http.Dir(cfg.Swagger.Path))))
 
 	addPublicRoutes(router, *cfg, sr)
+	addAdminRoutes(router, *cfg, sr)
 	return router
 }

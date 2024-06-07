@@ -14,7 +14,7 @@ type RegisterUserV1Response struct {
 	UserID  string `json:"user_id"`
 }
 
-func NewRegisterUserV1Response(_ context.Context, _ config.Config, user domain.User) (RegisterUserV1Response, http.Header) {
+func NewRegisterUserV1Response(_ context.Context, _ config.Config, user domain.UserProfile) (RegisterUserV1Response, http.Header) {
 	respBody := RegisterUserV1Response{
 		Success: true,
 		UserID:  user.UserID,
