@@ -13,8 +13,6 @@ const (
 	ParamRole        = "role"
 
 	// User authorization
-	AuthTypePhone    = "phone"
+	AuthTypeSMS      = "sms"
 	AuthTypeWhatsapp = "whatsapp"
-
-	TwilioChannelSMS = "sms"
 )

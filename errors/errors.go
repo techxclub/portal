@@ -16,6 +16,7 @@ var (
 	ErrInvalidWorkEmail         = NewServiceError("invalid_work_email", 400, nil)
 	ErrInvalidPersonalEmail     = NewServiceError("invalid_personal_email", 400, nil)
 	ErrOTPGenerateFailed        = NewServiceError("otp_generation_failed", 500, nil)
+	ErrOTPVerificationFailed    = NewServiceError("otp_verification_failed", 401, nil)
 )
 
 func BadRequestError(err error) ServiceError {

@@ -5,6 +5,11 @@ type OTPGeneration struct {
 	Value string
 }
 
+type OTPVerification struct {
+	Value string
+	Code  string
+}
+
 type AuthDetails struct {
-	Success bool
+	Status string
 }

@@ -9,11 +9,22 @@ import (
 
 // swagger:model
 type GenerateOTPResponse struct {
-	Success bool `json:"success"`
+	Status string `json:"status"`
 }
 
 func NewGenerateOTPResponse(_ context.Context, _ config.Config, authDetails domain.AuthDetails) (GenerateOTPResponse, HTTPMetadata) {
 	return GenerateOTPResponse{
-		Success: authDetails.Success,
+		Status: authDetails.Status,
+	}, HTTPMetadata{}
+}
+
+// swagger:model
+type VerifyOTPResponse struct {
+	Status string `json:"status"`
+}
+
+func NewVerifyOTPResponse(_ context.Context, _ config.Config, authDetails domain.AuthDetails) (VerifyOTPResponse, HTTPMetadata) {
+	return VerifyOTPResponse{
+		Status: authDetails.Status,
 	}, HTTPMetadata{}
 }

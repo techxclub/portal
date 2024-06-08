@@ -12,6 +12,7 @@ import (
 
 type AuthService interface {
 	GenerateOTP(ctx context.Context, detail domain.OTPGeneration) (*domain.AuthDetails, error)
+	VerifyOTP(ctx context.Context, detail domain.OTPVerification) (*domain.AuthDetails, error)
 }
 
 type authService struct {
@@ -27,11 +28,21 @@ func NewAuthService(cfg config.Config, registry *builder.Registry) AuthService {
 }
 
 func (s authService) GenerateOTP(ctx context.Context, detail domain.OTPGeneration) (*domain.AuthDetails, error) {
-	err := s.registry.UserAuthBuilder.GenerateOTP(ctx, detail)
+	authDetails, err := s.registry.UserAuthBuilder.GenerateOTP(ctx, detail)
 	if err != nil {
 		log.Err(err).Msg("Failed to generate OTP")
 		return nil, errors.ErrOTPGenerateFailed
 	}
 
-	return &domain.AuthDetails{Success: true}, nil
+	return authDetails, nil
+}
+
+func (s authService) VerifyOTP(ctx context.Context, detail domain.OTPVerification) (*domain.AuthDetails, error) {
+	authDetails, err := s.registry.UserAuthBuilder.VerifyOTP(ctx, detail)
+	if err != nil {
+		log.Err(err).Msg("Failed to verify OTP")
+		return nil, err
+	}
+
+	return authDetails, nil
 }
