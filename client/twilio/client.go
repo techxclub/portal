@@ -10,11 +10,6 @@ import (
 	verify "github.com/twilio/twilio-go/rest/verify/v2"
 )
 
-const (
-	statusPending  = "pending"
-	statusApproved = "approved"
-)
-
 type Client interface {
 	SendOTP(ctx context.Context, req CreateVerificationRequest) (CreateVerificationResponse, error)
 	VerifyOTP(ctx context.Context, req CheckVerificationRequest) (CheckVerificationResponse, error)
@@ -47,8 +42,8 @@ func (c client) SendOTP(_ context.Context, req CreateVerificationRequest) (Creat
 		return CreateVerificationResponse{}, err
 	}
 
-	if resp == nil || resp.Status == nil || *resp.Status != statusPending {
-		return CreateVerificationResponse{}, errors.ErrOTPGenerateFailed
+	if resp == nil || resp.Status == nil {
+		return CreateVerificationResponse{}, errors.ErrTwilioCreateVerification
 	}
 
 	return CreateVerificationResponse{
@@ -73,9 +68,10 @@ func (c client) VerifyOTP(_ context.Context, req CheckVerificationRequest) (Chec
 		return CheckVerificationResponse{}, err
 	}
 
-	if resp == nil || resp.Status == nil || *resp.Status != statusApproved {
-		return CheckVerificationResponse{}, errors.ErrOTPVerificationFailed
+	if resp == nil || resp.Status == nil {
+		return CheckVerificationResponse{}, errors.ErrTwilioCheckVerification
 	}
+
 	return CheckVerificationResponse{
 		To:                    utils.FromPtr(resp.To),
 		Channel:               utils.FromPtr(resp.Channel),

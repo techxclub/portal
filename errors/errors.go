@@ -15,8 +15,11 @@ var (
 	ErrInvalidYearsOfExperience = NewServiceError("invalid_years_of_experience", 400, nil)
 	ErrInvalidWorkEmail         = NewServiceError("invalid_work_email", 400, nil)
 	ErrInvalidPersonalEmail     = NewServiceError("invalid_personal_email", 400, nil)
+	ErrInvalidAuthChannel       = NewServiceError("invalid_auth_channel", 400, nil)
+	ErrTwilioCreateVerification = NewServiceError("twilio_create_verification_failed", 500, nil)
+	ErrTwilioCheckVerification  = NewServiceError("twilio_check_verification_failed", 500, nil)
+	ErrMissingOTP               = NewServiceError("otp_missing_otp", 500, nil)
 	ErrOTPGenerateFailed        = NewServiceError("otp_generation_failed", 500, nil)
-	ErrOTPVerificationFailed    = NewServiceError("otp_verification_failed", 401, nil)
 )
 
 func BadRequestError(err error) ServiceError {

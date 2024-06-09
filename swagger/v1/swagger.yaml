@@ -30,11 +30,30 @@ definitions:
                 x-go-name: Errors
         type: object
         x-go-package: github.com/techx/portal/handler
-    GenerateOTPResponse:
+    OTPRequest:
         properties:
-            success:
-                type: boolean
-                x-go-name: Success
+            channel:
+                type: string
+                x-go-name: Channel
+            otp:
+                type: string
+                x-go-name: OTP
+            value:
+                type: string
+                x-go-name: Value
+        type: object
+        x-go-package: github.com/techx/portal/handler/request
+    OTPResponse:
+        properties:
+            action:
+                type: string
+                x-go-name: Action
+            status:
+                type: string
+                x-go-name: Status
+            user_id:
+                type: string
+                x-go-name: UserID
         type: object
         x-go-package: github.com/techx/portal/handler/response
     RegisterUserV1Request:
@@ -163,14 +182,54 @@ paths:
                         $ref: '#/definitions/ErrorResponse'
             tags:
                 - admin
-    /public/auth/generate-otp/phone:
+    /public/auth/otp/generate:
         post:
             operationId: generateOTP
+            parameters:
+                - in: body
+                  name: OTPRequest
+                  required: true
+                  schema:
+                    $ref: '#/definitions/OTPRequest'
             responses:
                 "200":
-                    description: GenerateOTPResponse
+                    description: OTPResponse
                     schema:
-                        $ref: '#/definitions/GenerateOTPResponse'
+                        $ref: '#/definitions/OTPResponse'
+                "400":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "401":
+                    description: ""
+                "422":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "503":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            tags:
+                - public
+    /public/auth/otp/verify:
+        post:
+            operationId: verifyOTP
+            parameters:
+                - in: body
+                  name: OTPRequest
+                  required: true
+                  schema:
+                    $ref: '#/definitions/OTPRequest'
+            responses:
+                "200":
+                    description: OTPResponse
+                    schema:
+                        $ref: '#/definitions/OTPResponse'
                 "400":
                     description: ErrorResponse
                     schema:
@@ -236,12 +295,9 @@ paths:
                   name: X-Request-Trace-Id
                   type: string
                   x-go-name: RequestTraceID
-                - in: header
-                  name: X-User-Type
-                  type: string
-                  x-go-name: UserType
                 - in: body
                   name: RegisterUserV1Request
+                  required: true
                   schema:
                     $ref: '#/definitions/RegisterUserV1Request'
             responses:

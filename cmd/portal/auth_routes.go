@@ -10,9 +10,9 @@ import (
 func addAuthRoutes(router *mux.Router, cfg config.Config, sr *service.Registry) {
 	authRouter := router.PathPrefix("/public/auth").Subrouter()
 
-	//	swagger:route POST /public/auth/generate-otp/phone public generateOTP
+	//	swagger:route POST /public/auth/otp/generate public generateOTP
 	//	Responses:
-	//		200: GenerateOTPResponse
+	//		200: OTPResponse
 	//		401:
 	// 		400: ErrorResponse
 	//		422: ErrorResponse
@@ -20,12 +20,12 @@ func addAuthRoutes(router *mux.Router, cfg config.Config, sr *service.Registry) 
 	//		503: ErrorResponse
 	authRouter.
 		Methods("POST").
-		Path("/generate-otp/phone").
-		Handler(handler.GenerateOTPHandler(cfg, sr, "phone"))
+		Path("/otp/generate").
+		Handler(handler.GenerateOTPHandler(cfg, sr))
 
-	//	swagger:route POST /public/auth/verify-otp public verifyOTP
+	//	swagger:route POST /public/auth/otp/verify public verifyOTP
 	//	Responses:
-	//		200: VerifyOTPResponse
+	//		200: OTPResponse
 	//		401:
 	// 		400: ErrorResponse
 	//		422: ErrorResponse
@@ -33,6 +33,6 @@ func addAuthRoutes(router *mux.Router, cfg config.Config, sr *service.Registry) 
 	//		503: ErrorResponse
 	authRouter.
 		Methods("POST").
-		Path("/verify-otp").
+		Path("/otp/verify").
 		Handler(handler.VerifyOTPHandler(cfg, sr))
 }

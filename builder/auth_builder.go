@@ -7,29 +7,29 @@ import (
 	"github.com/techx/portal/domain"
 )
 
-type UserAuthBuilder interface {
-	GenerateOTP(ctx context.Context, params domain.OTPGeneration) (*domain.AuthDetails, error)
-	VerifyOTP(ctx context.Context, params domain.OTPVerification) (*domain.AuthDetails, error)
+type AuthBuilder interface {
+	GenerateOTP(ctx context.Context, params domain.AuthRequest) (domain.AuthInfo, error)
+	VerifyOTP(ctx context.Context, params domain.AuthRequest) (domain.AuthInfo, error)
 }
 
-type userAuthBuilder struct {
+type authBuilder struct {
 	twilioClient twilio.Client
 }
 
-func NewUserAuthBuilder(twilioClient twilio.Client) UserAuthBuilder {
-	return &userAuthBuilder{
+func NewAuthBuilder(twilioClient twilio.Client) AuthBuilder {
+	return &authBuilder{
 		twilioClient: twilioClient,
 	}
 }
 
-func (u userAuthBuilder) GenerateOTP(ctx context.Context, params domain.OTPGeneration) (*domain.AuthDetails, error) {
-	createOTPRequest := twilio.NewCreateVerificationRequest(params.Value, params.Type)
+func (u authBuilder) GenerateOTP(ctx context.Context, params domain.AuthRequest) (domain.AuthInfo, error) {
+	createOTPRequest := twilio.NewCreateVerificationRequest(params.Value, params.Channel)
 	resp, err := u.twilioClient.SendOTP(ctx, createOTPRequest)
-	return &domain.AuthDetails{Status: resp.Status}, err
+	return domain.AuthInfo{Status: resp.Status}, err
 }
 
-func (u userAuthBuilder) VerifyOTP(ctx context.Context, params domain.OTPVerification) (*domain.AuthDetails, error) {
-	verifyOTPRequest := twilio.NewCheckVerificationRequest(params.Value, params.Code)
+func (u authBuilder) VerifyOTP(ctx context.Context, params domain.AuthRequest) (domain.AuthInfo, error) {
+	verifyOTPRequest := twilio.NewCheckVerificationRequest(params.Value, params.OTP)
 	resp, err := u.twilioClient.VerifyOTP(ctx, verifyOTPRequest)
-	return &domain.AuthDetails{Status: resp.Status}, err
+	return domain.AuthInfo{Status: resp.Status}, err
 }
