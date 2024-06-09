@@ -25,3 +25,4 @@ TWILIO:
   ACCOUNT_SID: your_account_sid
   AUTH_TOKEN: your_auth_token
   VERIFY_SERVICE_SID: verify_service_sid
+THIRD_PARTY_SMS_PROVIDER: twilio

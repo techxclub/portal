@@ -13,6 +13,8 @@ type Config struct {
 	DB      DB            `yaml:"DB" env:",prefix=DB_"`
 	Log     Log           `yaml:"LOG" env:",prefix=LOG_"`
 	Twilio  Twilio        `yaml:"TWILIO" env:",prefix=TWILIO_"`
+
+	ThirdPartySmsProvider string `yaml:"THIRD_PARTY_SMS_PROVIDER" env:"THIRD_PARTY_SMS_PROVIDER"`
 }
 
 type Swagger struct {
@@ -87,4 +89,6 @@ func (cfg *Config) SetDefaults() {
 		AuthToken:        "your_auth_token",
 		VerifyServiceSID: "verify_service_sid",
 	}
+
+	cfg.ThirdPartySmsProvider = "twilio"
 }

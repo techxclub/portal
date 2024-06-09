@@ -29,7 +29,7 @@ func NewAuthService(cfg config.Config, registry *builder.Registry) AuthService {
 }
 
 func (s authService) GenerateOTP(ctx context.Context, otpGenerationDetail domain.AuthRequest) (*domain.AuthDetails, error) {
-	authInfo, err := s.registry.AuthBuilder.GenerateOTP(ctx, otpGenerationDetail)
+	authInfo, err := s.registry.MessageBuilder.SendMobileOTP(ctx, otpGenerationDetail)
 	if err != nil || authInfo.Status != constants.AuthStatusPending {
 		log.Err(err).Msg("Failed to generate OTP")
 		return nil, errors.ErrOTPGenerateFailed
@@ -42,7 +42,7 @@ func (s authService) GenerateOTP(ctx context.Context, otpGenerationDetail domain
 }
 
 func (s authService) VerifyUser(ctx context.Context, otpVerificationDetail domain.AuthRequest) (*domain.AuthDetails, error) {
-	authInfo, err := s.registry.AuthBuilder.VerifyOTP(ctx, otpVerificationDetail)
+	authInfo, err := s.registry.MessageBuilder.VerifyMobileOTP(ctx, otpVerificationDetail)
 	if err != nil {
 		log.Err(err).Msg("Failed to verify OTP")
 		return nil, err

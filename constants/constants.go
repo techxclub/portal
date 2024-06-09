@@ -12,6 +12,10 @@ const (
 	ParamCompany     = "company"
 	ParamRole        = "role"
 
+	// Third party sms service provider
+	ThirdPartyTwilio = "twilio"
+	ThirdPartMsg91   = "msg91"
+
 	// User authorization
 	AuthActionGenerate  = "GENERATE"
 	AuthActionVerify    = "VERIFY"
