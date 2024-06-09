@@ -13,8 +13,15 @@ const (
 	ParamRole        = "role"
 
 	// User authorization
-	AuthTypePhone    = "phone"
-	AuthTypeWhatsapp = "whatsapp"
+	AuthActionGenerate  = "GENERATE"
+	AuthActionVerify    = "VERIFY"
+	AuthChannelSMS      = "sms"
+	AuthChannelWhatsapp = "whatsapp"
+	AuthStatusApproved  = "approved"
+	AuthStatusPending   = "pending"
 
-	TwilioChannelSMS = "sms"
+	// Actions
+	ActionRetry  = "RETRY"
+	ActionLogIn  = "LOG_IN"
+	ActionSignUp = "SIGN_UP"
 )

@@ -8,13 +8,12 @@ import (
 type RegisterRequestHeader struct {
 	// in: header
 	RequestTraceID string `json:"X-Request-Trace-Id"`
-	// in: header
-	UserType string `json:"X-User-Type"`
 }
 
 // swagger:parameters registerUserV1
 type RegisterUserV1Request struct {
 	// in: body
+	// required: true
 	RegisterUserV1Request request.RegisterUserV1Request
 }
 
@@ -40,4 +39,18 @@ type BulkGetUsersRequestParams struct {
 	Company string `json:"company"`
 	// in: query
 	Role string `json:"role"`
+}
+
+// swagger:parameters generateOTP
+type GenerateOTPRequest struct {
+	// in: body
+	// required: true
+	OTPRequest request.OTPRequest
+}
+
+// swagger:parameters verifyOTP
+type VerifyOTPRequest struct {
+	// in: body
+	// required: true
+	OTPRequest request.OTPRequest
 }

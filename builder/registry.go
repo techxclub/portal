@@ -6,13 +6,13 @@ import (
 )
 
 type Registry struct {
+	AuthBuilder     AuthBuilder
 	UserInfoBuilder UserInfoBuilder
-	UserAuthBuilder UserAuthBuilder
 }
 
 func NewRegistry(_ config.Config, clientRegistry *client.Registry) *Registry {
 	return &Registry{
+		AuthBuilder:     NewAuthBuilder(clientRegistry.Twilio),
 		UserInfoBuilder: NewUsersInfoBuilder(clientRegistry.UsersDB),
-		UserAuthBuilder: NewUserAuthBuilder(clientRegistry.Twilio),
 	}
 }

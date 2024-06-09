@@ -35,19 +35,4 @@ func addPublicRoutes(router *mux.Router, cfg config.Config, sr *service.Registry
 		Methods("GET").
 		Path("/public/user/profile").
 		Handler(handler.UserProfileHandler(cfg, sr))
-
-	authRouter := publicRouter.PathPrefix("/auth/generate-otp").Subrouter()
-
-	//	swagger:route POST /public/auth/generate-otp/phone public generateOTP
-	//	Responses:
-	//		200: GenerateOTPResponse
-	//		401:
-	// 		400: ErrorResponse
-	//		422: ErrorResponse
-	//		500: ErrorResponse
-	//		503: ErrorResponse
-	authRouter.
-		Methods("POST").
-		Path("/phone").
-		Handler(handler.GenerateOTPHandler(cfg, sr, "phone"))
 }

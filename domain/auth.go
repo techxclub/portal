@@ -1,10 +1,16 @@
 package domain
 
-type OTPGeneration struct {
-	Type  string
-	Value string
+type AuthRequest struct {
+	Channel string
+	Value   string
+	OTP     string
 }
 
 type AuthDetails struct {
-	Success bool
+	UserInfo *UserProfile
+	AuthInfo AuthInfo
+}
+
+type AuthInfo struct {
+	Status string
 }

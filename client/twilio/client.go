@@ -4,17 +4,20 @@ import (
 	"context"
 
 	"github.com/techx/portal/config"
+	"github.com/techx/portal/errors"
+	"github.com/techx/portal/utils"
 	"github.com/twilio/twilio-go"
 	verify "github.com/twilio/twilio-go/rest/verify/v2"
 )
 
 type Client interface {
-	SendOTP(ctx context.Context, to, channel string) error
+	SendOTP(ctx context.Context, req CreateVerificationRequest) (CreateVerificationResponse, error)
+	VerifyOTP(ctx context.Context, req CheckVerificationRequest) (CheckVerificationResponse, error)
 }
 
 type client struct {
-	verifyServiceSID string
 	twilioClient     *twilio.RestClient
+	verifyServiceSID string
 }
 
 func NewTwilioClient(twilioConfig config.Twilio) Client {
@@ -24,16 +27,57 @@ func NewTwilioClient(twilioConfig config.Twilio) Client {
 	})
 
 	return &client{
-		verifyServiceSID: twilioConfig.VerifyServiceSID,
 		twilioClient:     twilioClient,
+		verifyServiceSID: twilioConfig.VerifyServiceSID,
 	}
 }
 
-func (c client) SendOTP(_ context.Context, to, channel string) error {
+func (c client) SendOTP(_ context.Context, req CreateVerificationRequest) (CreateVerificationResponse, error) {
 	params := &verify.CreateVerificationParams{}
-	params.SetTo(to)
-	params.SetChannel(channel)
+	params.SetTo(req.To)
+	params.SetChannel(req.Channel)
 
-	_, err := c.twilioClient.VerifyV2.CreateVerification(c.verifyServiceSID, params)
-	return err
+	resp, err := c.twilioClient.VerifyV2.CreateVerification(c.verifyServiceSID, params)
+	if err != nil {
+		return CreateVerificationResponse{}, err
+	}
+
+	if resp == nil || resp.Status == nil {
+		return CreateVerificationResponse{}, errors.ErrTwilioCreateVerification
+	}
+
+	return CreateVerificationResponse{
+		To:               utils.FromPtr(resp.To),
+		Channel:          utils.FromPtr(resp.Channel),
+		Status:           utils.FromPtr(resp.Status),
+		Lookup:           resp.Lookup,
+		SendCodeAttempts: *resp.SendCodeAttempts,
+		DateCreated:      resp.DateCreated,
+		DateUpdated:      resp.DateUpdated,
+		URL:              utils.FromPtr(resp.Url),
+	}, nil
+}
+
+func (c client) VerifyOTP(_ context.Context, req CheckVerificationRequest) (CheckVerificationResponse, error) {
+	params := &verify.CreateVerificationCheckParams{}
+	params.SetTo(req.From)
+	params.SetCode(req.OTP)
+
+	resp, err := c.twilioClient.VerifyV2.CreateVerificationCheck(c.verifyServiceSID, params)
+	if err != nil {
+		return CheckVerificationResponse{}, err
+	}
+
+	if resp == nil || resp.Status == nil {
+		return CheckVerificationResponse{}, errors.ErrTwilioCheckVerification
+	}
+
+	return CheckVerificationResponse{
+		To:                    utils.FromPtr(resp.To),
+		Channel:               utils.FromPtr(resp.Channel),
+		Status:                utils.FromPtr(resp.Status),
+		DateCreated:           resp.DateCreated,
+		DateUpdated:           resp.DateUpdated,
+		SnaAttemptsErrorCodes: resp.SnaAttemptsErrorCodes,
+	}, nil
 }
