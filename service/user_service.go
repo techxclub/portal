@@ -12,6 +12,7 @@ type UserService interface {
 	RegisterUser(ctx context.Context, userDetails domain.UserProfile) (*domain.UserProfile, error)
 	GetProfile(ctx context.Context, req domain.UserProfileParams) (*domain.UserProfile, error)
 	GetUsers(ctx context.Context, req domain.UserProfileParams) (*domain.Users, error)
+	GetCompanies(ctx context.Context) (*domain.Companies, error)
 }
 
 type userService struct {
@@ -27,7 +28,7 @@ func NewUserService(cfg config.Config, registry *builder.Registry) UserService {
 }
 
 func (u userService) RegisterUser(ctx context.Context, userDetails domain.UserProfile) (*domain.UserProfile, error) {
-	user, err := u.registry.UserInfoBuilder.CreateUser(ctx, userDetails)
+	user, err := u.registry.UsersRepo.CreateUser(ctx, userDetails)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +37,7 @@ func (u userService) RegisterUser(ctx context.Context, userDetails domain.UserPr
 }
 
 func (u userService) GetProfile(ctx context.Context, params domain.UserProfileParams) (*domain.UserProfile, error) {
-	users, err := u.registry.UserInfoBuilder.GetUserForParams(ctx, params)
+	users, err := u.registry.UsersRepo.GetUserForParams(ctx, params)
 	if err != nil {
 		return nil, err
 	}
@@ -45,10 +46,19 @@ func (u userService) GetProfile(ctx context.Context, params domain.UserProfilePa
 }
 
 func (u userService) GetUsers(ctx context.Context, params domain.UserProfileParams) (*domain.Users, error) {
-	users, err := u.registry.UserInfoBuilder.GetUsersForParams(ctx, params)
+	users, err := u.registry.UsersRepo.GetUsersForParams(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
 	return users, nil
+}
+
+func (u userService) GetCompanies(ctx context.Context) (*domain.Companies, error) {
+	companies, err := u.registry.UsersRepo.GetCompanies(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return companies, nil
 }

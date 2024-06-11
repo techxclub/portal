@@ -6,14 +6,16 @@ import (
 )
 
 type Registry struct {
-	UserService UserService
-	AuthService AuthService
+	UserService     UserService
+	AuthService     AuthService
+	ReferralService ReferralService
 }
 
 func NewRegistry(cfg config.Config, builderRegistry *builder.Registry) *Registry {
 	registry := &Registry{
-		UserService: NewUserService(cfg, builderRegistry),
-		AuthService: NewAuthService(cfg, builderRegistry),
+		UserService:     NewUserService(cfg, builderRegistry),
+		AuthService:     NewAuthService(cfg, builderRegistry),
+		ReferralService: NewReferralService(cfg, builderRegistry),
 	}
 	return registry
 }

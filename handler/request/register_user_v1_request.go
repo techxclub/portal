@@ -2,6 +2,7 @@ package request
 
 import (
 	"encoding/json"
+	"github.com/techx/portal/constants"
 	"net/http"
 	"net/mail"
 
@@ -10,8 +11,8 @@ import (
 )
 
 type RegisterUserV1Request struct {
-	FirstName         string  `json:"first_name"`
-	LastName          string  `json:"last_name"`
+	Name              string  `json:"name"`
+	Company           string  `json:"company"`
 	YearsOfExperience float32 `json:"years_of_experience"`
 	PersonalEmail     string  `json:"personal_email"`
 	WorkEmail         string  `json:"work_email"`
@@ -47,12 +48,13 @@ func (r RegisterUserV1Request) Validate() error {
 
 func (r RegisterUserV1Request) ToUserDetails() domain.UserProfile {
 	return domain.UserProfile{
-		FirstName:         r.FirstName,
-		LastName:          r.LastName,
+		Name:              r.Name,
+		Company:           r.Company,
 		YearsOfExperience: r.YearsOfExperience,
 		PersonalEmail:     r.PersonalEmail,
 		WorkEmail:         r.WorkEmail,
 		PhoneNumber:       r.PhoneNumber,
 		LinkedIn:          r.LinkedIn,
+		Role:              constants.RoleViewer,
 	}
 }

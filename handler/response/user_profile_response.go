@@ -12,8 +12,8 @@ import (
 type UserProfile struct {
 	UserID            string     `json:"user_id"`
 	CreatedAt         *time.Time `json:"created_at"`
-	FirstName         string     `json:"first_name"`
-	LastName          string     `json:"last_name"`
+	Name              string     `json:"name"`
+	Company           string     `json:"company"`
 	YearsOfExperience float32    `json:"years_of_experience"`
 	PersonalEmail     string     `json:"personal_email"`
 	WorkEmail         string     `json:"work_email"`
@@ -31,8 +31,8 @@ func getUserProfile(user domain.UserProfile) UserProfile {
 	return UserProfile{
 		UserID:            user.UserID,
 		CreatedAt:         user.CreatedAt,
-		FirstName:         user.FirstName,
-		LastName:          user.LastName,
+		Name:              user.Name,
+		Company:           user.Company,
 		YearsOfExperience: user.YearsOfExperience,
 		PersonalEmail:     user.PersonalEmail,
 		WorkEmail:         user.WorkEmail,

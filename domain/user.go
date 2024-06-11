@@ -12,8 +12,8 @@ type UserProfile struct {
 	UserIDNum         int64      `db:"user_id_num"` // Only for internal use
 	UserID            string     `db:"user_id"`
 	CreatedAt         *time.Time `db:"created_time"`
-	FirstName         string     `db:"first_name"`
-	LastName          string     `db:"last_name"`
+	Name              string     `db:"name"`
+	Company           string     `db:"company"`
 	YearsOfExperience float32    `db:"years_of_experience"`
 	PersonalEmail     string     `db:"personal_email"`
 	WorkEmail         string     `db:"work_email"`
@@ -25,8 +25,7 @@ type UserProfile struct {
 type UserProfileParams struct {
 	UserID      string
 	PhoneNumber string
-	FirstName   string
-	LastName    string
+	Name        string
 	Company     string
 	Role        string
 }
@@ -35,8 +34,7 @@ func (p UserProfileParams) ToMap() map[string]string {
 	return map[string]string{
 		constants.ParamUserID:      p.UserID,
 		constants.ParamPhoneNumber: p.PhoneNumber,
-		constants.ParamFirstName:   p.FirstName,
-		constants.ParamLastName:    p.LastName,
+		constants.ParamName:        p.Name,
 		constants.ParamCompany:     p.Company,
 		constants.ParamRole:        p.Role,
 	}

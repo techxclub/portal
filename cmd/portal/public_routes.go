@@ -33,6 +33,45 @@ func addPublicRoutes(router *mux.Router, cfg config.Config, sr *service.Registry
 	//		503: ErrorResponse
 	publicRouter.
 		Methods("GET").
-		Path("/public/user/profile").
+		Path("/user/profile").
 		Handler(handler.UserProfileHandler(cfg, sr))
+
+	//	swagger:route Post /public/user/referral/request public userProfile
+	//	Responses:
+	//		200: UserProfile
+	//		401:
+	// 		400: ErrorResponse
+	//		422: ErrorResponse
+	//		500: ErrorResponse
+	//		503: ErrorResponse
+	publicRouter.
+		Methods("POST").
+		Path("/user/referral/request").
+		Handler(handler.ReferralHandler(cfg, sr))
+
+	//	swagger:route GET /public/company/list public companyList
+	//	Responses:
+	//		200: CompanyList
+	//		401:
+	// 		400: ErrorResponse
+	//		422: ErrorResponse
+	//		500: ErrorResponse
+	//		503: ErrorResponse
+	publicRouter.
+		Methods("GET").
+		Path("/company/list").
+		Handler(handler.CompanyListHandler(cfg, sr))
+
+	//	swagger:route GET /public/company/users/list public companyUsersList
+	//	Responses:
+	//		200: CompanyUsersList
+	//		401:
+	// 		400: ErrorResponse
+	//		422: ErrorResponse
+	//		500: ErrorResponse
+	//		503: ErrorResponse
+	publicRouter.
+		Methods("GET").
+		Path("/company/users/list").
+		Handler(handler.CompanyUsersListHandler(cfg, sr))
 }
