@@ -10,8 +10,7 @@ import (
 type BaseUserDetailsRequest struct {
 	UserID      string
 	PhoneNumber string
-	FirstName   string
-	LastName    string
+	Name        string
 	Company     string
 	Role        string
 }
@@ -50,8 +49,7 @@ type BulkUserDetailsRequest struct {
 func NewBulkUserDetailsRequest(r *http.Request) (*BulkUserDetailsRequest, error) {
 	userID := r.URL.Query().Get(constants.ParamUserID)
 	phoneNumber := r.URL.Query().Get(constants.ParamPhoneNumber)
-	firstName := r.URL.Query().Get(constants.ParamFirstName)
-	lastName := r.URL.Query().Get(constants.ParamLastName)
+	name := r.URL.Query().Get(constants.ParamName)
 	Company := r.URL.Query().Get(constants.ParamCompany)
 	Role := r.URL.Query().Get(constants.ParamRole)
 
@@ -59,8 +57,7 @@ func NewBulkUserDetailsRequest(r *http.Request) (*BulkUserDetailsRequest, error)
 		BaseUserDetailsRequest{
 			UserID:      userID,
 			PhoneNumber: phoneNumber,
-			FirstName:   firstName,
-			LastName:    lastName,
+			Name:        name,
 			Company:     Company,
 			Role:        Role,
 		},
@@ -75,8 +72,7 @@ func (g BulkUserDetailsRequest) ToDomainObject() domain.UserProfileParams {
 	return domain.UserProfileParams{
 		UserID:      g.UserID,
 		PhoneNumber: g.PhoneNumber,
-		FirstName:   g.FirstName,
-		LastName:    g.LastName,
+		Name:        g.Name,
 		Company:     g.Company,
 		Role:        g.Role,
 	}

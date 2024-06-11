@@ -32,9 +32,7 @@ type BulkGetUsersRequestParams struct {
 	// in: query
 	PhoneNumber string `json:"phone_number"`
 	// in: query
-	FirstName string `json:"first_name"`
-	// in: query
-	LastName string `json:"last_name"`
+	Name string `json:"name"`
 	// in: query
 	Company string `json:"company"`
 	// in: query

@@ -8,8 +8,8 @@ import (
 )
 
 type Registry struct {
-	UsersDB *db.Repository
-	Twilio  twilio.Client
+	DB     *db.Repository
+	Twilio twilio.Client
 }
 
 func NewRegistry(cfg config.Config) *Registry {
@@ -21,7 +21,7 @@ func NewRegistry(cfg config.Config) *Registry {
 	twilioClient := twilio.NewTwilioClient(cfg.Twilio)
 
 	return &Registry{
-		UsersDB: usersDB,
-		Twilio:  twilioClient,
+		DB:     usersDB,
+		Twilio: twilioClient,
 	}
 }

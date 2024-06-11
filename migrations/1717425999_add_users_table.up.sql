@@ -1,8 +1,8 @@
 CREATE TABLE users
 (
-    user_id             VARCHAR(50)              NOT NULL UNIQUE PRIMARY KEY,
-    first_name          VARCHAR(100),
-    last_name           VARCHAR(100),
+    user_id             uuid PRIMARY KEY                  DEFAULT uuid_generate_v4(),
+    name                VARCHAR(100),
+    company             VARCHAR(100)             NOT NULL,
     years_of_experience FLOAT,
     personal_email      VARCHAR(255)             NOT NULL UNIQUE,
     work_email          VARCHAR(255)             NOT NULL UNIQUE,
@@ -16,4 +16,4 @@ CREATE INDEX IF NOT EXISTS users_userid_idx ON users(user_id);
 CREATE INDEX IF NOT EXISTS users_phone_idx ON users(phone_number);
 CREATE INDEX IF NOT EXISTS users_personalemail_idx ON users(personal_email);
 CREATE INDEX IF NOT EXISTS users_workemail_idx ON users(work_email);
-CREATE INDEX IF NOT EXISTS users_createdat_idx ON users(created_time);
+CREATE INDEX IF NOT EXISTS users_createdtime_idx ON users(created_time);

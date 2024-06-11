@@ -4,11 +4,12 @@ const (
 	TableNameUsers = "users"
 	RoleViewer     = "VIEWER"
 
+	//
+
 	// User Info Params
 	ParamUserID      = "user_id"
 	ParamPhoneNumber = "phone_number"
-	ParamFirstName   = "first_name"
-	ParamLastName    = "last_name"
+	ParamName        = "name"
 	ParamCompany     = "company"
 	ParamRole        = "role"
 
@@ -28,4 +29,7 @@ const (
 	ActionRetry  = "RETRY"
 	ActionLogIn  = "LOG_IN"
 	ActionSignUp = "SIGN_UP"
+
+	//	Referral status
+	ReferralStatusPending = "PENDING"
 )

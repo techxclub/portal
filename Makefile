@@ -91,7 +91,7 @@ db-rollback:  ##@database rollback migrations
 	$(APP_EXECUTABLE) migrate:rollback --config-file application.yml
 
 db-create-migration: ##@database create a migration, profile FILENAME env var
-	$(APP_EXECUTABLE) migrate:create $(FILENAME) --config-file application.yml
+	$(APP_EXECUTABLE) migrate:create --migration-name $(FILENAME) --config-file application.yml
 
 db-drop:  ##@database drop db
 	dropdb -h $(DB_HOST) -U $(DB_USER) --if-exists $(DB_NAME)
