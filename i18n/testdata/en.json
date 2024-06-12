@@ -1,17 +1,20 @@
 {
-    "msg_needs_translation": {
-        "other": "This message needs translation"
+    "test_user": {
+        "other": "User test passed!"
     },
-    "congrats": {
-        "other": "Congratulations!"
+    "test_user_title": {
+        "other": "User title test passed!"
     },
-    "invalid_user_message": {
-        "other": "Couldn't fetch user profile"
+    "test_user_message": {
+        "other": "User message test passed!"
     },
-    "invalid_user_title": {
-        "other": "Invalid user title"
+    "test_user_with_template": {
+        "other": "{{.User}} test passed!"
     },
-    "invalid_user_subtitle": {
-        "other": "Invalid user subtitle"
+    "test_user_with_template_title": {
+        "other": "{{.User}} title test passed!"
+    },
+    "test_user_with_template_message": {
+        "other": "{{.User}} message test passed!"
     }
 }

@@ -65,29 +65,33 @@ func Initialize(cfg config.Translation) {
 	}
 }
 
-func Title(ctx context.Context, key string, args ...interface{}) string {
-	locale := apicontext.RequestContextFromContext(ctx).GetLocale()
-	return Translate(locale, getTitleKey(key), args...)
-}
-
-func Message(ctx context.Context, key string, args ...interface{}) string {
-	locale := apicontext.RequestContextFromContext(ctx).GetLocale()
-	return Translate(locale, getMessageKey(key), args...)
-}
-
 func HasTitle(ctx context.Context, key string) bool {
 	return Title(ctx, key) != getTitleKey(key)
 }
 
-func Translate(language, key string, args ...interface{}) string {
+func Title(ctx context.Context, key string, args ...map[string]interface{}) string {
+	return Translate(ctx, getTitleKey(key), args...)
+}
+
+func Message(ctx context.Context, key string, args ...map[string]interface{}) string {
+	return Translate(ctx, getMessageKey(key), args...)
+}
+
+func Translate(ctx context.Context, key string, args ...map[string]interface{}) string {
+	locale := apicontext.RequestContextFromContext(ctx).GetLocale()
 	localizerConfig := &i18n.LocalizeConfig{
+		MessageID: key,
 		DefaultMessage: &i18n.Message{
 			ID:    key,
 			Other: key,
 		},
-		TemplateData: args,
 	}
-	localizer := i18n.NewLocalizer(translator.bundle, language)
+
+	if len(args) > 0 && args[0] != nil {
+		localizerConfig.TemplateData = args[0]
+	}
+
+	localizer := i18n.NewLocalizer(translator.bundle, locale)
 	translation, err := localizer.Localize(localizerConfig)
 	if err != nil {
 		log.Error().Err(err).Msgf("error translating key: %s", key)

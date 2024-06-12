@@ -13,6 +13,7 @@ import (
 	"github.com/techx/portal/client"
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/errors"
+	"github.com/techx/portal/i18n"
 	"github.com/techx/portal/middleware"
 	"github.com/techx/portal/service"
 	"github.com/tylerb/graceful"
@@ -108,6 +109,9 @@ func startAPIServer(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
+
+	// init i18n
+	i18n.Initialize(applicationContext.Config.Translation)
 
 	// init registry
 	clientRegistry := client.NewRegistry(*applicationContext.Config)
