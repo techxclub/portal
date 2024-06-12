@@ -2,9 +2,10 @@ package request
 
 import (
 	"encoding/json"
+	"net/http"
+
 	"github.com/techx/portal/domain"
 	"github.com/techx/portal/errors"
-	"net/http"
 )
 
 type CompanyUsersListRequest struct {
@@ -25,7 +26,6 @@ func NewCompanyUsersListRequest(r *http.Request) (*CompanyUsersListRequest, erro
 func (r CompanyUsersListRequest) Validate() error {
 	if r.CompanyName == "" {
 		return errors.New("Company name is required")
-
 	}
 
 	return nil

@@ -10,11 +10,11 @@ import (
 )
 
 const (
-	insertReferralQuery = `INSERT INTO referrals (requester_user_id, provider_user_id, job_link, status, created_time) VALUES (:requester_user_id, :provider_user_id, :job_link, :status, :created_time) RETURNING id`
+	insertReferralQuery = `INSERT INTO referrals (requester_user_id, provider_user_id, company, job_link, status, created_time) VALUES (:requester_user_id, :provider_user_id, :company, :job_link, :status, :created_time) RETURNING id, created_time`
 )
 
 type ReferralsRepo interface {
-	CreateReferral(ctx context.Context, referral domain.Referral) (*domain.Referral, error)
+	CreateReferral(ctx context.Context, referral domain.ReferralParams) (*domain.Referral, error)
 }
 
 type referralsRepo struct {
@@ -22,7 +22,8 @@ type referralsRepo struct {
 }
 
 type ReferralsReturning struct {
-	ID string `db:"id"`
+	ID        string    `db:"id"`
+	CreatedAt time.Time `db:"created_time"`
 }
 
 func NewReferralsRepo(dbClient *db.Repository) ReferralsRepo {
@@ -31,15 +32,16 @@ func NewReferralsRepo(dbClient *db.Repository) ReferralsRepo {
 	}
 }
 
-func (r referralsRepo) CreateReferral(ctx context.Context, referral domain.Referral) (*domain.Referral, error) {
+func (r referralsRepo) CreateReferral(ctx context.Context, params domain.ReferralParams) (*domain.Referral, error) {
 	var returning ReferralsReturning
 	err := r.dbClient.TxRunner.RunInTxContext(ctx, func(tx *sqlx.Tx) error {
 		now := time.Now()
 		return r.dbClient.DBNamedExecReturningInTx(ctx, tx, &returning, insertReferralQuery, map[string]interface{}{
-			"requester_user_id": referral.RequesterUserID,
-			"provider_user_id":  referral.ProviderUserID,
-			"job_link":          referral.JobLink,
-			"status":            referral.Status,
+			"requester_user_id": params.RequesterUserID,
+			"provider_user_id":  params.ProviderUserID,
+			"company":           params.Company,
+			"job_link":          params.JobLink,
+			"status":            params.Status,
 			"created_time":      now,
 		})
 	})
@@ -47,6 +49,15 @@ func (r referralsRepo) CreateReferral(ctx context.Context, referral domain.Refer
 		return nil, err
 	}
 
-	referral.ID = returning.ID
+	referral := domain.Referral{
+		ID:              returning.ID,
+		RequesterUserID: params.RequesterUserID,
+		ProviderUserID:  params.ProviderUserID,
+		Company:         params.Company,
+		JobLink:         params.JobLink,
+		Status:          params.Status,
+		CreatedAt:       &returning.CreatedAt,
+	}
+
 	return &referral, nil
 }

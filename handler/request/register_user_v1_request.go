@@ -2,10 +2,10 @@ package request
 
 import (
 	"encoding/json"
-	"github.com/techx/portal/constants"
 	"net/http"
 	"net/mail"
 
+	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
 	"github.com/techx/portal/errors"
 )

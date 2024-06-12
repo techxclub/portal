@@ -7,14 +7,14 @@ import (
 var cfg *Config
 
 type Config struct {
-	AppName string        `yaml:"APP_NAME" env:"APP_NAME"`
-	API     HTTPAPIConfig `yaml:"API" env:",prefix=API_"`
-	Swagger Swagger       `yaml:"SWAGGER" env:",prefix=SWAGGER_"`
-	DB      DB            `yaml:"DB" env:",prefix=DB_"`
-	Log     Log           `yaml:"LOG" env:",prefix=LOG_"`
-	Twilio  Twilio        `yaml:"TWILIO" env:",prefix=TWILIO_"`
-
-	ThirdPartySmsProvider string `yaml:"THIRD_PARTY_SMS_PROVIDER" env:"THIRD_PARTY_SMS_PROVIDER"`
+	AppName               string        `yaml:"APP_NAME" env:"APP_NAME"`
+	API                   HTTPAPIConfig `yaml:"API" env:",prefix=API_"`
+	Swagger               Swagger       `yaml:"SWAGGER" env:",prefix=SWAGGER_"`
+	DB                    DB            `yaml:"DB" env:",prefix=DB_"`
+	Log                   Log           `yaml:"LOG" env:",prefix=LOG_"`
+	Twilio                Twilio        `yaml:"TWILIO" env:",prefix=TWILIO_"`
+	GMail                 GMail         `yaml:"GMAIL" env:",prefix=GMAIL_"`
+	ThirdPartySmsProvider string        `yaml:"THIRD_PARTY_SMS_PROVIDER" env:"THIRD_PARTY_SMS_PROVIDER"`
 }
 
 type Swagger struct {
@@ -37,6 +37,14 @@ type Twilio struct {
 	AccountSID       string `yaml:"ACCOUNT_SID" env:"ACCOUNT_SID"`
 	AuthToken        string `yaml:"AUTH_TOKEN" env:"AUTH_TOKEN"`
 	VerifyServiceSID string `yaml:"VERIFY_SERVICE_SID" env:"VERIFY_SID"`
+}
+
+type GMail struct {
+	SMTPServer   string `yaml:"SMTP_SERVER" env:"SMTP_SERVER"`
+	SMTPPort     int    `yaml:"SMTP_PORT" env:"SMTP_PORT"`
+	SMTPUsername string `yaml:"SMTP_USERNAME" env:"SMTP_USERNAME"`
+	SMTPPassword string `yaml:"SMTP_PASSWORD" env:"SMTP_PASSWORD"`
+	From         string `yaml:"FROM" env:"FROM"`
 }
 
 func NewConfig(path string) (*Config, error) {
@@ -91,4 +99,12 @@ func (cfg *Config) SetDefaults() {
 	}
 
 	cfg.ThirdPartySmsProvider = "twilio"
+
+	cfg.GMail = GMail{
+		SMTPServer:   "smtp.gmail.com",
+		SMTPPort:     587,
+		SMTPUsername: "username",
+		SMTPPassword: "password",
+		From:         "user.name@gmail.com",
+	}
 }
