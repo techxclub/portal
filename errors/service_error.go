@@ -7,6 +7,8 @@ import (
 type ServiceError interface {
 	error
 	GetCode() string
+	GetI18nKey() string
+	GetI18nValues() map[string]interface{}
 	GetResponseStatus() int
 	UnWrap() error
 }
@@ -14,6 +16,8 @@ type ServiceError interface {
 type serviceError struct {
 	err                error
 	code               string
+	i18nKey            string
+	i18nValues         map[string]interface{}
 	responseStatusCode int
 }
 
@@ -21,6 +25,7 @@ func NewServiceError(code string, responseCode int, err error) ServiceError {
 	return &serviceError{
 		err:                err,
 		code:               code,
+		i18nKey:            code,
 		responseStatusCode: responseCode,
 	}
 }
@@ -34,6 +39,14 @@ func (e *serviceError) Error() string {
 
 func (e *serviceError) GetCode() string {
 	return e.code
+}
+
+func (e *serviceError) GetI18nKey() string {
+	return e.i18nKey
+}
+
+func (e *serviceError) GetI18nValues() map[string]interface{} {
+	return e.i18nValues
 }
 
 func (e *serviceError) GetResponseStatus() int {

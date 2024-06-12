@@ -1,10 +1,9 @@
 package constants
 
 const (
-	TableNameUsers = "users"
-	RoleViewer     = "VIEWER"
-
-	//
+	DefaultLanguage = "en"
+	TableNameUsers  = "users"
+	RoleViewer      = "VIEWER"
 
 	// User Info Params
 	ParamUserID      = "user_id"

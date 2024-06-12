@@ -7,19 +7,27 @@ import (
 var cfg *Config
 
 type Config struct {
-	AppName               string        `yaml:"APP_NAME" env:"APP_NAME"`
-	API                   HTTPAPIConfig `yaml:"API" env:",prefix=API_"`
-	Swagger               Swagger       `yaml:"SWAGGER" env:",prefix=SWAGGER_"`
-	DB                    DB            `yaml:"DB" env:",prefix=DB_"`
-	Log                   Log           `yaml:"LOG" env:",prefix=LOG_"`
-	Twilio                Twilio        `yaml:"TWILIO" env:",prefix=TWILIO_"`
-	GMail                 GMail         `yaml:"GMAIL" env:",prefix=GMAIL_"`
-	ThirdPartySmsProvider string        `yaml:"THIRD_PARTY_SMS_PROVIDER" env:"THIRD_PARTY_SMS_PROVIDER"`
+	AppName     string        `yaml:"APP_NAME" env:"APP_NAME"`
+	API         HTTPAPIConfig `yaml:"API" env:",prefix=API_"`
+	Swagger     Swagger       `yaml:"SWAGGER" env:",prefix=SWAGGER_"`
+	Translation Translation   `yaml:"TRANSLATION" env:",prefix=TRANSLATION_"`
+
+	DB     DB     `yaml:"DB" env:",prefix=DB_"`
+	Log    Log    `yaml:"LOG" env:",prefix=LOG_"`
+	Twilio Twilio `yaml:"TWILIO" env:",prefix=TWILIO_"`
+	GMail  GMail  `yaml:"GMAIL" env:",prefix=GMAIL_"`
+
+	ThirdPartySmsProvider string `yaml:"THIRD_PARTY_SMS_PROVIDER" env:"THIRD_PARTY_SMS_PROVIDER"`
 }
 
 type Swagger struct {
 	Enabled bool   `yaml:"ENABLED" env:"ENABLED"`
 	Path    string `yaml:"PATH" env:"PATH"`
+}
+
+type Translation struct {
+	FilePath        string `yaml:"FILE_PATH" env:"FILE_PATH"`
+	DefaultLanguage string `yaml:"DEFAULT_LANGUAGE" env:"DEFAULT_LANGUAGE"`
 }
 
 type HTTPAPIConfig struct {
@@ -70,6 +78,11 @@ func (cfg *Config) SetDefaults() {
 	cfg.Swagger = Swagger{
 		Enabled: true,
 		Path:    "./swagger",
+	}
+
+	cfg.Translation = Translation{
+		FilePath:        "./i18n/definitions",
+		DefaultLanguage: "en",
 	}
 
 	cfg.DB = DB{

@@ -4,12 +4,12 @@ import (
 	"net/http"
 )
 
-type CompaniesListRequest struct{}
+type CompanyListRequest struct{}
 
-func NewCompaniesListRequest(_ *http.Request) (*CompaniesListRequest, error) {
-	return &CompaniesListRequest{}, nil
+func NewCompanyListRequest(_ *http.Request) (*CompanyListRequest, error) {
+	return &CompanyListRequest{}, nil
 }
 
-func (r CompaniesListRequest) Validate() error {
+func (r CompanyListRequest) Validate() error {
 	return nil
 }
