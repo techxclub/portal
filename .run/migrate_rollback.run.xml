@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="migrate:rollback" type="GoApplicationRunConfiguration" factoryName="Go Application" folderName="DB">
+    <module name="portal" />
+    <working_directory value="$PROJECT_DIR$" />
+    <parameters value="migrate:rollback --config-file application.yml" />
+    <kind value="PACKAGE" />
+    <package value="github.com/techx/portal/cmd/portal" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/cmd/portal/main.go" />
+    <method v="2" />
+  </configuration>
+</component>

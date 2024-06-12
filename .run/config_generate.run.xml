@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="config:generate" type="GoApplicationRunConfiguration" factoryName="Go Application" folderName="Application">
+    <module name="portal" />
+    <working_directory value="$PROJECT_DIR$" />
+    <parameters value="generate-config --config-file sample.application.yml" />
+    <kind value="PACKAGE" />
+    <package value="github.com/techx/portal/cmd/portal" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/cmd/portal/main.go" />
+    <method v="2" />
+  </configuration>
+</component>

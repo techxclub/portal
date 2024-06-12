@@ -5,6 +5,9 @@ API:
 SWAGGER:
   ENABLED: true
   PATH: ./swagger
+TRANSLATION:
+  FILE_PATH: ./i18n/definitions
+  DEFAULT_LANGUAGE: en
 DB:
   NAME: portal_local
   HOST: localhost
