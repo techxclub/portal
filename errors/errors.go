@@ -20,6 +20,13 @@ var (
 	ErrTwilioCheckVerification  = NewServiceError("twilio_check_verification_failed", 500, nil)
 	ErrMissingOTP               = NewServiceError("otp_missing_otp", 500, nil)
 	ErrOTPGenerateFailed        = NewServiceError("otp_generation_failed", 500, nil)
+	ErrCompanyNotMatch          = NewServiceError("company_not_match", 400, nil)
+	ErrRequesterNotFound        = NewServiceError("requester_not_found", 404, nil)
+	ErrProviderNotFound         = NewServiceError("provider_not_found", 404, nil)
+	ErrInvalidJobLink           = NewServiceError("invalid_job_link", 400, nil)
+	ErrCompanyRequired          = NewServiceError("company_required", 400, nil)
+	ErrRequesterFieldIsEmpty    = NewServiceError("requester_field_is_empty", 400, nil)
+	ErrProviderFieldIsEmpty     = NewServiceError("provider_field_is_empty", 400, nil)
 )
 
 func BadRequestError(err error) ServiceError {

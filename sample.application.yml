@@ -25,4 +25,10 @@ TWILIO:
   ACCOUNT_SID: your_account_sid
   AUTH_TOKEN: your_auth_token
   VERIFY_SERVICE_SID: verify_service_sid
+GMAIL:
+  SMTP_SERVER: smtp.gmail.com
+  SMTP_PORT: 587
+  SMTP_USERNAME: username
+  SMTP_PASSWORD: password
+  FROM: user.name@gmail.com
 THIRD_PARTY_SMS_PROVIDER: twilio

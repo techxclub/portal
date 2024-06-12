@@ -19,9 +19,9 @@ type messageBuilder struct {
 	twilioClient twilio.Client
 }
 
-func NewMessageBuilder(twilioClient twilio.Client) MessageBuilder {
+func NewMessageBuilder(cfg config.Config, twilioClient twilio.Client) MessageBuilder {
 	return &messageBuilder{
-		cfg:          config.Config{},
+		cfg:          cfg,
 		twilioClient: twilioClient,
 	}
 }

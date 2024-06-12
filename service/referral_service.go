@@ -6,10 +6,11 @@ import (
 	"github.com/techx/portal/builder"
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/domain"
+	"github.com/techx/portal/errors"
 )
 
 type ReferralService interface {
-	CreateReferral(ctx context.Context, referral domain.Referral) (*domain.Referral, error)
+	CreateReferral(ctx context.Context, referral domain.ReferralParams) (*domain.Referral, error)
 }
 
 type referralService struct {
@@ -24,15 +25,36 @@ func NewReferralService(cfg config.Config, registry *builder.Registry) ReferralS
 	}
 }
 
-func (r referralService) CreateReferral(ctx context.Context, referralDetails domain.Referral) (*domain.Referral, error) {
+func (r referralService) CreateReferral(ctx context.Context, referralDetails domain.ReferralParams) (*domain.Referral, error) {
 	// Validate referral requester exists
-	_, err := r.registry.UsersRepo.GetUserForParams(ctx, domain.UserProfileParams{UserID: referralDetails.RequesterUserID})
+	requester, err := r.registry.UsersRepo.GetUserForParams(ctx, domain.UserProfileParams{
+		UserID: referralDetails.RequesterUserID,
+	})
 	if err != nil {
-		return nil, err
+		return nil, errors.ErrRequesterNotFound
 	}
 
 	// Validate referral provider exists
-	_, err = r.registry.UsersRepo.GetUserForParams(ctx, domain.UserProfileParams{UserID: referralDetails.ProviderUserID})
+	provider, err := r.registry.UsersRepo.GetUserForParams(ctx, domain.UserProfileParams{
+		UserID: referralDetails.ProviderUserID,
+	})
+	if err != nil {
+		return nil, errors.ErrProviderNotFound
+	}
+
+	// Validate company
+	if provider.Company != referralDetails.Company {
+		return nil, errors.ErrCompanyNotMatch
+	}
+
+	// Send email to provider
+	referralMailParams := builder.ReferralMailParams{
+		Requester: *requester,
+		Provider:  *provider,
+		JobLink:   referralDetails.JobLink,
+		Message:   referralDetails.Message,
+	}
+	err = r.registry.MailBuilder.SendReferralMail(ctx, referralMailParams)
 	if err != nil {
 		return nil, err
 	}
@@ -42,5 +64,6 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 	if err != nil {
 		return nil, err
 	}
+
 	return referral, nil
 }
