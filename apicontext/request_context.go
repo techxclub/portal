@@ -3,6 +3,7 @@ package apicontext
 import (
 	"context"
 	"net/http"
+	"strings"
 
 	uuid "github.com/satori/go.uuid"
 	"github.com/techx/portal/constants"
@@ -13,12 +14,14 @@ const (
 )
 
 type RequestContext struct {
-	TraceID string
+	Language string
+	TraceID  string
 }
 
 func NewRequestContextFromHTTP(r *http.Request) RequestContext {
 	return RequestContext{
-		TraceID: getRequestTraceID(r.Header),
+		Language: constants.DefaultLanguage,
+		TraceID:  getRequestTraceID(r.Header),
 	}
 }
 
@@ -32,6 +35,16 @@ func RequestContextFromContext(ctx context.Context) RequestContext {
 		return RequestContext{}
 	}
 	return c
+}
+
+func (rctx RequestContext) GetLocale() string {
+	s := strings.ReplaceAll(rctx.Language, "-", "_")
+	s = strings.Split(s, "_")[0]
+	s = strings.ToLower(s)
+	if s == "" {
+		return constants.DefaultLanguage
+	}
+	return s
 }
 
 func getRequestTraceID(header http.Header) string {

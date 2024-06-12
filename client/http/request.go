@@ -10,6 +10,7 @@ import (
 	"net/url"
 
 	"github.com/techx/portal/client/http/wrapper"
+	"github.com/techx/portal/constants"
 	"github.com/techx/portal/errors"
 	"github.com/techx/portal/logger"
 )
@@ -103,7 +104,7 @@ func (r *Request) Build() (*http.Request, error) {
 		}
 	}
 
-	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	req.Header.Set(constants.HeaderContentType, constants.ApplicationJSON)
 
 	return req, nil
 }

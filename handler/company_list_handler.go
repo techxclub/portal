@@ -13,12 +13,12 @@ import (
 
 func CompanyListHandler(cfg config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
 	return Handler(
-		request.NewCompaniesListRequest,
-		func(ctx context.Context, _ request.CompaniesListRequest) (*domain.Companies, error) {
+		request.NewCompanyListRequest,
+		func(ctx context.Context, _ request.CompanyListRequest) (*domain.Companies, error) {
 			return serviceRegistry.UserService.GetCompanies(ctx)
 		},
-		func(ctx context.Context, domainObj domain.Companies) (response.AllCompaniesListResponse, response.HTTPMetadata) {
-			return response.NewAllCompaniesListResponse(ctx, cfg, domainObj)
+		func(ctx context.Context, domainObj domain.Companies) (response.CompanyListResponse, response.HTTPMetadata) {
+			return response.NewCompanyListResponse(ctx, cfg, domainObj)
 		},
 	)
 }

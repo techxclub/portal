@@ -1,0 +1,17 @@
+{
+    "msg_needs_translation": {
+        "other": "This message needs translation"
+    },
+    "congrats": {
+        "other": "Congratulations!"
+    },
+    "invalid_user_message": {
+        "other": "Couldn't fetch user profile"
+    },
+    "invalid_user_title": {
+        "other": "Invalid user title"
+    },
+    "invalid_user_subtitle": {
+        "other": "Invalid user subtitle"
+    }
+}

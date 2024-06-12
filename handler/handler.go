@@ -2,25 +2,12 @@ package handler
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/techx/portal/errors"
 	"github.com/techx/portal/handler/response"
-	"github.com/techx/portal/logger"
+	"github.com/techx/portal/utils"
 )
-
-type ErrorDetails struct {
-	Code            string `json:"code"`
-	Message         string `json:"message"`
-	MessageSeverity string `json:"message_severity"`
-}
-
-// swagger:model
-type ErrorResponse struct {
-	Errors []ErrorDetails `json:"errors"`
-}
 
 type validator interface {
 	Validate() error
@@ -42,31 +29,11 @@ func Handler[RequestType validator, DomainType, ResponseType any](
 		}
 
 		if err != nil {
-			renderErrorResponse(r, w, err)
+			response.RenderErrorResponse(r, w, err)
 			return
 		}
-		writeJSON(w, http.StatusOK, respBody)
+		utils.WriteJSON(w, http.StatusOK, respBody)
 	}
-}
-
-func writeJSON(w http.ResponseWriter, status int, v interface{}) {
-	body, err := json.Marshal(v)
-	if err != nil {
-		msg := fmt.Sprintf("Could not convert the given object to JSON: %v", err)
-		writeText(w, http.StatusInternalServerError, msg)
-
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-
-	w.WriteHeader(status)
-	_, _ = w.Write(body)
-}
-
-func writeText(w http.ResponseWriter, status int, body string) {
-	w.WriteHeader(status)
-	_, _ = w.Write([]byte(body))
 }
 
 func process[RequestType validator, DomainType, ResponseType any](
@@ -101,31 +68,4 @@ func setHeaders(w http.ResponseWriter, respHeaders http.Header) {
 			}
 		}
 	}
-}
-
-func renderErrorResponse(r *http.Request, w http.ResponseWriter, serviceError errors.ServiceError) {
-	logErrorResponse(r, serviceError)
-
-	errResponse := customErrorResponse(r.Context(), serviceError)
-	writeJSON(w, serviceError.GetResponseStatus(), errResponse)
-}
-
-func customErrorResponse(_ context.Context, serviceError errors.ServiceError) ErrorResponse {
-	e := ErrorDetails{
-		Code:            serviceError.GetCode(),
-		Message:         serviceError.Error(),
-		MessageSeverity: "error",
-	}
-
-	return ErrorResponse{
-		Errors: []ErrorDetails{e},
-	}
-}
-
-func logErrorResponse(r *http.Request, serviceError errors.ServiceError) {
-	fields := map[string]interface{}{
-		logger.ResponseStatusField: serviceError.GetResponseStatus(),
-		"code":                     serviceError.GetCode(),
-	}
-	logger.HTTPError(r, serviceError, fields)
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/techx/portal/domain"
 )
 
-type AllCompaniesListResponse struct {
+type CompanyListResponse struct {
 	Companies []Company `json:"companies"`
 }
 
@@ -16,16 +16,16 @@ type Company struct {
 	Name      string `json:"name"`
 }
 
-func NewAllCompaniesListResponse(_ context.Context, _ config.Config, companies domain.Companies) (AllCompaniesListResponse, HTTPMetadata) {
-	result := make([]Company, 0)
+func NewCompanyListResponse(_ context.Context, _ config.Config, companies domain.Companies) (CompanyListResponse, HTTPMetadata) {
+	companyList := make([]Company, 0)
 	for _, u := range companies {
-		result = append(result, Company{
+		companyList = append(companyList, Company{
 			CompanyID: u.CompanyID,
 			Name:      u.Name,
 		})
 	}
 
-	return AllCompaniesListResponse{
-		Companies: result,
+	return CompanyListResponse{
+		Companies: companyList,
 	}, HTTPMetadata{}
 }
