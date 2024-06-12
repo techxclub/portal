@@ -6,7 +6,15 @@ import (
 
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/domain"
+	"github.com/techx/portal/i18n"
 	"gopkg.in/gomail.v2"
+)
+
+const (
+	i18nKeyReferralMailSubject           = "referral_mail_subject"
+	i18nKeyReferralMailBodyBase          = "referral_mail_body_base"
+	i18nKeyReferralMailBodyCustomMessage = "referral_mail_body_requester_customer_message"
+	i18nKeyReferralMailBodyFooterNotes   = "referral_mail_body_footer_notes"
 )
 
 type ReferralMailParams struct {
@@ -32,28 +40,25 @@ func NewMailBuilder(cfg config.Config, dialer *gomail.Dialer) MailBuilder {
 	}
 }
 
-func (mb *mailBuilder) SendReferralMail(_ context.Context, params ReferralMailParams) error {
-	subject := "TechX: Referral Request For " + params.Requester.Name
-	body := fmt.Sprintf(`
-	<html>
-	<body>
-	<p>Hey, %s</p>
-	<p>We hope you're doing well!</p>
-	<p>We are reaching out from the TechX community because one of our members is interested in a job opportunity at your company.</p>
-	<p>Requester details:</p>
-	<ul>
-	  <li>Name: %s</li>
-	  <li>Company: %s</li>
-	  <li>Email: %s</li>
-      <li>Job Link: %s</li>
-	</ul>
-	<p>Message from requester: %s</p>
-	<p>We hope you consider their application!</p>
-	<p>Best regards,</p>
-	<p>The TechX Community</p>
-	</body>
-	</html>
-	`, params.Provider.Name, params.Requester.Name, params.Requester.Company, params.Requester.PersonalEmail, params.JobLink, params.Message)
+func (mb *mailBuilder) SendReferralMail(ctx context.Context, params ReferralMailParams) error {
+	i18nValues := map[string]interface{}{
+		"ProviderName":     params.Provider.Name,
+		"RequesterName":    params.Requester.Name,
+		"RequesterCompany": params.Requester.Company,
+		"RequesterEmail":   params.Requester.PersonalEmail,
+		"JobLink":          params.JobLink,
+		"RequesterMessage": params.Message,
+	}
+
+	subject := i18n.Translate(ctx, i18nKeyReferralMailSubject, i18nValues)
+	bodyHTML := i18n.Translate(ctx, i18nKeyReferralMailBodyBase, i18nValues)
+	if params.Message != "" {
+		bodyHTML += i18n.Translate(ctx, i18nKeyReferralMailBodyCustomMessage, i18nValues)
+	}
+	bodyHTML += i18n.Translate(ctx, i18nKeyReferralMailBodyFooterNotes, i18nValues)
+
+	textHTML := fmt.Sprintf(`<html><body>%s</body></html>`, bodyHTML)
+
 	from := mb.cfg.GMail.From
 	to := []string{params.Provider.WorkEmail, params.Requester.PersonalEmail}
 
@@ -61,6 +66,6 @@ func (mb *mailBuilder) SendReferralMail(_ context.Context, params ReferralMailPa
 	m.SetHeader("From", from)
 	m.SetHeader("To", to...)
 	m.SetHeader("Subject", subject)
-	m.SetBody("text/html", body)
+	m.SetBody("text/html", textHTML)
 	return mb.GMail.DialAndSend(m)
 }

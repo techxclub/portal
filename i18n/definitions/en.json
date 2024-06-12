@@ -1,5 +1,14 @@
 {
-  "portal_user_not_found_title": {
-    "other": "Can't find the user"
+  "referral_mail_subject": {
+    "other": "TechX: Referral Request For {{.RequesterName}}"
+  },
+  "referral_mail_body_base": {
+    "other": "<p>Hey, {{.ProviderName}}</p><p>We hope you're doing well!</p><p>We are reaching out from the TechX community because one of our members is interested in a job opportunity at your company.</p><p>Requester details:</p><ul><li>Name: {{.RequesterName}}</li><li>Company: {{.RequesterCompany}}</li><li>Email: {{.RequesterEmail}}</li><li>Job Link: {{.JobLink}}</li></ul>"
+  },
+  "referral_mail_body_requester_customer_message": {
+    "other": "<p>Message from requester: {{.RequesterMessage}}</p>"
+  },
+  "referral_mail_body_footer_notes": {
+    "other": "<p>We hope you consider their application!</p><p>Best regards,</p><p>TechX Community</p>"
   }
 }
