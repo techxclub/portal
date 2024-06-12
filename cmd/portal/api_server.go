@@ -8,10 +8,12 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"github.com/rs/zerolog/log"
 	"github.com/techx/portal/builder"
 	"github.com/techx/portal/client"
 	"github.com/techx/portal/config"
+	"github.com/techx/portal/constants"
 	"github.com/techx/portal/errors"
 	"github.com/techx/portal/i18n"
 	"github.com/techx/portal/middleware"
@@ -50,10 +52,17 @@ func NewHTTPAPIServer(cfg config.HTTPAPIConfig, r *mux.Router) *HTTPAPIServer {
 		r.HandleFunc("/debug/pprof/threadcreate", pprof.Index)
 	}
 
+	c := cors.New(cors.Options{
+		AllowedOrigins: constants.AllowedOrigins,
+		AllowedMethods: constants.AllowedMethods,
+		AllowedHeaders: constants.AllowedHeaders,
+		Debug:          true,
+	})
+
 	// create the http server
 	http := http.Server{
 		Addr:    cfg.ListenAddr,
-		Handler: r,
+		Handler: c.Handler(r),
 	}
 
 	// ... and wrap it for graceful shutdowns.
@@ -121,10 +130,7 @@ func startAPIServer(ctx *cli.Context) error {
 	// Create router
 	r := NewRouter(applicationContext.Config, serviceRegistry)
 
-	// ... and add middleware
 	r.Use(middleware.RecoverMiddleware())
-
-	// ... other middleware go here
 	r.Use(middleware.RequestContext())
 
 	// Start API Server

@@ -10,6 +10,7 @@ require (
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/nicksnyder/go-i18n/v2 v2.4.0
 	github.com/nyaruka/phonenumbers v1.3.6
+	github.com/rs/cors v1.11.0
 	github.com/rs/zerolog v1.33.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/sonnes/go-envconfig v0.3.3
