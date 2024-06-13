@@ -9,8 +9,9 @@ import (
 
 type BaseUserDetailsRequest struct {
 	UserID      string
-	PhoneNumber string
+	Status      string
 	Name        string
+	PhoneNumber string
 	Company     string
 	Role        string
 }
@@ -35,7 +36,7 @@ func (r UserProfileRequest) Validate() error {
 	return nil
 }
 
-func (r UserProfileRequest) ToDomainObject() domain.UserProfileParams {
+func (r UserProfileRequest) ToUserProfileParams() domain.UserProfileParams {
 	return domain.UserProfileParams{
 		UserID:      r.BaseUserDetailsRequest.UserID,
 		PhoneNumber: r.BaseUserDetailsRequest.PhoneNumber,
@@ -48,32 +49,35 @@ type BulkUserDetailsRequest struct {
 
 func NewBulkUserDetailsRequest(r *http.Request) (*BulkUserDetailsRequest, error) {
 	userID := r.URL.Query().Get(constants.ParamUserID)
-	phoneNumber := r.URL.Query().Get(constants.ParamPhoneNumber)
+	status := r.URL.Query().Get(constants.ParamStatus)
 	name := r.URL.Query().Get(constants.ParamName)
+	phoneNumber := r.URL.Query().Get(constants.ParamPhoneNumber)
 	Company := r.URL.Query().Get(constants.ParamCompany)
 	Role := r.URL.Query().Get(constants.ParamRole)
 
 	return &BulkUserDetailsRequest{
 		BaseUserDetailsRequest{
 			UserID:      userID,
-			PhoneNumber: phoneNumber,
+			Status:      status,
 			Name:        name,
+			PhoneNumber: phoneNumber,
 			Company:     Company,
 			Role:        Role,
 		},
 	}, nil
 }
 
-func (g BulkUserDetailsRequest) Validate() error {
+func (r BulkUserDetailsRequest) Validate() error {
 	return nil
 }
 
-func (g BulkUserDetailsRequest) ToDomainObject() domain.UserProfileParams {
+func (r BulkUserDetailsRequest) ToUserProfileParams() domain.UserProfileParams {
 	return domain.UserProfileParams{
-		UserID:      g.UserID,
-		PhoneNumber: g.PhoneNumber,
-		Name:        g.Name,
-		Company:     g.Company,
-		Role:        g.Role,
+		UserID:      r.UserID,
+		Status:      r.Status,
+		PhoneNumber: r.PhoneNumber,
+		Name:        r.Name,
+		Company:     r.Company,
+		Role:        r.Role,
 	}
 }

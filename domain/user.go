@@ -12,29 +12,32 @@ type UserProfile struct {
 	UserIDNum         int64      `db:"user_id_num"` // Only for internal use
 	UserID            string     `db:"user_id"`
 	CreatedAt         *time.Time `db:"created_time"`
+	Status            string     `db:"status"`
 	Name              string     `db:"name"`
-	Company           string     `db:"company"`
-	YearsOfExperience float32    `db:"years_of_experience"`
-	PersonalEmail     string     `db:"personal_email"`
-	WorkEmail         string     `db:"work_email"`
 	PhoneNumber       string     `db:"phone_number"`
-	LinkedIn          string     `db:"linkedin"`
+	PersonalEmail     string     `db:"personal_email"`
+	Company           string     `db:"company"`
+	WorkEmail         string     `db:"work_email"`
 	Role              string     `db:"role"`
+	YearsOfExperience float32    `db:"years_of_experience"`
+	LinkedIn          string     `db:"linkedin"`
 }
 
 type UserProfileParams struct {
 	UserID      string
-	PhoneNumber string
+	Status      string
 	Name        string
+	PhoneNumber string
 	Company     string
 	Role        string
 }
 
-func (p UserProfileParams) ToMap() map[string]string {
-	return map[string]string{
+func (p UserProfileParams) ToMap() map[string]interface{} {
+	return map[string]interface{}{
 		constants.ParamUserID:      p.UserID,
-		constants.ParamPhoneNumber: p.PhoneNumber,
+		constants.ParamStatus:      p.Status,
 		constants.ParamName:        p.Name,
+		constants.ParamPhoneNumber: p.PhoneNumber,
 		constants.ParamCompany:     p.Company,
 		constants.ParamRole:        p.Role,
 	}

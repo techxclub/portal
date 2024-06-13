@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-
 	"github.com/techx/portal/builder"
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/domain"
@@ -45,6 +44,46 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 	// Validate company
 	if provider.Company != referralDetails.Company {
 		return nil, errors.ErrCompanyNotMatch
+	}
+
+	// Check if referral already exists
+	referralExist, err := r.registry.ReferralsRepo.GetReferralsForParams(ctx, domain.ReferralParams{
+		RequesterUserID: requester.UserID,
+		ProviderUserID:  provider.UserID,
+		CreatedAt:       &r.cfg.Referral.ReferralMaxTime,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if len(*referralExist) > 0 {
+		return nil, errors.ErrReferralAlreadyExists
+	}
+
+	// All referrals for requester
+	requesterReferrals, err := r.registry.ReferralsRepo.GetReferralsForParams(ctx, domain.ReferralParams{
+		RequesterUserID: requester.UserID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Validate requesterReferral limit
+	if len(*requesterReferrals) >= r.cfg.Referral.RequesterReferralLimit {
+		return nil, errors.ErrReferralLimitReachedForRequester
+	}
+
+	// All referrals for provider
+	providerReferrals, err := r.registry.ReferralsRepo.GetReferralsForParams(ctx, domain.ReferralParams{
+		ProviderUserID: provider.UserID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Validate providerReferral limit
+	if len(*providerReferrals) >= r.cfg.Referral.ProviderReferralLimit {
+		return nil, errors.ErrReferralLimitReachedForProvider
 	}
 
 	// Send email to provider

@@ -37,9 +37,9 @@ type UsersReturning struct {
 const (
 	nextUserIDNum = `SELECT nextval('users_user_id_num_seq')`
 
-	interUserQuery = `INSERT INTO users (user_id_num, created_time, name, company, years_of_experience, personal_email, work_email, phone_number, linkedin, role) VALUES (:user_id_num, :created_time, :name, :company, :years_of_experience, :personal_email, :work_email, :phone_number, :linkedin, :role) RETURNING user_id`
+	interUserQuery = `INSERT INTO users (user_id_num, created_time, status, name, phone_number, personal_email, company, work_email, role, years_of_experience, linkedin) VALUES (:user_id_num, :created_time, :status, :name, :phone_number, :personal_email, :company, :work_email, :role, :years_of_experience, :linkedin) RETURNING user_id`
 
-	getUserSelectorFields = `user_id_num, user_id, created_time, name, company, years_of_experience, personal_email, work_email, phone_number, linkedin, role`
+	getUserSelectorFields = `user_id_num, user_id, created_time, status, name, phone_number, personal_email, company, work_email, role, years_of_experience, linkedin`
 
 	getDistinctCompanies = `SELECT DISTINCT company as name FROM users`
 )
@@ -67,14 +67,15 @@ func (u usersRepo) CreateUser(ctx context.Context, details domain.UserProfile) (
 		return u.dbClient.DBNamedExecReturningInTx(ctx, tx, &returning, interUserQuery, map[string]interface{}{
 			"user_id_num":         details.UserIDNum,
 			"created_time":        now,
+			"status":              details.Status,
 			"name":                details.Name,
-			"company":             details.Company,
-			"years_of_experience": details.YearsOfExperience,
-			"personal_email":      details.PersonalEmail,
-			"work_email":          details.WorkEmail,
 			"phone_number":        details.PhoneNumber,
-			"linkedin":            details.LinkedIn,
+			"personal_email":      details.PersonalEmail,
+			"company":             details.Company,
+			"work_email":          details.WorkEmail,
 			"role":                details.Role,
+			"years_of_experience": details.YearsOfExperience,
+			"linkedin":            details.LinkedIn,
 		})
 	})
 	if err != nil {
@@ -113,7 +114,7 @@ func (u usersRepo) GetUsersForParams(ctx context.Context, params domain.UserProf
 	}
 
 	if len(users) == 0 {
-		return nil, errors.New("no users found")
+		return nil, errors.ErrUserNotFound
 	}
 
 	result := domain.Users(users)
@@ -136,7 +137,7 @@ func getQueryForParams(params domain.UserProfileParams) (string, []interface{}, 
 	}
 
 	if len(conditions) == 0 {
-		return "", nil, errors.New("no search parameters provided")
+		return "", nil, errors.ErrSearchParamRequired
 	}
 
 	baseQuery := `SELECT ` + getUserSelectorFields + ` FROM users WHERE `
@@ -152,7 +153,7 @@ func (u usersRepo) GetCompanies(ctx context.Context) (*domain.Companies, error) 
 	}
 
 	if len(companies) == 0 {
-		return nil, errors.New("no companies found")
+		return nil, errors.ErrCompanyNotFound
 	}
 
 	result := domain.Companies(companies)
