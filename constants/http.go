@@ -7,6 +7,8 @@ const (
 	HeaderXRequestTraceID = "X-Request-Trace-Id"
 	HeaderAuthorization   = "Authorization"
 
+	CookieAuthToken = "AuthToken"
+
 	MethodGet     = "GET"
 	MethodPost    = "POST"
 	MethodPut     = "PUT"

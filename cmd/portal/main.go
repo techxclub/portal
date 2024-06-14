@@ -95,13 +95,8 @@ func main() {
 				},
 			},
 			Action: func(ctx *cli.Context) error {
-				applicationContext, err := initApplicationContext(ctx)
-				if err != nil {
-					return err
-				}
-
 				migrationFileName := ctx.String("migration-name")
-				return console.CreateMigrationFiles(migrationFileName, applicationContext.Config.DB)
+				return console.CreateMigrationFiles(migrationFileName)
 			},
 		},
 	}

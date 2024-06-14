@@ -20,17 +20,17 @@ func Handler[RequestType validator, DomainType, ResponseType any](
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		respBody, httpMetadata, err := process(r, requestProcessor, processor, respProcessor)
+		if err != nil {
+			response.RenderErrorResponse(r, w, err)
+			return
+		}
+
 		if httpMetadata.Headers != nil {
 			setHeaders(w, *httpMetadata.Headers)
 		}
 
 		if httpMetadata.Cookies != nil {
 			http.SetCookie(w, httpMetadata.Cookies)
-		}
-
-		if err != nil {
-			response.RenderErrorResponse(r, w, err)
-			return
 		}
 		utils.WriteJSON(w, http.StatusOK, respBody)
 	}

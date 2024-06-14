@@ -60,7 +60,7 @@ func NewHTTPAPIServer(cfg config.HTTPAPIConfig, r *mux.Router) *HTTPAPIServer {
 	})
 
 	// create the http server
-	http := http.Server{
+	httpServer := http.Server{
 		Addr:    cfg.ListenAddr,
 		Handler: c.Handler(r),
 	}
@@ -72,7 +72,7 @@ func NewHTTPAPIServer(cfg config.HTTPAPIConfig, r *mux.Router) *HTTPAPIServer {
 	// writes are not missed.
 	server := &graceful.Server{
 		Timeout: 15 * time.Second,
-		Server:  &http,
+		Server:  &httpServer,
 	}
 
 	return &HTTPAPIServer{

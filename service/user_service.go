@@ -9,7 +9,7 @@ import (
 )
 
 type UserService interface {
-	RegisterUser(ctx context.Context, userDetails domain.UserProfile) (*domain.UserProfile, error)
+	RegisterUser(ctx context.Context, userDetails domain.UserProfile) (*domain.Registration, error)
 	GetProfile(ctx context.Context, req domain.UserProfileParams) (*domain.UserProfile, error)
 	GetUsers(ctx context.Context, req domain.UserProfileParams) (*domain.Users, error)
 	GetCompanies(ctx context.Context) (*domain.Companies, error)
@@ -27,13 +27,21 @@ func NewUserService(cfg config.Config, registry *builder.Registry) UserService {
 	}
 }
 
-func (u userService) RegisterUser(ctx context.Context, userDetails domain.UserProfile) (*domain.UserProfile, error) {
+func (u userService) RegisterUser(ctx context.Context, userDetails domain.UserProfile) (*domain.Registration, error) {
+	authToken, err := domain.GenerateToken(userDetails.PhoneNumber, u.cfg.Auth)
+	if err != nil {
+		return nil, err
+	}
+
 	user, err := u.registry.UsersRepo.CreateUser(ctx, userDetails)
 	if err != nil {
 		return nil, err
 	}
 
-	return user, nil
+	return &domain.Registration{
+		AuthToken: authToken,
+		User:      user,
+	}, nil
 }
 
 func (u userService) GetProfile(ctx context.Context, params domain.UserProfileParams) (*domain.UserProfile, error) {

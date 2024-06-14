@@ -14,10 +14,10 @@ import (
 func RegisterUserV1Handler(cfg config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
 	return Handler(
 		request.NewRegisterUserV1Request,
-		func(ctx context.Context, req request.RegisterUserV1Request) (*domain.UserProfile, error) {
+		func(ctx context.Context, req request.RegisterUserV1Request) (*domain.Registration, error) {
 			return serviceRegistry.UserService.RegisterUser(ctx, req.ToUserDetails())
 		},
-		func(ctx context.Context, domainObj domain.UserProfile) (response.RegisterUserV1Response, response.HTTPMetadata) {
+		func(ctx context.Context, domainObj domain.Registration) (response.RegisterUserV1Response, response.HTTPMetadata) {
 			return response.NewRegisterUserV1Response(ctx, cfg, domainObj)
 		},
 	)

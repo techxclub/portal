@@ -17,45 +17,14 @@ const (
 	migrationFilePath = "./migrations"
 )
 
-func CreateMigrationFiles(filename string, dbConfig config.DB) error {
-	InitPostgres(dbConfig, migrationFilePath)
-	return Create(filename)
-}
-
-func RunDatabaseMigrations(dbConfig config.DB) error {
-	InitPostgres(dbConfig, migrationFilePath)
-	return Run()
-}
-
-func RollbackLatestMigration(dbConfig config.DB) error {
-	InitPostgres(dbConfig, migrationFilePath)
-	return RollbackLatest()
-}
-
-var (
-	appMigrationFilesPath string
-	appMigrate            *migrate.Migrate
-)
-
-func InitPostgres(dbConfig config.DB, migrationFilesPath string) {
-	appMigrationFilesPath = migrationFilesPath
-
-	var err error
-	appMigrate, err = migrate.New("file://"+migrationFilesPath, dbConfig.GetConnectionString())
-	if err != nil {
-		log.Err(err).Msg("migration failed")
-		panic("failed to init migration")
-	}
-}
-
-func Create(filename string) error {
+func CreateMigrationFiles(filename string) error {
 	if len(filename) == 0 {
 		return errors.New("Migration filename is not provided")
 	}
 
 	timeStamp := time.Now().Unix()
-	upMigrationFilePath := fmt.Sprintf("%s/%d_%s.up.sql", appMigrationFilesPath, timeStamp, filename)
-	downMigrationFilePath := fmt.Sprintf("%s/%d_%s.down.sql", appMigrationFilesPath, timeStamp, filename)
+	upMigrationFilePath := fmt.Sprintf("%s/%d_%s.up.sql", migrationFilePath, timeStamp, filename)
+	downMigrationFilePath := fmt.Sprintf("%s/%d_%s.down.sql", migrationFilePath, timeStamp, filename)
 
 	if err := createFile(upMigrationFilePath); err != nil {
 		return err
@@ -72,7 +41,8 @@ func Create(filename string) error {
 	return nil
 }
 
-func Run() error {
+func RunDatabaseMigrations(dbConfig config.DB) error {
+	appMigrate := getAppMigrate(dbConfig)
 	err := appMigrate.Up()
 	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		return err
@@ -82,7 +52,8 @@ func Run() error {
 	return nil
 }
 
-func RollbackLatest() error {
+func RollbackLatestMigration(dbConfig config.DB) error {
+	appMigrate := getAppMigrate(dbConfig)
 	err := appMigrate.Steps(-1)
 	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		return err
@@ -90,6 +61,18 @@ func RollbackLatest() error {
 
 	fmt.Println("Rollback successful")
 	return nil
+}
+
+func getAppMigrate(dbConfig config.DB) *migrate.Migrate {
+	var err error
+	appMigrate, err := migrate.New("file://"+migrationFilePath, dbConfig.GetConnectionString())
+	if err != nil {
+		log.Err(err).Msg("migration failed")
+		panic("failed to init migration")
+	}
+
+	appMigrate.Log = migrateLogger{}
+	return appMigrate
 }
 
 func createFile(filename string) error {
