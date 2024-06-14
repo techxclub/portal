@@ -2,8 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
-	"strings"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -121,30 +119,6 @@ func (u usersRepo) GetUsersForParams(ctx context.Context, params domain.UserProf
 	return &result, nil
 }
 
-func getQueryForParams(params domain.UserProfileParams) (string, []interface{}, error) {
-	counter := 1
-	args := make([]interface{}, 0)
-	conditions := make([]string, 0)
-	for key, value := range params.ToMap() {
-		if value == "" {
-			continue
-		}
-
-		condition := fmt.Sprintf("%s = $%d", key, counter)
-		conditions = append(conditions, condition)
-		args = append(args, value)
-		counter++
-	}
-
-	if len(conditions) == 0 {
-		return "", nil, errors.ErrSearchParamRequired
-	}
-
-	baseQuery := `SELECT ` + getUserSelectorFields + ` FROM users WHERE `
-	query := baseQuery + strings.Join(conditions, " AND ")
-	return query, args, nil
-}
-
 func (u usersRepo) GetCompanies(ctx context.Context) (*domain.Companies, error) {
 	var companies []domain.Company
 	err := u.dbClient.DBSelect(ctx, &companies, getDistinctCompanies)
@@ -158,4 +132,15 @@ func (u usersRepo) GetCompanies(ctx context.Context) (*domain.Companies, error) 
 
 	result := domain.Companies(companies)
 	return &result, nil
+}
+
+func getQueryForParams(params domain.UserProfileParams) (string, []interface{}, error) {
+	conditions, args := params.GetQueryConditions()
+	if len(conditions) == 0 {
+		return "", nil, errors.ErrSearchParamRequired
+	}
+
+	baseQuery := `SELECT ` + getUserSelectorFields + ` FROM users`
+	query := baseQuery + " WHERE " + conditions
+	return query, args, nil
 }

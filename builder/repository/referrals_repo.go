@@ -2,8 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
-	"strings"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -85,26 +83,12 @@ func (r referralsRepo) GetReferralsForParams(ctx context.Context, params domain.
 }
 
 func getReferralQueryForParams(params domain.ReferralParams) (string, []interface{}, error) {
-	counter := 1
-	args := make([]interface{}, 0)
-	conditions := make([]string, 0)
-	for key, value := range params.ToMap() {
-		if value == "" {
-			continue
-		}
-
-		condition := fmt.Sprintf("%s = $%d", key, counter)
-		conditions = append(conditions, condition)
-		args = append(args, value)
-		counter++
-	}
-
-	// If no params are provided, return an error
+	conditions, args := params.GetQueryConditions()
 	if len(conditions) == 0 {
-		return "", nil, errors.ErrSearchParamRequired
+		return "", nil, errors.ErrInvalidQueryParams
 	}
 
-	baseQuery := `SELECT ` + getReferralSelectorFields + ` FROM referrals WHERE `
-	query := baseQuery + strings.Join(conditions, " AND ")
+	baseQuery := `SELECT ` + getReferralSelectorFields + ` FROM referrals`
+	query := baseQuery + " WHERE " + conditions
 	return query, args, nil
 }

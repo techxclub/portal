@@ -24,6 +24,7 @@ var (
 	ErrRequesterNotFound                = NewServiceError("requester_not_found", 404, nil)
 	ErrProviderNotFound                 = NewServiceError("provider_not_found", 404, nil)
 	ErrInvalidJobLink                   = NewServiceError("invalid_job_link", 400, nil)
+	ErrInvalidQueryParams               = NewServiceError("invalid_query_params", 400, nil)
 	ErrNameRequired                     = NewServiceError("name_required", 400, nil)
 	ErrCompanyRequired                  = NewServiceError("company_required", 400, nil)
 	ErrRequesterFieldIsEmpty            = NewServiceError("requester_field_is_empty", 400, nil)

@@ -57,9 +57,9 @@ type GMail struct {
 }
 
 type Referral struct {
-	RequesterReferralLimit int       `yaml:"REQUESTER_REFERRAL_LIMIT" env:"REQUESTER_REFERRAL_LIMIT"`
-	ProviderReferralLimit  int       `yaml:"PROVIDER_REFERRAL_LIMIT" env:"PROVIDER_REFERRAL_LIMIT"`
-	ReferralMaxTime        time.Time `yaml:"REFERRAL_MAX_TIME" env:"REFERRAL_MAX_TIME"`
+	RequesterReferralLimit    int           `yaml:"REQUESTER_REFERRAL_LIMIT" env:"REQUESTER_REFERRAL_LIMIT"`
+	ProviderReferralLimit     int           `yaml:"PROVIDER_REFERRAL_LIMIT" env:"PROVIDER_REFERRAL_LIMIT"`
+	ReferralMaxLookupDuration time.Duration `yaml:"REFERRAL_MAX_LOOKUP_DURATION" env:"REFERRAL_MAX_LOOKUP_DURATION"`
 }
 
 func NewConfig(path string) (*Config, error) {
@@ -129,8 +129,8 @@ func (cfg *Config) SetDefaults() {
 	}
 
 	cfg.Referral = Referral{
-		RequesterReferralLimit: 20,
-		ProviderReferralLimit:  10,
-		ReferralMaxTime:        time.Now().Add(-7 * 24 * time.Hour),
+		RequesterReferralLimit:    20,
+		ProviderReferralLimit:     10,
+		ReferralMaxLookupDuration: 7 * 24 * time.Hour,
 	}
 }

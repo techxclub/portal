@@ -27,14 +27,14 @@ type ReferralParams struct {
 	CreatedAt       *time.Time
 }
 
-func (r ReferralParams) ToMap() map[string]interface{} {
-	return map[string]interface{}{
-		"id":                r.ID,
-		"requester_user_id": r.RequesterUserID,
-		"provider_user_id":  r.ProviderUserID,
-		"company":           r.Company,
-		"job_link":          r.JobLink,
-		"status":            r.Status,
-		"created_time":      r.CreatedAt,
-	}
+func (r ReferralParams) GetQueryConditions() (string, []interface{}) {
+	qb := NewQueryBuilder()
+	qb.AddEqualParam("id", r.ID)
+	qb.AddEqualParam("requester_user_id", r.RequesterUserID)
+	qb.AddEqualParam("provider_user_id", r.ProviderUserID)
+	qb.AddEqualParam("company", r.Company)
+	qb.AddEqualParam("status", r.Status)
+	qb.AddGreaterEqualParam("created_time", r.CreatedAt)
+
+	return qb.Build()
 }

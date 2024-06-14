@@ -2,8 +2,11 @@ package service
 
 import (
 	"context"
+	"time"
+
 	"github.com/techx/portal/builder"
 	"github.com/techx/portal/config"
+	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
 	"github.com/techx/portal/errors"
 )
@@ -25,7 +28,6 @@ func NewReferralService(cfg config.Config, registry *builder.Registry) ReferralS
 }
 
 func (r referralService) CreateReferral(ctx context.Context, referralDetails domain.ReferralParams) (*domain.Referral, error) {
-	// Validate referral requester exists
 	requester, err := r.registry.UsersRepo.GetUserForParams(ctx, domain.UserProfileParams{
 		UserID: referralDetails.RequesterUserID,
 	})
@@ -33,7 +35,6 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 		return nil, errors.ErrRequesterNotFound
 	}
 
-	// Validate referral provider exists
 	provider, err := r.registry.UsersRepo.GetUserForParams(ctx, domain.UserProfileParams{
 		UserID: referralDetails.ProviderUserID,
 	})
@@ -41,52 +42,41 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 		return nil, errors.ErrProviderNotFound
 	}
 
-	// Validate company
 	if provider.Company != referralDetails.Company {
 		return nil, errors.ErrCompanyNotMatch
 	}
 
-	// Check if referral already exists
-	referralExist, err := r.registry.ReferralsRepo.GetReferralsForParams(ctx, domain.ReferralParams{
-		RequesterUserID: requester.UserID,
-		ProviderUserID:  provider.UserID,
-		CreatedAt:       &r.cfg.Referral.ReferralMaxTime,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	if len(*referralExist) > 0 {
-		return nil, errors.ErrReferralAlreadyExists
-	}
-
-	// All referrals for requester
+	referralMaxLookupTime := time.Now().Add(-r.cfg.Referral.ReferralMaxLookupDuration)
 	requesterReferrals, err := r.registry.ReferralsRepo.GetReferralsForParams(ctx, domain.ReferralParams{
 		RequesterUserID: requester.UserID,
+		CreatedAt:       &referralMaxLookupTime,
+		Status:          constants.ReferralStatusPending,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	// Validate requesterReferral limit
 	if len(*requesterReferrals) >= r.cfg.Referral.RequesterReferralLimit {
 		return nil, errors.ErrReferralLimitReachedForRequester
 	}
 
-	// All referrals for provider
 	providerReferrals, err := r.registry.ReferralsRepo.GetReferralsForParams(ctx, domain.ReferralParams{
 		ProviderUserID: provider.UserID,
+		CreatedAt:      &referralMaxLookupTime,
+		Status:         constants.ReferralStatusPending,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	// Validate providerReferral limit
 	if len(*providerReferrals) >= r.cfg.Referral.ProviderReferralLimit {
 		return nil, errors.ErrReferralLimitReachedForProvider
 	}
 
-	// Send email to provider
+	if referralExists(*requesterReferrals, provider.UserID) {
+		return nil, errors.ErrReferralAlreadyExists
+	}
+
 	referralMailParams := builder.ReferralMailParams{
 		Requester: *requester,
 		Provider:  *provider,
@@ -98,11 +88,20 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 		return nil, err
 	}
 
-	// Create referral
 	referral, err := r.registry.ReferralsRepo.CreateReferral(ctx, referralDetails)
 	if err != nil {
 		return nil, err
 	}
 
 	return referral, nil
+}
+
+func referralExists(requesterReferrals domain.Referrals, providerUserID string) bool {
+	for _, r := range requesterReferrals {
+		if r.ProviderUserID == providerUserID {
+			return true
+		}
+	}
+
+	return false
 }

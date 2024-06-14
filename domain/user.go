@@ -32,13 +32,14 @@ type UserProfileParams struct {
 	Role        string
 }
 
-func (p UserProfileParams) ToMap() map[string]interface{} {
-	return map[string]interface{}{
-		constants.ParamUserID:      p.UserID,
-		constants.ParamStatus:      p.Status,
-		constants.ParamName:        p.Name,
-		constants.ParamPhoneNumber: p.PhoneNumber,
-		constants.ParamCompany:     p.Company,
-		constants.ParamRole:        p.Role,
-	}
+func (p UserProfileParams) GetQueryConditions() (string, []interface{}) {
+	qb := NewQueryBuilder()
+	qb.AddEqualParam(constants.ParamUserID, p.UserID)
+	qb.AddEqualParam(constants.ParamStatus, p.Status)
+	qb.AddEqualParam(constants.ParamName, p.Name)
+	qb.AddEqualParam(constants.ParamPhoneNumber, p.PhoneNumber)
+	qb.AddEqualParam(constants.ParamCompany, p.Company)
+	qb.AddEqualParam(constants.ParamRole, p.Role)
+
+	return qb.Build()
 }
