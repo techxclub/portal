@@ -12,10 +12,11 @@ type Config struct {
 	Swagger     Swagger       `yaml:"SWAGGER" env:",prefix=SWAGGER_"`
 	Translation Translation   `yaml:"TRANSLATION" env:",prefix=TRANSLATION_"`
 
-	DB     DB     `yaml:"DB" env:",prefix=DB_"`
-	Log    Log    `yaml:"LOG" env:",prefix=LOG_"`
-	Twilio Twilio `yaml:"TWILIO" env:",prefix=TWILIO_"`
-	GMail  GMail  `yaml:"GMAIL" env:",prefix=GMAIL_"`
+	DB       DB       `yaml:"DB" env:",prefix=DB_"`
+	Log      Log      `yaml:"LOG" env:",prefix=LOG_"`
+	Twilio   Twilio   `yaml:"TWILIO" env:",prefix=TWILIO_"`
+	GMail    GMail    `yaml:"GMAIL" env:",prefix=GMAIL_"`
+	Referral Referral `yaml:"REFERRAL" env:",prefix=REFERRAL_"`
 
 	ThirdPartySmsProvider string `yaml:"THIRD_PARTY_SMS_PROVIDER" env:"THIRD_PARTY_SMS_PROVIDER"`
 }
@@ -53,6 +54,12 @@ type GMail struct {
 	SMTPUsername string `yaml:"SMTP_USERNAME" env:"SMTP_USERNAME"`
 	SMTPPassword string `yaml:"SMTP_PASSWORD" env:"SMTP_PASSWORD"`
 	From         string `yaml:"FROM" env:"FROM"`
+}
+
+type Referral struct {
+	RequesterReferralLimit    int           `yaml:"REQUESTER_REFERRAL_LIMIT" env:"REQUESTER_REFERRAL_LIMIT"`
+	ProviderReferralLimit     int           `yaml:"PROVIDER_REFERRAL_LIMIT" env:"PROVIDER_REFERRAL_LIMIT"`
+	ReferralMaxLookupDuration time.Duration `yaml:"REFERRAL_MAX_LOOKUP_DURATION" env:"REFERRAL_MAX_LOOKUP_DURATION"`
 }
 
 func NewConfig(path string) (*Config, error) {
@@ -119,5 +126,11 @@ func (cfg *Config) SetDefaults() {
 		SMTPUsername: "username",
 		SMTPPassword: "password",
 		From:         "user.name@gmail.com",
+	}
+
+	cfg.Referral = Referral{
+		RequesterReferralLimit:    20,
+		ProviderReferralLimit:     10,
+		ReferralMaxLookupDuration: 7 * 24 * time.Hour,
 	}
 }

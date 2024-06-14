@@ -3,12 +3,17 @@ package constants
 const (
 	DefaultLanguage = "en"
 	TableNameUsers  = "users"
-	RoleViewer      = "VIEWER"
+
+	// User status
+	StatusPendingApproval = "PENDING_APPROVAL"
+	StatusAutoApproved    = "AUTO_APPROVED"
+	StatusApproved        = "APPROVED"
 
 	// User Info Params
 	ParamUserID      = "user_id"
-	ParamPhoneNumber = "phone_number"
+	ParamStatus      = "status"
 	ParamName        = "name"
+	ParamPhoneNumber = "phone_number"
 	ParamCompany     = "company"
 	ParamRole        = "role"
 

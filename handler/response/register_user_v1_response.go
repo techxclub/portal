@@ -9,14 +9,14 @@ import (
 
 // swagger:model
 type RegisterUserV1Response struct {
-	Success bool   `json:"success"`
-	UserID  string `json:"user_id"`
+	Success bool        `json:"success"`
+	Profile UserProfile `json:"profile"`
 }
 
 func NewRegisterUserV1Response(_ context.Context, _ config.Config, user domain.UserProfile) (RegisterUserV1Response, HTTPMetadata) {
 	respBody := RegisterUserV1Response{
 		Success: true,
-		UserID:  user.UserID,
+		Profile: getUserProfile(user),
 	}
 
 	return respBody, HTTPMetadata{}

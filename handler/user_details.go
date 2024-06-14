@@ -15,7 +15,7 @@ func UserProfileHandler(cfg config.Config, serviceRegistry *service.Registry) ht
 	return Handler(
 		request.NewUserProfileRequest,
 		func(ctx context.Context, req request.UserProfileRequest) (*domain.UserProfile, error) {
-			return serviceRegistry.UserService.GetProfile(ctx, req.ToDomainObject())
+			return serviceRegistry.UserService.GetProfile(ctx, req.ToUserProfileParams())
 		},
 		func(ctx context.Context, domainObj domain.UserProfile) (response.UserProfile, response.HTTPMetadata) {
 			return response.NewUserProfileResponse(ctx, cfg, domainObj)

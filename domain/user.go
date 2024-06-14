@@ -12,30 +12,34 @@ type UserProfile struct {
 	UserIDNum         int64      `db:"user_id_num"` // Only for internal use
 	UserID            string     `db:"user_id"`
 	CreatedAt         *time.Time `db:"created_time"`
+	Status            string     `db:"status"`
 	Name              string     `db:"name"`
-	Company           string     `db:"company"`
-	YearsOfExperience float32    `db:"years_of_experience"`
-	PersonalEmail     string     `db:"personal_email"`
-	WorkEmail         string     `db:"work_email"`
 	PhoneNumber       string     `db:"phone_number"`
-	LinkedIn          string     `db:"linkedin"`
+	PersonalEmail     string     `db:"personal_email"`
+	Company           string     `db:"company"`
+	WorkEmail         string     `db:"work_email"`
 	Role              string     `db:"role"`
+	YearsOfExperience float32    `db:"years_of_experience"`
+	LinkedIn          string     `db:"linkedin"`
 }
 
 type UserProfileParams struct {
 	UserID      string
-	PhoneNumber string
+	Status      string
 	Name        string
+	PhoneNumber string
 	Company     string
 	Role        string
 }
 
-func (p UserProfileParams) ToMap() map[string]string {
-	return map[string]string{
-		constants.ParamUserID:      p.UserID,
-		constants.ParamPhoneNumber: p.PhoneNumber,
-		constants.ParamName:        p.Name,
-		constants.ParamCompany:     p.Company,
-		constants.ParamRole:        p.Role,
-	}
+func (p UserProfileParams) GetQueryConditions() (string, []interface{}) {
+	qb := NewQueryBuilder()
+	qb.AddEqualParam(constants.ParamUserID, p.UserID)
+	qb.AddEqualParam(constants.ParamStatus, p.Status)
+	qb.AddEqualParam(constants.ParamName, p.Name)
+	qb.AddEqualParam(constants.ParamPhoneNumber, p.PhoneNumber)
+	qb.AddEqualParam(constants.ParamCompany, p.Company)
+	qb.AddEqualParam(constants.ParamRole, p.Role)
+
+	return qb.Build()
 }

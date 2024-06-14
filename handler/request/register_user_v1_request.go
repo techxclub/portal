@@ -12,11 +12,12 @@ import (
 
 type RegisterUserV1Request struct {
 	Name              string  `json:"name"`
-	Company           string  `json:"company"`
-	YearsOfExperience float32 `json:"years_of_experience"`
-	PersonalEmail     string  `json:"personal_email"`
-	WorkEmail         string  `json:"work_email"`
 	PhoneNumber       string  `json:"phone_number"`
+	PersonalEmail     string  `json:"personal_email"`
+	Company           string  `json:"company"`
+	Role              string  `json:"role"`
+	YearsOfExperience float32 `json:"years_of_experience"`
+	WorkEmail         string  `json:"work_email"`
 	LinkedIn          string  `json:"linkedin"`
 }
 
@@ -31,6 +32,10 @@ func NewRegisterUserV1Request(r *http.Request) (*RegisterUserV1Request, error) {
 }
 
 func (r RegisterUserV1Request) Validate() error {
+	if r.Name == "" {
+		return errors.ErrNameRequired
+	}
+
 	if r.YearsOfExperience <= 0 {
 		return errors.ErrInvalidYearsOfExperience
 	}
@@ -41,6 +46,10 @@ func (r RegisterUserV1Request) Validate() error {
 
 	if _, err := mail.ParseAddress(r.WorkEmail); err != nil {
 		return errors.ErrInvalidWorkEmail
+	}
+
+	if r.Company == "" {
+		return errors.ErrCompanyRequired
 	}
 
 	return IsValidPhoneNumber(r.PhoneNumber)
@@ -55,6 +64,7 @@ func (r RegisterUserV1Request) ToUserDetails() domain.UserProfile {
 		WorkEmail:         r.WorkEmail,
 		PhoneNumber:       r.PhoneNumber,
 		LinkedIn:          r.LinkedIn,
-		Role:              constants.RoleViewer,
+		Role:              r.Role,
+		Status:            constants.StatusPendingApproval,
 	}
 }

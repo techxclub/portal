@@ -12,14 +12,15 @@ import (
 type UserProfile struct {
 	UserID            string     `json:"user_id"`
 	CreatedAt         *time.Time `json:"created_at"`
+	Status            string     `json:"status"`
 	Name              string     `json:"name"`
-	Company           string     `json:"company"`
-	YearsOfExperience float32    `json:"years_of_experience"`
-	PersonalEmail     string     `json:"personal_email"`
-	WorkEmail         string     `json:"work_email"`
 	PhoneNumber       string     `json:"phone_number"`
-	LinkedIn          string     `json:"linkedin"`
+	PersonalEmail     string     `json:"personal_email"`
+	Company           string     `json:"company"`
+	WorkEmail         string     `json:"work_email"`
 	Role              string     `json:"role"`
+	YearsOfExperience float32    `json:"years_of_experience"`
+	LinkedIn          string     `json:"linkedin"`
 }
 
 func NewUserProfileResponse(_ context.Context, _ config.Config, user domain.UserProfile) (UserProfile, HTTPMetadata) {
@@ -31,13 +32,14 @@ func getUserProfile(user domain.UserProfile) UserProfile {
 	return UserProfile{
 		UserID:            user.UserID,
 		CreatedAt:         user.CreatedAt,
+		Status:            user.Status,
 		Name:              user.Name,
-		Company:           user.Company,
-		YearsOfExperience: user.YearsOfExperience,
-		PersonalEmail:     user.PersonalEmail,
-		WorkEmail:         user.WorkEmail,
 		PhoneNumber:       user.PhoneNumber,
-		LinkedIn:          user.LinkedIn,
+		PersonalEmail:     user.PersonalEmail,
+		Company:           user.Company,
+		WorkEmail:         user.WorkEmail,
 		Role:              user.Role,
+		YearsOfExperience: user.YearsOfExperience,
+		LinkedIn:          user.LinkedIn,
 	}
 }
