@@ -30,8 +30,10 @@ func (mb messageBuilder) SendMobileOTP(ctx context.Context, params domain.AuthRe
 	switch mb.cfg.ThirdPartySmsProvider {
 	case constants.ThirdPartyTwilio:
 		return mb.sendMobileOTPViaTwilio(ctx, params)
-	case constants.ThirdPartMsg91:
+	case constants.ThirdPartyMsg91:
 		return mb.sendMobileOTPViaMsg91(ctx, params)
+	case constants.ThirdPartyMocked:
+		return mb.mockSendMobileOTP(ctx, params)
 	default:
 		return mb.sendMobileOTPViaTwilio(ctx, params)
 	}
@@ -41,8 +43,10 @@ func (mb messageBuilder) VerifyMobileOTP(ctx context.Context, params domain.Auth
 	switch mb.cfg.ThirdPartySmsProvider {
 	case constants.ThirdPartyTwilio:
 		return mb.verifyMobileOTPViaTwilio(ctx, params)
-	case constants.ThirdPartMsg91:
+	case constants.ThirdPartyMsg91:
 		return mb.verifyMobileOTPViaMsg91(ctx, params)
+	case constants.ThirdPartyMocked:
+		return mb.mockVerifyMobileOTP(ctx, params)
 	default:
 		return mb.verifyMobileOTPViaMsg91(ctx, params)
 	}
@@ -66,4 +70,16 @@ func (mb messageBuilder) sendMobileOTPViaMsg91(_ context.Context, _ domain.AuthR
 
 func (mb messageBuilder) verifyMobileOTPViaMsg91(_ context.Context, _ domain.AuthRequest) (domain.AuthInfo, error) {
 	panic("implement me")
+}
+
+func (mb messageBuilder) mockSendMobileOTP(_ context.Context, _ domain.AuthRequest) (domain.AuthInfo, error) {
+	return domain.AuthInfo{Status: constants.AuthStatusPending}, nil
+}
+
+func (mb messageBuilder) mockVerifyMobileOTP(_ context.Context, req domain.AuthRequest) (domain.AuthInfo, error) {
+	if req.OTP == "123456" {
+		return domain.AuthInfo{Status: constants.AuthStatusApproved}, nil
+	}
+
+	return domain.AuthInfo{Status: constants.AuthStatusPending}, nil
 }

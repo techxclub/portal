@@ -19,7 +19,8 @@ const (
 
 	// Third party sms service provider
 	ThirdPartyTwilio = "twilio"
-	ThirdPartMsg91   = "msg91"
+	ThirdPartyMsg91  = "msg91"
+	ThirdPartyMocked = "mocked"
 
 	// User authorization
 	AuthActionGenerate  = "GENERATE"
@@ -30,9 +31,11 @@ const (
 	AuthStatusPending   = "pending"
 
 	// Actions
-	ActionRetry  = "RETRY"
-	ActionLogIn  = "LOG_IN"
-	ActionSignUp = "SIGN_UP"
+	ActionRetryOTP        = "RETRY_OTP"
+	ActionVerifyOTP       = "VERIFY_OTP"
+	ActionSignUp          = "SIGN_UP"
+	ActionPendingApproval = "PENDING_APPROVAL"
+	ActionLogIn           = "LOG_IN"
 
 	//	Referral status
 	ReferralStatusPending = "PENDING"

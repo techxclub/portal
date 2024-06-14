@@ -96,7 +96,7 @@ db-create-migration: ##@database create a migration, profile FILENAME env var
 db-drop:  ##@database drop db
 	dropdb -h $(DB_HOST) -U $(DB_USER) --if-exists $(DB_NAME)
 
-db-reset: db-drop db-create db-migrate  ##@database resets local db to fresh db
+db-reset: build db-drop db-create db-migrate  ##@database resets local db to fresh db
 
 
 # DEVELOPMENT	###########################################################################################
