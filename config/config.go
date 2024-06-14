@@ -9,6 +9,7 @@ var cfg *Config
 type Config struct {
 	AppName     string        `yaml:"APP_NAME" env:"APP_NAME"`
 	API         HTTPAPIConfig `yaml:"API" env:",prefix=API_"`
+	Auth        *Auth         `yaml:"AUTH" env:",prefix=AUTH_"`
 	Swagger     Swagger       `yaml:"SWAGGER" env:",prefix=SWAGGER_"`
 	Translation Translation   `yaml:"TRANSLATION" env:",prefix=TRANSLATION_"`
 
@@ -21,6 +22,23 @@ type Config struct {
 	ThirdPartySmsProvider string `yaml:"THIRD_PARTY_SMS_PROVIDER" env:"THIRD_PARTY_SMS_PROVIDER"`
 }
 
+type Auth struct {
+	DebugMode              bool          `yaml:"DEBUG_MODE" env:"DEBUG_MODE"`
+	CipherKey              string        `yaml:"CIPHER_KEY" env:"CIPHER_KEY"`
+	AuthIssuer             string        `yaml:"AUTH_ISSUER" env:"AUTH_ISSUER"`
+	AuthIssuerUUID         string        `yaml:"AUTH_ISSUER_UUID" env:"AUTH_ISSUER_UUID"`
+	AuthAudience           string        `yaml:"AUTH_AUDIENCE" env:"AUTH_AUDIENCE"`
+	AccessTokenSecret      string        `yaml:"ACCESS_TOKEN_SECRET" env:"ACCESS_TOKEN_SECRET"`
+	RefreshTokenSecret     string        `yaml:"REFRESH_TOKEN_SECRET" env:"REFRESH_TOKEN_SECRET"`
+	AuthSoftExpiryDuration time.Duration `yaml:"AUTH_SOFT_EXPIRY_DURATION" env:"AUTH_SOFT_EXPIRY_DURATION"`
+	AuthHardExpiryDuration time.Duration `yaml:"AUTH_HARD_EXPIRY_DURATION" env:"AUTH_HARD_EXPIRY_DURATION"`
+}
+
+type HTTPAPIConfig struct {
+	ListenAddr string `yaml:"LISTEN_ADDR" env:"HTTP_LISTEN_ADDR"`
+	DebugMode  bool   `yaml:"DEBUG_MODE" env:"DEBUG_MODE"`
+}
+
 type Swagger struct {
 	Enabled bool   `yaml:"ENABLED" env:"ENABLED"`
 	Path    string `yaml:"PATH" env:"PATH"`
@@ -29,11 +47,6 @@ type Swagger struct {
 type Translation struct {
 	FilePath        string `yaml:"FILE_PATH" env:"FILE_PATH"`
 	DefaultLanguage string `yaml:"DEFAULT_LANGUAGE" env:"DEFAULT_LANGUAGE"`
-}
-
-type HTTPAPIConfig struct {
-	ListenAddr string `yaml:"LISTEN_ADDR" env:"HTTP_LISTEN_ADDR"`
-	DebugMode  bool   `yaml:"DEBUG_MODE" env:"DEBUG_MODE"`
 }
 
 type Log struct {
@@ -80,6 +93,18 @@ func (cfg *Config) SetDefaults() {
 	cfg.API = HTTPAPIConfig{
 		ListenAddr: ":3000",
 		DebugMode:  false,
+	}
+
+	cfg.Auth = &Auth{
+		DebugMode:              false,
+		CipherKey:              "6c13b7338aa24366181369dbc6540f28",
+		AuthIssuer:             "portal",
+		AuthIssuerUUID:         "portal-uuid",
+		AuthAudience:           "techx",
+		AccessTokenSecret:      "af77aa93-42a0-4dae-add9-ade13453a770",
+		RefreshTokenSecret:     "1b2a01e0-b6cc-4258-8965-d41b4bb2544d",
+		AuthSoftExpiryDuration: 7 * 24 * time.Hour,
+		AuthHardExpiryDuration: 30 * 24 * time.Hour,
 	}
 
 	cfg.Swagger = Swagger{

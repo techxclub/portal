@@ -4,6 +4,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/handler"
+	"github.com/techx/portal/middleware"
 	"github.com/techx/portal/service"
 )
 
@@ -34,7 +35,7 @@ func addPublicRoutes(router *mux.Router, cfg config.Config, sr *service.Registry
 	publicRouter.
 		Methods("GET").
 		Path("/user/profile").
-		Handler(handler.UserProfileHandler(cfg, sr))
+		Handler(middleware.AuthVerifier(cfg.Auth)(handler.UserProfileHandler(cfg, sr)))
 
 	//	swagger:route Post /public/user/referral/request public userProfile
 	//	Responses:
@@ -47,7 +48,7 @@ func addPublicRoutes(router *mux.Router, cfg config.Config, sr *service.Registry
 	publicRouter.
 		Methods("POST").
 		Path("/user/referral/request").
-		Handler(handler.ReferralHandler(cfg, sr))
+		Handler(middleware.AuthVerifier(cfg.Auth)(handler.ReferralHandler(cfg, sr)))
 
 	//	swagger:route GET /public/company/list public companyList
 	//	Responses:
@@ -73,5 +74,5 @@ func addPublicRoutes(router *mux.Router, cfg config.Config, sr *service.Registry
 	publicRouter.
 		Methods("GET").
 		Path("/company/users/list").
-		Handler(handler.CompanyUsersListHandler(cfg, sr))
+		Handler(middleware.AuthVerifier(cfg.Auth)(handler.CompanyUsersListHandler(cfg, sr)))
 }

@@ -42,7 +42,7 @@ func (e *serviceError) GetCode() string {
 }
 
 func (e *serviceError) GetI18nKey() string {
-	return e.i18nKey
+	return "err_" + e.i18nKey
 }
 
 func (e *serviceError) GetI18nValues() map[string]interface{} {

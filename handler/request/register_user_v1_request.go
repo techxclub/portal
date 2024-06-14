@@ -8,6 +8,7 @@ import (
 	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
 	"github.com/techx/portal/errors"
+	"github.com/techx/portal/utils"
 )
 
 type RegisterUserV1Request struct {
@@ -52,7 +53,11 @@ func (r RegisterUserV1Request) Validate() error {
 		return errors.ErrCompanyRequired
 	}
 
-	return IsValidPhoneNumber(r.PhoneNumber)
+	if !utils.IsValidPhoneNumber(r.PhoneNumber) {
+		return errors.ErrInvalidPhoneNumber
+	}
+
+	return nil
 }
 
 func (r RegisterUserV1Request) ToUserDetails() domain.UserProfile {

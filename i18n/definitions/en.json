@@ -1,4 +1,16 @@
 {
+  "err_bad_request_title": {
+    "other": "Bad Request"
+  },
+  "err_bad_request_message": {
+    "other": "The request is invalid."
+  },
+  "err_unhandled_error_title": {
+    "other": "Unable to process"
+  },
+  "err_unhandled_error_message": {
+    "other": "We are unable to load your details at this time. Please try again later."
+  },
   "referral_mail_subject": {
     "other": "TechX: Referral Request For {{.RequesterName}}"
   },

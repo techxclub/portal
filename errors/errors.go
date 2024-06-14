@@ -42,6 +42,7 @@ func BadRequestError(err error) ServiceError {
 	return &serviceError{
 		err:                err,
 		code:               "bad_request",
+		i18nKey:            "bad_request",
 		responseStatusCode: 400,
 	}
 }
@@ -55,6 +56,7 @@ func AsServiceError(err error) ServiceError {
 	return &serviceError{
 		err:                err,
 		code:               "INTERNAL_SERVER_ERROR",
+		i18nKey:            "unhandled_error",
 		responseStatusCode: 500,
 	}
 }

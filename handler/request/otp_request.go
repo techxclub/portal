@@ -9,6 +9,7 @@ import (
 	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
 	"github.com/techx/portal/errors"
+	"github.com/techx/portal/utils"
 )
 
 var (
@@ -61,8 +62,8 @@ func (r OTPRequest) Validate() error {
 		return errors.ErrInvalidAuthChannel
 	}
 
-	if slices.Contains(phoneAuthChannels, r.Channel) {
-		return IsValidPhoneNumber(r.Value)
+	if slices.Contains(phoneAuthChannels, r.Channel) && !utils.IsValidPhoneNumber(r.Value) {
+		return errors.ErrInvalidPhoneNumber
 	}
 
 	return nil
