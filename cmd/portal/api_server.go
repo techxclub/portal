@@ -12,6 +12,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/techx/portal/builder"
 	"github.com/techx/portal/client"
+	"github.com/techx/portal/cmd/portal/router"
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/constants"
 	"github.com/techx/portal/errors"
@@ -128,7 +129,7 @@ func startAPIServer(ctx *cli.Context) error {
 	serviceRegistry := service.NewRegistry(*applicationContext.Config, builderRegistry)
 
 	// Create router
-	r := NewRouter(applicationContext.Config, serviceRegistry)
+	r := router.NewRouter(applicationContext.Config, serviceRegistry)
 
 	r.Use(middleware.RecoverMiddleware())
 	r.Use(middleware.RequestContext())

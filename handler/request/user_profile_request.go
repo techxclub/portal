@@ -21,13 +21,10 @@ type UserProfileRequest struct {
 }
 
 func NewUserProfileRequest(r *http.Request) (*UserProfileRequest, error) {
-	userID := r.URL.Query().Get(constants.ParamUserID)
-	phoneNumber := r.URL.Query().Get(constants.ParamPhoneNumber)
-
+	userID := r.Header.Get(constants.HeaderXUserID)
 	return &UserProfileRequest{
 		BaseUserDetailsRequest{
-			UserID:      userID,
-			PhoneNumber: phoneNumber,
+			UserID: userID,
 		},
 	}, nil
 }
@@ -38,8 +35,7 @@ func (r UserProfileRequest) Validate() error {
 
 func (r UserProfileRequest) ToUserProfileParams() domain.UserProfileParams {
 	return domain.UserProfileParams{
-		UserID:      r.BaseUserDetailsRequest.UserID,
-		PhoneNumber: r.BaseUserDetailsRequest.PhoneNumber,
+		UserID: r.BaseUserDetailsRequest.UserID,
 	}
 }
 

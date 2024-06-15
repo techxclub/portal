@@ -1,4 +1,4 @@
-package main
+package router
 
 import (
 	"github.com/gorilla/mux"
@@ -12,7 +12,7 @@ func addAuthRoutes(router *mux.Router, cfg config.Config, sr *service.Registry) 
 
 	//	swagger:route POST /public/auth/otp/generate public generateOTP
 	//	Responses:
-	//		200: OTPResponse
+	//		200: GenerateOTPResponse
 	//		401:
 	// 		400: ErrorResponse
 	//		422: ErrorResponse
@@ -25,7 +25,7 @@ func addAuthRoutes(router *mux.Router, cfg config.Config, sr *service.Registry) 
 
 	//	swagger:route POST /public/auth/otp/verify public verifyOTP
 	//	Responses:
-	//		200: OTPResponse
+	//		200: VerifyOTPResponse
 	//		401:
 	// 		400: ErrorResponse
 	//		422: ErrorResponse

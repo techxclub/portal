@@ -17,7 +17,7 @@ func GenerateOTPHandler(cfg config.Config, serviceRegistry *service.Registry) ht
 		func(ctx context.Context, req request.OTPRequest) (*domain.AuthDetails, error) {
 			return serviceRegistry.AuthService.GenerateOTP(ctx, req.ToAuthRequest())
 		},
-		func(ctx context.Context, domainObj domain.AuthDetails) (response.OTPResponse, response.HTTPMetadata) {
+		func(ctx context.Context, domainObj domain.AuthDetails) (response.GenerateOTPResponse, response.HTTPMetadata) {
 			return response.NewGenerateOTPResponse(ctx, cfg, domainObj)
 		},
 	)
@@ -29,7 +29,7 @@ func VerifyOTPHandler(cfg config.Config, serviceRegistry *service.Registry) http
 		func(ctx context.Context, req request.OTPRequest) (*domain.AuthDetails, error) {
 			return serviceRegistry.AuthService.VerifyUser(ctx, req.ToAuthRequest())
 		},
-		func(ctx context.Context, domainObj domain.AuthDetails) (response.OTPResponse, response.HTTPMetadata) {
+		func(ctx context.Context, domainObj domain.AuthDetails) (response.VerifyOTPResponse, response.HTTPMetadata) {
 			return response.NewVerifyOTPResponse(ctx, cfg, domainObj)
 		},
 	)

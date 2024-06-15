@@ -7,6 +7,7 @@ import (
 	"github.com/techx/portal/domain"
 )
 
+// swagger:model
 type CompanyUsersListResponse struct {
 	Users []CompanyUser `json:"users"`
 }

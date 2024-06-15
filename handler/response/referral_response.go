@@ -1,5 +1,6 @@
 package response
 
+// swagger:model
 type ReferralResponse struct {
 	Success bool `json:"success"`
 }

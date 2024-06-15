@@ -8,7 +8,49 @@ definitions:
                 x-go-name: Users
         type: object
         x-go-package: github.com/techx/portal/handler/response
-    ErrorDetails:
+    Company:
+        properties:
+            id:
+                format: int64
+                type: integer
+                x-go-name: ID
+            name:
+                type: string
+                x-go-name: Name
+        type: object
+        x-go-package: github.com/techx/portal/handler/response
+    CompanyListResponse:
+        properties:
+            companies:
+                items:
+                    $ref: '#/definitions/Company'
+                type: array
+                x-go-name: Companies
+        type: object
+        x-go-package: github.com/techx/portal/handler/response
+    CompanyUser:
+        properties:
+            company:
+                type: string
+                x-go-name: Company
+            name:
+                type: string
+                x-go-name: Name
+            user_id:
+                type: string
+                x-go-name: UserID
+        type: object
+        x-go-package: github.com/techx/portal/handler/response
+    CompanyUsersListResponse:
+        properties:
+            users:
+                items:
+                    $ref: '#/definitions/CompanyUser'
+                type: array
+                x-go-name: Users
+        type: object
+        x-go-package: github.com/techx/portal/handler/response
+    ErrorResponse:
         properties:
             code:
                 type: string
@@ -16,20 +58,21 @@ definitions:
             message:
                 type: string
                 x-go-name: Message
-            message_severity:
+            severity:
                 type: string
-                x-go-name: MessageSeverity
+                x-go-name: Severity
+            title:
+                type: string
+                x-go-name: Title
         type: object
-        x-go-package: github.com/techx/portal/handler
-    ErrorResponse:
+        x-go-package: github.com/techx/portal/handler/response
+    GenerateOTPResponse:
         properties:
-            errors:
-                items:
-                    $ref: '#/definitions/ErrorDetails'
-                type: array
-                x-go-name: Errors
+            action:
+                type: string
+                x-go-name: Action
         type: object
-        x-go-package: github.com/techx/portal/handler
+        x-go-package: github.com/techx/portal/handler/response
     OTPRequest:
         properties:
             channel:
@@ -43,36 +86,52 @@ definitions:
                 x-go-name: Value
         type: object
         x-go-package: github.com/techx/portal/handler/request
-    OTPResponse:
+    ReferralRequest:
         properties:
-            action:
+            company:
                 type: string
-                x-go-name: Action
-            status:
+                x-go-name: Company
+            job_link:
                 type: string
-                x-go-name: Status
-            user_id:
+                x-go-name: JobLink
+            message:
                 type: string
-                x-go-name: UserID
+                x-go-name: Message
+            provider_user_id:
+                type: string
+                x-go-name: ProviderUserID
+            requester_user_id:
+                type: string
+                x-go-name: RequesterUserID
+        type: object
+        x-go-package: github.com/techx/portal/handler/request
+    ReferralResponse:
+        properties:
+            success:
+                type: boolean
+                x-go-name: Success
         type: object
         x-go-package: github.com/techx/portal/handler/response
     RegisterUserV1Request:
         properties:
-            first_name:
+            company:
                 type: string
-                x-go-name: FirstName
-            last_name:
-                type: string
-                x-go-name: LastName
+                x-go-name: Company
             linkedin:
                 type: string
                 x-go-name: LinkedIn
+            name:
+                type: string
+                x-go-name: Name
             personal_email:
                 type: string
                 x-go-name: PersonalEmail
             phone_number:
                 type: string
                 x-go-name: PhoneNumber
+            role:
+                type: string
+                x-go-name: Role
             work_email:
                 type: string
                 x-go-name: WorkEmail
@@ -84,29 +143,28 @@ definitions:
         x-go-package: github.com/techx/portal/handler/request
     RegisterUserV1Response:
         properties:
-            success:
-                type: boolean
-                x-go-name: Success
-            user_id:
+            action:
                 type: string
-                x-go-name: UserID
+                x-go-name: Action
+            profile:
+                $ref: '#/definitions/UserProfile'
         type: object
         x-go-package: github.com/techx/portal/handler/response
     UserProfile:
         properties:
+            company:
+                type: string
+                x-go-name: Company
             created_at:
                 format: date-time
                 type: string
                 x-go-name: CreatedAt
-            first_name:
-                type: string
-                x-go-name: FirstName
-            last_name:
-                type: string
-                x-go-name: LastName
             linkedin:
                 type: string
                 x-go-name: LinkedIn
+            name:
+                type: string
+                x-go-name: Name
             personal_email:
                 type: string
                 x-go-name: PersonalEmail
@@ -116,6 +174,9 @@ definitions:
             role:
                 type: string
                 x-go-name: Role
+            status:
+                type: string
+                x-go-name: Status
             user_id:
                 type: string
                 x-go-name: UserID
@@ -127,12 +188,25 @@ definitions:
                 type: number
                 x-go-name: YearsOfExperience
         type: object
+        x-go-package: github.com/techx/portal/handler/composers
+    VerifyOTPResponse:
+        properties:
+            action:
+                type: string
+                x-go-name: Action
+            profile:
+                $ref: '#/definitions/UserProfile'
+        type: object
         x-go-package: github.com/techx/portal/handler/response
 paths:
     /admin/user/details:
         get:
             operationId: bulkGetUsers
             parameters:
+                - in: query
+                  name: status
+                  type: string
+                  x-go-name: Status
                 - in: query
                   name: user_id
                   type: string
@@ -142,13 +216,9 @@ paths:
                   type: string
                   x-go-name: PhoneNumber
                 - in: query
-                  name: first_name
+                  name: name
                   type: string
-                  x-go-name: FirstName
-                - in: query
-                  name: last_name
-                  type: string
-                  x-go-name: LastName
+                  x-go-name: Name
                 - in: query
                   name: company
                   type: string
@@ -193,9 +263,9 @@ paths:
                     $ref: '#/definitions/OTPRequest'
             responses:
                 "200":
-                    description: OTPResponse
+                    description: GenerateOTPResponse
                     schema:
-                        $ref: '#/definitions/OTPResponse'
+                        $ref: '#/definitions/GenerateOTPResponse'
                 "400":
                     description: ErrorResponse
                     schema:
@@ -227,9 +297,71 @@ paths:
                     $ref: '#/definitions/OTPRequest'
             responses:
                 "200":
-                    description: OTPResponse
+                    description: VerifyOTPResponse
                     schema:
-                        $ref: '#/definitions/OTPResponse'
+                        $ref: '#/definitions/VerifyOTPResponse'
+                "400":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "401":
+                    description: ""
+                "422":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "503":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            tags:
+                - public
+    /public/company/list:
+        get:
+            operationId: companyList
+            responses:
+                "200":
+                    description: CompanyListResponse
+                    schema:
+                        $ref: '#/definitions/CompanyListResponse'
+                "400":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "401":
+                    description: ""
+                "422":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "503":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            tags:
+                - public
+    /public/company/users/list:
+        get:
+            operationId: companyUsersList
+            parameters:
+                - in: header
+                  name: X-User-Id
+                  required: true
+                  type: string
+                  x-go-name: UserID
+            responses:
+                "200":
+                    description: CompanyUsersListResponse
+                    schema:
+                        $ref: '#/definitions/CompanyUsersListResponse'
                 "400":
                     description: ErrorResponse
                     schema:
@@ -254,14 +386,11 @@ paths:
         get:
             operationId: userProfile
             parameters:
-                - in: query
-                  name: user_id
+                - in: header
+                  name: X-User-Id
+                  required: true
                   type: string
                   x-go-name: UserID
-                - in: query
-                  name: phone_number
-                  type: string
-                  x-go-name: PhoneNumber
             responses:
                 "200":
                     description: UserProfile
@@ -287,14 +416,49 @@ paths:
                         $ref: '#/definitions/ErrorResponse'
             tags:
                 - public
+    /public/user/referral/request:
+        post:
+            operationId: referralRequest
+            parameters:
+                - in: header
+                  name: X-User-Id
+                  required: true
+                  type: string
+                  x-go-name: UserID
+                - in: body
+                  name: Body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/ReferralRequest'
+            responses:
+                "200":
+                    description: ReferralResponse
+                    schema:
+                        $ref: '#/definitions/ReferralResponse'
+                "400":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "401":
+                    description: ""
+                "422":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "503":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            tags:
+                - public
     /public/user/register/v1:
         post:
             operationId: registerUserV1
             parameters:
-                - in: header
-                  name: X-Request-Trace-Id
-                  type: string
-                  x-go-name: RequestTraceID
                 - in: body
                   name: RegisterUserV1Request
                   required: true

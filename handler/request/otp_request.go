@@ -21,7 +21,7 @@ type OTPRequest struct {
 	Action  string  `json:"-"`
 	Channel string  `json:"channel"`
 	Value   string  `json:"value"`
-	OTP     *string `json:"otp"`
+	OTP     *string `json:"otp,omitempty"`
 }
 
 func newOTPRequest(r *http.Request) (*OTPRequest, error) {

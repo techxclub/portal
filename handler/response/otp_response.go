@@ -11,36 +11,39 @@ import (
 )
 
 // swagger:model
-type OTPResponse struct {
+type GenerateOTPResponse struct {
+	Action string `json:"action"`
+}
+
+// swagger:model
+type VerifyOTPResponse struct {
 	Action  string                 `json:"action"`
 	Profile *composers.UserProfile `json:"profile,omitempty"`
 }
 
-func NewGenerateOTPResponse(_ context.Context, _ config.Config, _ domain.AuthDetails) (OTPResponse, HTTPMetadata) {
-	return OTPResponse{
-		Action: constants.ActionVerifyOTP,
-	}, HTTPMetadata{}
+func NewGenerateOTPResponse(_ context.Context, _ config.Config, _ domain.AuthDetails) (GenerateOTPResponse, HTTPMetadata) {
+	return GenerateOTPResponse{Action: constants.ActionVerifyOTP}, HTTPMetadata{}
 }
 
-func NewVerifyOTPResponse(_ context.Context, _ config.Config, authDetails domain.AuthDetails) (OTPResponse, HTTPMetadata) {
+func NewVerifyOTPResponse(_ context.Context, _ config.Config, authDetails domain.AuthDetails) (VerifyOTPResponse, HTTPMetadata) {
 	action := constants.ActionSignUp
 	if authDetails.AuthInfo.Status == constants.AuthStatusPending {
 		action = constants.ActionRetryOTP
 	}
 
 	if authDetails.UserInfo == nil {
-		return OTPResponse{Action: action}, HTTPMetadata{}
+		return VerifyOTPResponse{Action: action}, HTTPMetadata{}
 	}
 
 	profile := composers.NewUserProfile(*authDetails.UserInfo)
 	if !authDetails.UserInfo.IsApproved() {
-		return OTPResponse{
+		return VerifyOTPResponse{
 			Action:  constants.ActionPendingApproval,
 			Profile: &profile,
 		}, HTTPMetadata{}
 	}
 
-	verifyOTPResponse := OTPResponse{
+	verifyOTPResponse := VerifyOTPResponse{
 		Action:  constants.ActionLogIn,
 		Profile: &profile,
 	}
