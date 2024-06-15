@@ -38,12 +38,12 @@ func (u UserProfile) IsApproved() bool {
 
 func (p UserProfileParams) GetQueryConditions() (string, []interface{}) {
 	qb := NewQueryBuilder()
-	qb.AddEqualParam(constants.ParamUserID, p.UserID)
-	qb.AddEqualParam(constants.ParamStatus, p.Status)
-	qb.AddEqualParam(constants.ParamName, p.Name)
-	qb.AddEqualParam(constants.ParamPhoneNumber, p.PhoneNumber)
-	qb.AddEqualParam(constants.ParamCompany, p.Company)
-	qb.AddEqualParam(constants.ParamRole, p.Role)
+	qb.AddEqualCondition(constants.ParamUserID, p.UserID)
+	qb.AddEqualCondition(constants.ParamStatus, p.Status)
+	qb.AddEqualCondition(constants.ParamName, p.Name)
+	qb.AddEqualCondition(constants.ParamPhoneNumber, p.PhoneNumber)
+	qb.AddEqualCondition(constants.ParamCompany, p.Company)
+	qb.AddEqualCondition(constants.ParamRole, p.Role)
 
 	return qb.Build()
 }

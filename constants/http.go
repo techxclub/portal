@@ -14,13 +14,13 @@ const (
 	MethodPatch   = "PATCH"
 	MethodHead    = "HEAD"
 	MethodOptions = "OPTIONS"
-	MethodDelete  = "DELETE"
 
 	ApplicationJSON = "application/json; charset=utf-8"
 )
 
 var (
-	AllowedHeaders = []string{HeaderXUserID, HeaderXRequestTraceID, HeaderContentType, HeaderXForwardedFor, HeaderAuthorization}
+	AllowedHeaders = []string{HeaderXUserID, HeaderXRequestTraceID, HeaderContentType, HeaderXForwardedFor, HeaderAuthorization, HeaderAuthToken}
+	ExposedHeaders = []string{HeaderAuthToken, HeaderContentType}
 	AllowedMethods = []string{MethodGet, MethodPost, MethodPut, MethodPatch, MethodHead, MethodOptions}
 	AllowedOrigins = []string{"*"}
 )

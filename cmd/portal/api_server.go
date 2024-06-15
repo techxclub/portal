@@ -57,7 +57,7 @@ func NewHTTPAPIServer(cfg config.HTTPAPIConfig, r *mux.Router) *HTTPAPIServer {
 		AllowedOrigins: constants.AllowedOrigins,
 		AllowedMethods: constants.AllowedMethods,
 		AllowedHeaders: constants.AllowedHeaders,
-		Debug:          true,
+		ExposedHeaders: constants.ExposedHeaders,
 	})
 
 	// create the http server

@@ -29,12 +29,12 @@ type ReferralParams struct {
 
 func (r ReferralParams) GetQueryConditions() (string, []interface{}) {
 	qb := NewQueryBuilder()
-	qb.AddEqualParam("id", r.ID)
-	qb.AddEqualParam("requester_user_id", r.RequesterUserID)
-	qb.AddEqualParam("provider_user_id", r.ProviderUserID)
-	qb.AddEqualParam("company", r.Company)
-	qb.AddEqualParam("status", r.Status)
-	qb.AddGreaterEqualParam("created_time", r.CreatedAt)
+	qb.AddEqualCondition("id", r.ID)
+	qb.AddEqualCondition("requester_user_id", r.RequesterUserID)
+	qb.AddEqualCondition("provider_user_id", r.ProviderUserID)
+	qb.AddEqualCondition("company", r.Company)
+	qb.AddEqualCondition("status", r.Status)
+	qb.AddGreaterEqualCondition("created_time", r.CreatedAt)
 
 	return qb.Build()
 }

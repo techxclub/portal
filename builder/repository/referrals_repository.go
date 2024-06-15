@@ -16,12 +16,12 @@ const (
 	getReferralSelectorFields = `id, requester_user_id, provider_user_id, company, job_link, status, created_time`
 )
 
-type ReferralsRepo interface {
+type ReferralsRepository interface {
 	CreateReferral(ctx context.Context, referral domain.ReferralParams) (*domain.Referral, error)
 	GetReferralsForParams(ctx context.Context, params domain.ReferralParams) (*domain.Referrals, error)
 }
 
-type referralsRepo struct {
+type referralsRepository struct {
 	dbClient *db.Repository
 }
 
@@ -30,13 +30,13 @@ type ReferralsReturning struct {
 	CreatedAt time.Time `db:"created_time"`
 }
 
-func NewReferralsRepo(dbClient *db.Repository) ReferralsRepo {
-	return &referralsRepo{
+func NewReferralsRepository(dbClient *db.Repository) ReferralsRepository {
+	return &referralsRepository{
 		dbClient: dbClient,
 	}
 }
 
-func (r referralsRepo) CreateReferral(ctx context.Context, params domain.ReferralParams) (*domain.Referral, error) {
+func (r referralsRepository) CreateReferral(ctx context.Context, params domain.ReferralParams) (*domain.Referral, error) {
 	var returning ReferralsReturning
 	err := r.dbClient.TxRunner.RunInTxContext(ctx, func(tx *sqlx.Tx) error {
 		now := time.Now()
@@ -66,7 +66,7 @@ func (r referralsRepo) CreateReferral(ctx context.Context, params domain.Referra
 	return &referral, nil
 }
 
-func (r referralsRepo) GetReferralsForParams(ctx context.Context, params domain.ReferralParams) (*domain.Referrals, error) {
+func (r referralsRepository) GetReferralsForParams(ctx context.Context, params domain.ReferralParams) (*domain.Referrals, error) {
 	getReferralsByParamsQuery, args, err := getReferralQueryForParams(params)
 	if err != nil {
 		return nil, err

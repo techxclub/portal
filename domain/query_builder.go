@@ -7,6 +7,8 @@ import (
 )
 
 const (
+	queryTypeNamed = "NAMED"
+
 	equalOperator        = "="
 	lessOperator         = "<"
 	greaterOperator      = ">"
@@ -17,55 +19,78 @@ const (
 var supportedOperators = []string{equalOperator, lessOperator, greaterOperator, lessEqualOperator, greaterEqualOperator}
 
 type QueryBuilder struct {
-	counter    int
-	conditions []string
-	args       []interface{}
+	queryType    string
+	counter      int
+	conditions   []string
+	args         []interface{}
+	namedArgsMap map[string]interface{}
 }
 
 func NewQueryBuilder() *QueryBuilder {
 	return &QueryBuilder{
-		counter:    1,
-		conditions: make([]string, 0),
-		args:       make([]interface{}, 0),
+		counter:      1,
+		conditions:   make([]string, 0),
+		args:         make([]interface{}, 0),
+		namedArgsMap: make(map[string]interface{}),
 	}
 }
 
-func (qb *QueryBuilder) AddEqualParam(key string, value interface{}) {
-	qb.AddParam(key, value, equalOperator)
+func NewNamedQueryBuilder() *QueryBuilder {
+	qb := NewQueryBuilder()
+	qb.queryType = queryTypeNamed
+	return qb
 }
 
-func (qb *QueryBuilder) AddLessParam(key string, value interface{}) {
-	qb.AddParam(key, value, lessOperator)
+func (qb *QueryBuilder) AddEqualCondition(key string, value interface{}) {
+	qb.addCondition(key, value, equalOperator)
 }
 
-func (qb *QueryBuilder) AddGreaterParam(key string, value interface{}) {
-	qb.AddParam(key, value, greaterOperator)
+func (qb *QueryBuilder) AddLessCondition(key string, value interface{}) {
+	qb.addCondition(key, value, lessOperator)
 }
 
-func (qb *QueryBuilder) AddLessEqualParam(key string, value interface{}) {
-	qb.AddParam(key, value, lessEqualOperator)
+func (qb *QueryBuilder) AddGreaterCondition(key string, value interface{}) {
+	qb.addCondition(key, value, greaterOperator)
 }
 
-func (qb *QueryBuilder) AddGreaterEqualParam(key string, value interface{}) {
-	qb.AddParam(key, value, greaterEqualOperator)
+func (qb *QueryBuilder) AddLessEqualCondition(key string, value interface{}) {
+	qb.addCondition(key, value, lessEqualOperator)
 }
 
-func (qb *QueryBuilder) AddParam(key string, value interface{}, operator string) {
-	if !slices.Contains(supportedOperators, operator) {
-		return
-	}
-
-	if key == "" || value == nil || value == "" {
-		return
-	}
-
-	condition := fmt.Sprintf("%s %s $%d", key, operator, qb.counter)
-	qb.conditions = append(qb.conditions, condition)
-	qb.args = append(qb.args, value)
-	qb.counter++
+func (qb *QueryBuilder) AddGreaterEqualCondition(key string, value interface{}) {
+	qb.addCondition(key, value, greaterEqualOperator)
 }
 
 func (qb *QueryBuilder) Build() (string, []interface{}) {
 	query := strings.Join(qb.conditions, " AND ")
 	return query, qb.args
+}
+
+func (qb *QueryBuilder) BuildNamedConditions() (string, []interface{}) {
+	query := strings.Join(qb.conditions, ", ")
+	return query, qb.args
+}
+
+func (qb *QueryBuilder) addCondition(key string, value interface{}, operator string) {
+	if !slices.Contains(supportedOperators, operator) {
+		return
+	}
+
+	if key == "" || value == nil || value == "" || value == 0 {
+		return
+	}
+
+	condition := qb.getCondition(key, operator)
+	qb.conditions = append(qb.conditions, condition)
+	qb.args = append(qb.args, value)
+	qb.namedArgsMap[key] = value
+	qb.counter++
+}
+
+func (qb *QueryBuilder) getCondition(key, operator string) string {
+	if qb.queryType == queryTypeNamed {
+		return fmt.Sprintf("%s%s:%s", key, operator, key)
+	}
+
+	return fmt.Sprintf("%s %s $%d", key, operator, qb.counter)
 }
