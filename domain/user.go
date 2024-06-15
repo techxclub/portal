@@ -32,6 +32,10 @@ type UserProfileParams struct {
 	Role        string
 }
 
+func (u UserProfile) IsApproved() bool {
+	return u.Status == constants.StatusApproved || u.Status == constants.StatusAutoApproved
+}
+
 func (p UserProfileParams) GetQueryConditions() (string, []interface{}) {
 	qb := NewQueryBuilder()
 	qb.AddEqualParam(constants.ParamUserID, p.UserID)

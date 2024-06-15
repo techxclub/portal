@@ -28,12 +28,12 @@ func NewUserService(cfg config.Config, registry *builder.Registry) UserService {
 }
 
 func (u userService) RegisterUser(ctx context.Context, userDetails domain.UserProfile) (*domain.Registration, error) {
-	authToken, err := domain.GenerateToken(userDetails.PhoneNumber, u.cfg.Auth)
+	user, err := u.registry.UsersRepo.CreateUser(ctx, userDetails)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := u.registry.UsersRepo.CreateUser(ctx, userDetails)
+	authToken, err := domain.GenerateToken(user.UserID, u.cfg.Auth)
 	if err != nil {
 		return nil, err
 	}

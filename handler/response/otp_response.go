@@ -2,6 +2,7 @@ package response
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/constants"
@@ -11,7 +12,7 @@ import (
 
 // swagger:model
 type OTPResponse struct {
-	Action  string                 `json:"action,omitempty"`
+	Action  string                 `json:"action"`
 	Profile *composers.UserProfile `json:"profile,omitempty"`
 }
 
@@ -22,19 +23,35 @@ func NewGenerateOTPResponse(_ context.Context, _ config.Config, _ domain.AuthDet
 }
 
 func NewVerifyOTPResponse(_ context.Context, _ config.Config, authDetails domain.AuthDetails) (OTPResponse, HTTPMetadata) {
-	verifyOTPResponse := OTPResponse{
-		Action: constants.ActionSignUp,
-	}
-
+	action := constants.ActionSignUp
 	if authDetails.AuthInfo.Status == constants.AuthStatusPending {
-		verifyOTPResponse.Action = constants.ActionRetryOTP
+		action = constants.ActionRetryOTP
 	}
 
-	if authDetails.UserInfo != nil {
-		profile := composers.NewUserProfile(*authDetails.UserInfo)
-		verifyOTPResponse.Profile = &profile
-		verifyOTPResponse.Action = constants.ActionLogIn
+	if authDetails.UserInfo == nil {
+		return OTPResponse{Action: action}, HTTPMetadata{}
 	}
 
-	return verifyOTPResponse, HTTPMetadata{}
+	profile := composers.NewUserProfile(*authDetails.UserInfo)
+	if !authDetails.UserInfo.IsApproved() {
+		return OTPResponse{
+			Action:  constants.ActionPendingApproval,
+			Profile: &profile,
+		}, HTTPMetadata{}
+	}
+
+	verifyOTPResponse := OTPResponse{
+		Action:  constants.ActionLogIn,
+		Profile: &profile,
+	}
+
+	httpMetadata := HTTPMetadata{
+		Cookies: &http.Cookie{
+			Name:     constants.CookieAuthToken,
+			Value:    authDetails.AuthToken,
+			SameSite: http.SameSiteStrictMode,
+		},
+	}
+
+	return verifyOTPResponse, httpMetadata
 }

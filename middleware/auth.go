@@ -20,7 +20,7 @@ func AuthVerifier(authConfig *config.Auth) mux.MiddlewareFunc {
 
 			authCookie, err := r.Cookie(constants.CookieAuthToken)
 			if err != nil {
-				http.Error(w, "Missing authorization cookie", http.StatusUnauthorized)
+				http.Error(w, "Missing authorization cookie", http.StatusBadRequest)
 				return
 			}
 
@@ -30,8 +30,14 @@ func AuthVerifier(authConfig *config.Auth) mux.MiddlewareFunc {
 				return
 			}
 
-			if err := domain.VerifyToken(tokenStr, authConfig); err != nil {
-				http.Error(w, "Invalid token", http.StatusForbidden)
+			userID := r.Header.Get(constants.HeaderXUserID)
+			if userID == "" {
+				http.Error(w, "Missing user id header", http.StatusBadRequest)
+				return
+			}
+
+			if err := domain.VerifyToken(tokenStr, userID, authConfig); err != nil {
+				http.Error(w, err.Error(), http.StatusUnauthorized)
 				return
 			}
 

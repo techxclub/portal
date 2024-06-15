@@ -64,6 +64,9 @@ func (s authService) VerifyUser(ctx context.Context, otpVerificationDetail domai
 		return &authDetails, nil
 	}
 
+	authToken, _ := domain.GenerateToken(userInfo.UserID, s.cfg.Auth)
+
 	authDetails.UserInfo = userInfo
+	authDetails.AuthToken = authToken
 	return &authDetails, nil
 }

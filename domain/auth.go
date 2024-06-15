@@ -10,7 +10,6 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/techx/portal/config"
-	"github.com/techx/portal/utils"
 )
 
 type AuthRequest struct {
@@ -20,8 +19,9 @@ type AuthRequest struct {
 }
 
 type AuthDetails struct {
-	UserInfo *UserProfile
-	AuthInfo AuthInfo
+	AuthToken string
+	UserInfo  *UserProfile
+	AuthInfo  AuthInfo
 }
 
 type AuthInfo struct {
@@ -29,10 +29,10 @@ type AuthInfo struct {
 }
 
 // GenerateToken generates a JWT token for a user
-func GenerateToken(phoneNumber string, authConfig *config.Auth) (string, error) {
+func GenerateToken(userID string, authConfig *config.Auth) (string, error) {
 	now := time.Now()
 	expirationTime := now.Add(authConfig.AuthSoftExpiryDuration)
-	encryptedPhoneNumber, err := encrypt(phoneNumber, authConfig.CipherKey)
+	encryptedUserID, err := encrypt(userID, authConfig.CipherKey)
 	if err != nil {
 		return "", err
 	}
@@ -41,7 +41,7 @@ func GenerateToken(phoneNumber string, authConfig *config.Auth) (string, error) 
 		Id:        authConfig.AuthIssuerUUID,
 		Issuer:    authConfig.AuthIssuer,
 		Audience:  authConfig.AuthAudience,
-		Subject:   encryptedPhoneNumber,
+		Subject:   encryptedUserID,
 		IssuedAt:  now.Unix(),
 		ExpiresAt: expirationTime.Unix(),
 	}
@@ -51,7 +51,7 @@ func GenerateToken(phoneNumber string, authConfig *config.Auth) (string, error) 
 }
 
 // VerifyToken verifies a JWT token and returns the user's phone number
-func VerifyToken(tokenStr string, authConfig *config.Auth) error {
+func VerifyToken(tokenStr, userID string, authConfig *config.Auth) error {
 	claims := &jwt.StandardClaims{}
 	token, err := jwt.ParseWithClaims(tokenStr, claims, func(_ *jwt.Token) (interface{}, error) {
 		return []byte(authConfig.AccessTokenSecret), nil
@@ -80,13 +80,13 @@ func VerifyToken(tokenStr string, authConfig *config.Auth) error {
 		return jwt.NewValidationError("invalid issuer uuid", jwt.ValidationErrorClaimsInvalid)
 	}
 
-	phoneNumber, err := decrypt(claims.Subject, authConfig.CipherKey)
+	decryptedUserID, err := decrypt(claims.Subject, authConfig.CipherKey)
 	if err != nil {
 		return err
 	}
 
-	if !utils.IsValidPhoneNumber(phoneNumber) {
-		return jwt.NewValidationError("invalid phone number", jwt.ValidationErrorClaimsInvalid)
+	if decryptedUserID != userID {
+		return jwt.NewValidationError("user id mismatch", jwt.ValidationErrorClaimsInvalid)
 	}
 
 	return nil
