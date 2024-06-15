@@ -15,6 +15,7 @@ import (
 var loggableRequestHeaders = []string{
 	constants.HeaderXUserID,
 	constants.HeaderXForwardedFor,
+	constants.HeaderXRequestTraceID,
 }
 
 func getLogFieldForInterface(key string, val interface{}) map[string]interface{} {

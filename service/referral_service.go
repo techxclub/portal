@@ -28,14 +28,14 @@ func NewReferralService(cfg config.Config, registry *builder.Registry) ReferralS
 }
 
 func (r referralService) CreateReferral(ctx context.Context, referralDetails domain.ReferralParams) (*domain.Referral, error) {
-	requester, err := r.registry.UsersRepo.GetUserForParams(ctx, domain.UserProfileParams{
+	requester, err := r.registry.UsersRepository.GetUserForParams(ctx, domain.UserProfileParams{
 		UserID: referralDetails.RequesterUserID,
 	})
 	if err != nil {
 		return nil, errors.ErrRequesterNotFound
 	}
 
-	provider, err := r.registry.UsersRepo.GetUserForParams(ctx, domain.UserProfileParams{
+	provider, err := r.registry.UsersRepository.GetUserForParams(ctx, domain.UserProfileParams{
 		UserID: referralDetails.ProviderUserID,
 	})
 	if err != nil {
@@ -47,7 +47,7 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 	}
 
 	referralMaxLookupTime := time.Now().Add(-r.cfg.Referral.ReferralMaxLookupDuration)
-	requesterReferrals, err := r.registry.ReferralsRepo.GetReferralsForParams(ctx, domain.ReferralParams{
+	requesterReferrals, err := r.registry.ReferralsRepository.GetReferralsForParams(ctx, domain.ReferralParams{
 		RequesterUserID: requester.UserID,
 		CreatedAt:       &referralMaxLookupTime,
 		Status:          constants.ReferralStatusPending,
@@ -60,7 +60,7 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 		return nil, errors.ErrReferralLimitReachedForRequester
 	}
 
-	providerReferrals, err := r.registry.ReferralsRepo.GetReferralsForParams(ctx, domain.ReferralParams{
+	providerReferrals, err := r.registry.ReferralsRepository.GetReferralsForParams(ctx, domain.ReferralParams{
 		ProviderUserID: provider.UserID,
 		CreatedAt:      &referralMaxLookupTime,
 		Status:         constants.ReferralStatusPending,
@@ -88,7 +88,7 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 		return nil, err
 	}
 
-	referral, err := r.registry.ReferralsRepo.CreateReferral(ctx, referralDetails)
+	referral, err := r.registry.ReferralsRepository.CreateReferral(ctx, referralDetails)
 	if err != nil {
 		return nil, err
 	}

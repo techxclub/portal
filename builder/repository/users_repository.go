@@ -10,7 +10,7 @@ import (
 	"github.com/techx/portal/errors"
 )
 
-type UsersRepo interface {
+type UsersRepository interface {
 	NextUserIDNum(ctx context.Context) (int64, error)
 	CreateUser(ctx context.Context, details domain.UserProfile) (*domain.UserProfile, error)
 	GetUserForParams(ctx context.Context, params domain.UserProfileParams) (*domain.UserProfile, error)
@@ -18,12 +18,12 @@ type UsersRepo interface {
 	GetCompanies(ctx context.Context) (*domain.Companies, error)
 }
 
-type usersRepo struct {
+type usersRepository struct {
 	dbClient *db.Repository
 }
 
-func NewUsersRepo(userDB *db.Repository) UsersRepo {
-	return &usersRepo{
+func NewUsersRepository(userDB *db.Repository) UsersRepository {
+	return &usersRepository{
 		dbClient: userDB,
 	}
 }
@@ -42,7 +42,7 @@ const (
 	getDistinctCompanies = `SELECT DISTINCT company as name FROM users`
 )
 
-func (u usersRepo) NextUserIDNum(ctx context.Context) (int64, error) {
+func (u usersRepository) NextUserIDNum(ctx context.Context) (int64, error) {
 	var userID int64
 
 	err := u.dbClient.TxRunner.RunInTxContext(ctx, func(tx *sqlx.Tx) error {
@@ -51,7 +51,7 @@ func (u usersRepo) NextUserIDNum(ctx context.Context) (int64, error) {
 	return userID, err
 }
 
-func (u usersRepo) CreateUser(ctx context.Context, details domain.UserProfile) (*domain.UserProfile, error) {
+func (u usersRepository) CreateUser(ctx context.Context, details domain.UserProfile) (*domain.UserProfile, error) {
 	userIDNum, err := u.NextUserIDNum(ctx)
 	if err != nil {
 		return nil, err
@@ -84,7 +84,7 @@ func (u usersRepo) CreateUser(ctx context.Context, details domain.UserProfile) (
 	return &details, nil
 }
 
-func (u usersRepo) GetUserForParams(ctx context.Context, params domain.UserProfileParams) (*domain.UserProfile, error) {
+func (u usersRepository) GetUserForParams(ctx context.Context, params domain.UserProfileParams) (*domain.UserProfile, error) {
 	getUserByParamsQuery, args, err := getQueryForParams(params)
 	if err != nil {
 		return nil, err
@@ -99,7 +99,7 @@ func (u usersRepo) GetUserForParams(ctx context.Context, params domain.UserProfi
 	return &user, nil
 }
 
-func (u usersRepo) GetUsersForParams(ctx context.Context, params domain.UserProfileParams) (*domain.Users, error) {
+func (u usersRepository) GetUsersForParams(ctx context.Context, params domain.UserProfileParams) (*domain.Users, error) {
 	getUsersByParamsQuery, args, err := getQueryForParams(params)
 	if err != nil {
 		return nil, err
@@ -119,7 +119,7 @@ func (u usersRepo) GetUsersForParams(ctx context.Context, params domain.UserProf
 	return &result, nil
 }
 
-func (u usersRepo) GetCompanies(ctx context.Context) (*domain.Companies, error) {
+func (u usersRepository) GetCompanies(ctx context.Context) (*domain.Companies, error) {
 	var companies []domain.Company
 	err := u.dbClient.DBSelect(ctx, &companies, getDistinctCompanies)
 	if err != nil {
