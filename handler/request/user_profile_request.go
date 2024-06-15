@@ -5,6 +5,7 @@ import (
 
 	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
+	"github.com/techx/portal/utils"
 )
 
 type BaseUserDetailsRequest struct {
@@ -56,7 +57,7 @@ func NewBulkUserDetailsRequest(r *http.Request) (*BulkUserDetailsRequest, error)
 			UserID:      userID,
 			Status:      status,
 			Name:        name,
-			PhoneNumber: phoneNumber,
+			PhoneNumber: utils.SanitizePhoneNumber(phoneNumber),
 			Company:     Company,
 			Role:        Role,
 		},

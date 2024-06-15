@@ -67,7 +67,7 @@ func (r RegisterUserV1Request) ToUserDetails() domain.UserProfile {
 		YearsOfExperience: r.YearsOfExperience,
 		PersonalEmail:     r.PersonalEmail,
 		WorkEmail:         r.WorkEmail,
-		PhoneNumber:       r.PhoneNumber,
+		PhoneNumber:       utils.SanitizePhoneNumber(r.PhoneNumber),
 		LinkedIn:          r.LinkedIn,
 		Role:              r.Role,
 		Status:            constants.StatusPendingApproval,

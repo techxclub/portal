@@ -75,6 +75,10 @@ func (r OTPRequest) ToAuthRequest() domain.AuthRequest {
 		Value:   r.Value,
 	}
 
+	if slices.Contains(phoneAuthChannels, r.Channel) {
+		authRequest.Value = utils.SanitizePhoneNumber(r.Value)
+	}
+
 	if strings.ToUpper(r.Action) == constants.AuthActionVerify {
 		authRequest.OTP = *r.OTP
 	}

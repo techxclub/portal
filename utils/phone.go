@@ -12,3 +12,12 @@ func IsValidPhoneNumber(phoneNumber string) bool {
 
 	return phonenumbers.IsValidNumber(parsedNumber)
 }
+
+func SanitizePhoneNumber(phoneNumber string) string {
+	parsedNumber, err := phonenumbers.Parse(phoneNumber, "")
+	if err != nil {
+		return ""
+	}
+
+	return phonenumbers.Format(parsedNumber, phonenumbers.E164)
+}

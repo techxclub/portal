@@ -49,10 +49,8 @@ func NewVerifyOTPResponse(_ context.Context, _ config.Config, authDetails domain
 	}
 
 	httpMetadata := HTTPMetadata{
-		Cookies: &http.Cookie{
-			Name:     constants.CookieAuthToken,
-			Value:    authDetails.AuthToken,
-			SameSite: http.SameSiteStrictMode,
+		Headers: &http.Header{
+			constants.HeaderAuthToken: []string{authDetails.AuthToken},
 		},
 	}
 

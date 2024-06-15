@@ -23,15 +23,15 @@ func NewRegisterUserV1Response(_ context.Context, _ config.Config, registration 
 		Action:  constants.ActionLogIn,
 	}
 
-	if registration.User.Status == constants.StatusPendingApproval {
+	if !registration.User.IsApproved() {
 		respBody.Action = constants.ActionPendingApproval
+		return respBody, HTTPMetadata{}
 	}
 
-	return respBody, HTTPMetadata{
-		Cookies: &http.Cookie{
-			Name:     constants.CookieAuthToken,
-			Value:    registration.AuthToken,
-			SameSite: http.SameSiteStrictMode,
+	httpMetadata := HTTPMetadata{
+		Headers: &http.Header{
+			constants.HeaderAuthToken: []string{registration.AuthToken},
 		},
 	}
+	return respBody, httpMetadata
 }

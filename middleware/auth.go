@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/techx/portal/config"
@@ -18,25 +19,26 @@ func AuthVerifier(authConfig *config.Auth) mux.MiddlewareFunc {
 				return
 			}
 
-			authCookie, err := r.Cookie(constants.CookieAuthToken)
-			if err != nil {
-				http.Error(w, "Missing authorization cookie", http.StatusBadRequest)
-				return
-			}
-
-			tokenStr := authCookie.Value
-			if tokenStr == "" {
-				http.Error(w, "Missing token in cookie", http.StatusUnauthorized)
-				return
-			}
-
 			userID := r.Header.Get(constants.HeaderXUserID)
 			if userID == "" {
 				http.Error(w, "Missing user id header", http.StatusBadRequest)
 				return
 			}
 
-			if err := domain.VerifyToken(tokenStr, userID, authConfig); err != nil {
+			authHeader := r.Header.Get(constants.HeaderAuthorization)
+			if authHeader == "" {
+				http.Error(w, "Missing authorization header", http.StatusBadRequest)
+				return
+			}
+
+			tokens := strings.Split(authHeader, " ")
+			if len(tokens) != 2 || tokens[0] != "Bearer" || tokens[1] == "" {
+				http.Error(w, "Invalid authorization header", http.StatusBadRequest)
+				return
+			}
+
+			authToken := tokens[1]
+			if err := domain.VerifyToken(authToken, userID, authConfig); err != nil {
 				http.Error(w, err.Error(), http.StatusUnauthorized)
 				return
 			}

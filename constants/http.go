@@ -6,8 +6,7 @@ const (
 	HeaderXForwardedFor   = "X-FORWARDED-FOR"
 	HeaderXRequestTraceID = "X-Request-Trace-Id"
 	HeaderAuthorization   = "Authorization"
-
-	CookieAuthToken = "AuthToken"
+	HeaderAuthToken       = "Auth-Token"
 
 	MethodGet     = "GET"
 	MethodPost    = "POST"
