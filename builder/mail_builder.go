@@ -3,6 +3,8 @@ package builder
 import (
 	"context"
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/domain"
@@ -18,10 +20,11 @@ const (
 )
 
 type ReferralMailParams struct {
-	Requester domain.UserProfile
-	Provider  domain.UserProfile
-	JobLink   string
-	Message   string
+	Requester      domain.UserProfile
+	Provider       domain.UserProfile
+	JobLink        string
+	Message        string
+	ResumeFilePath string
 }
 
 type MailBuilder interface {
@@ -67,5 +70,16 @@ func (mb *mailBuilder) SendReferralMail(ctx context.Context, params ReferralMail
 	m.SetHeader("To", to...)
 	m.SetHeader("Subject", subject)
 	m.SetBody("text/html", textHTML)
+
+	defer os.Remove(params.ResumeFilePath)
+
+	m.Attach(params.ResumeFilePath, gomail.Rename(getResumeFileName(params.Requester.Name)))
+
 	return mb.GMail.DialAndSend(m)
+}
+
+func getResumeFileName(name string) string {
+	temp := strings.Split(name, " ")
+	sanitizedName := strings.Join(temp, "_")
+	return fmt.Sprintf("Resume_%s.pdf", sanitizedName)
 }

@@ -78,10 +78,11 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 	}
 
 	referralMailParams := builder.ReferralMailParams{
-		Requester: *requester,
-		Provider:  *provider,
-		JobLink:   referralDetails.JobLink,
-		Message:   referralDetails.Message,
+		Requester:      *requester,
+		Provider:       *provider,
+		JobLink:        referralDetails.JobLink,
+		Message:        referralDetails.Message,
+		ResumeFilePath: referralDetails.ResumeFilePath,
 	}
 	err = r.registry.MailBuilder.SendReferralMail(ctx, referralMailParams)
 	if err != nil {
