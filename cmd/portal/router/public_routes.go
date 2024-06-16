@@ -73,7 +73,7 @@ func addPublicRoutes(router *mux.Router, cfg *config.Config, sr *service.Registr
 	//		500: ErrorResponse
 	//		503: ErrorResponse
 	publicRouter.
-		Methods(constants.MethodGet).
+		Methods(constants.MethodPost).
 		Path("/user/referral/request").
 		Handler(middleware.Authorization(cfg.Auth)(handler.ReferralHandler(cfg, sr)))
 }
