@@ -19,7 +19,7 @@ type Repository struct {
 	TxRunner  TxRunner
 }
 
-func NewRepository(cfg config.Config, tableName string) (*Repository, error) {
+func NewRepository(cfg *config.Config, tableName string) (*Repository, error) {
 	postgresDB, err := db.NewPostgresDB(context.Background(), cfg.DB)
 	if err != nil {
 		return nil, err

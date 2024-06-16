@@ -35,7 +35,7 @@ var (
 	ErrReferralNotFound                 = NewServiceError("referral_not_found", 404, nil)
 	ErrSearchParamRequired              = NewServiceError("search_param_required", 400, nil)
 	ErrCompanyNotFound                  = NewServiceError("company_not_found", 404, nil)
-	ErrUserNotFound                     = NewServiceError("user_not_found", 404, nil)
+	ErrNoDataFound                      = NewServiceError("no_data_found", 404, nil)
 )
 
 func BadRequestError(err error) ServiceError {

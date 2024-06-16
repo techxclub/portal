@@ -11,14 +11,12 @@ import (
 	"github.com/techx/portal/service"
 )
 
-func UserProfileHandler(cfg config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
+func UserProfileHandler(_ *config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
 	return Handler(
 		request.NewUserProfileRequest,
 		func(ctx context.Context, req request.UserProfileRequest) (*domain.UserProfile, error) {
 			return serviceRegistry.UserService.GetProfile(ctx, req.ToUserProfileParams())
 		},
-		func(ctx context.Context, domainObj domain.UserProfile) (response.UserProfileResponse, response.HTTPMetadata) {
-			return response.NewUserProfileResponse(ctx, cfg, domainObj)
-		},
+		response.NewUserProfileResponse,
 	)
 }

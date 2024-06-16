@@ -11,14 +11,14 @@ import (
 	"github.com/techx/portal/service"
 )
 
-func AdminUserDetailsHandler(cfg config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
+func AdminUserListHandler(_ *config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
 	return Handler(
-		request.NewBulkUserDetailsRequest,
-		func(ctx context.Context, req request.BulkUserDetailsRequest) (*domain.Users, error) {
+		request.NewAdminUserListRequest,
+		func(ctx context.Context, req request.AdminUserListRequest) (*domain.Users, error) {
 			return serviceRegistry.UserService.GetUsers(ctx, req.ToUserProfileParams())
 		},
-		func(ctx context.Context, domainObj domain.Users) (response.BulkUserDetailsResponse, response.HTTPMetadata) {
-			return response.NewBulkUserDetailsResponse(ctx, cfg, domainObj)
+		func(ctx context.Context, domainObj domain.Users) (response.UserListResponse, response.HTTPMetadata) {
+			return response.NewUserListResponse(ctx, domainObj)
 		},
 	)
 }

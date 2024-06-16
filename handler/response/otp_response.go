@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/techx/portal/config"
 	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
 	"github.com/techx/portal/handler/composers"
@@ -21,11 +20,11 @@ type VerifyOTPResponse struct {
 	Profile *composers.UserProfile `json:"profile,omitempty"`
 }
 
-func NewGenerateOTPResponse(_ context.Context, _ config.Config, _ domain.AuthDetails) (GenerateOTPResponse, HTTPMetadata) {
+func NewGenerateOTPResponse(_ context.Context, _ domain.AuthDetails) (GenerateOTPResponse, HTTPMetadata) {
 	return GenerateOTPResponse{Action: constants.ActionVerifyOTP}, HTTPMetadata{}
 }
 
-func NewVerifyOTPResponse(_ context.Context, _ config.Config, authDetails domain.AuthDetails) (VerifyOTPResponse, HTTPMetadata) {
+func NewVerifyOTPResponse(_ context.Context, authDetails domain.AuthDetails) (VerifyOTPResponse, HTTPMetadata) {
 	action := constants.ActionSignUp
 	if authDetails.AuthInfo.Status == constants.AuthStatusPending {
 		action = constants.ActionRetryOTP

@@ -1,12 +1,14 @@
 package response
 
+import "context"
+
 // swagger:model
-type ReferralResponse struct {
+type SuccessResponse struct {
 	Success bool `json:"success"`
 }
 
-func NewReferralResponse() (ReferralResponse, HTTPMetadata) {
-	respBody := ReferralResponse{
+func NewSuccessResponse(_ context.Context) (SuccessResponse, HTTPMetadata) {
+	respBody := SuccessResponse{
 		Success: true,
 	}
 	return respBody, HTTPMetadata{}

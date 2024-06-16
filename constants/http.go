@@ -6,6 +6,8 @@ const (
 	HeaderXForwardedFor   = "X-FORWARDED-FOR"
 	HeaderXRequestTraceID = "X-Request-Trace-Id"
 	HeaderAuthorization   = "Authorization"
+	HeaderClientID        = "Client-ID"
+	HeaderPasskey         = "Passkey"
 	HeaderAuthToken       = "Auth-Token"
 
 	MethodGet     = "GET"

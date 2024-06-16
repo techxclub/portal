@@ -10,8 +10,8 @@ import (
 	"github.com/techx/portal/domain"
 )
 
-// AuthVerifier catches panics and prevents the request goroutine from crashing.
-func AuthVerifier(authConfig *config.Auth) mux.MiddlewareFunc {
+// Authorization is a middleware that checks if the request is authorized
+func Authorization(authConfig *config.Auth) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if authConfig.DebugMode {

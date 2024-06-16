@@ -26,15 +26,3 @@ type ReferralParams struct {
 	Status          string
 	CreatedAt       *time.Time
 }
-
-func (r ReferralParams) GetQueryConditions() (string, []interface{}) {
-	qb := NewQueryBuilder()
-	qb.AddEqualCondition("id", r.ID)
-	qb.AddEqualCondition("requester_user_id", r.RequesterUserID)
-	qb.AddEqualCondition("provider_user_id", r.ProviderUserID)
-	qb.AddEqualCondition("company", r.Company)
-	qb.AddEqualCondition("status", r.Status)
-	qb.AddGreaterEqualCondition("created_time", r.CreatedAt)
-
-	return qb.Build()
-}

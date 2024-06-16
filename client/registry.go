@@ -14,7 +14,7 @@ type Registry struct {
 	GMail  *gomail.Dialer
 }
 
-func NewRegistry(cfg config.Config) *Registry {
+func NewRegistry(cfg *config.Config) *Registry {
 	usersDB, err := db.NewRepository(cfg, constants.TableNameUsers)
 	if err != nil {
 		panic(err)

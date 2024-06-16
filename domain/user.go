@@ -24,26 +24,18 @@ type UserProfile struct {
 }
 
 type UserProfileParams struct {
-	UserID      string
-	Status      string
-	Name        string
-	PhoneNumber string
-	Company     string
-	Role        string
+	UserIDNum     int64
+	UserID        string
+	Status        string
+	Name          string
+	PhoneNumber   string
+	PersonalEmail string
+	WorkEmail     string
+	Company       string
+	Role          string
+	CreatedAt     *time.Time
 }
 
 func (u UserProfile) IsApproved() bool {
 	return u.Status == constants.StatusApproved || u.Status == constants.StatusAutoApproved
-}
-
-func (p UserProfileParams) GetQueryConditions() (string, []interface{}) {
-	qb := NewQueryBuilder()
-	qb.AddEqualCondition(constants.ParamUserID, p.UserID)
-	qb.AddEqualCondition(constants.ParamStatus, p.Status)
-	qb.AddEqualCondition(constants.ParamName, p.Name)
-	qb.AddEqualCondition(constants.ParamPhoneNumber, p.PhoneNumber)
-	qb.AddEqualCondition(constants.ParamCompany, p.Company)
-	qb.AddEqualCondition(constants.ParamRole, p.Role)
-
-	return qb.Build()
 }

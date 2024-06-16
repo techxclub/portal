@@ -6,6 +6,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/techx/portal/client/db"
+	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
 	"github.com/techx/portal/errors"
 )
@@ -13,9 +14,9 @@ import (
 type UsersRepository interface {
 	NextUserIDNum(ctx context.Context) (int64, error)
 	CreateUser(ctx context.Context, details domain.UserProfile) (*domain.UserProfile, error)
+	UpdateUser(ctx context.Context, details domain.UserProfile) error
 	GetUserForParams(ctx context.Context, params domain.UserProfileParams) (*domain.UserProfile, error)
 	GetUsersForParams(ctx context.Context, params domain.UserProfileParams) (*domain.Users, error)
-	GetCompanies(ctx context.Context) (*domain.Companies, error)
 }
 
 type usersRepository struct {
@@ -29,30 +30,29 @@ func NewUsersRepository(userDB *db.Repository) UsersRepository {
 }
 
 type UsersReturning struct {
-	UserID string `db:"user_id"`
+	UserID    string     `db:"user_id"`
+	CreatedAt *time.Time `db:"created_time"`
 }
 
 const (
-	nextUserIDNum = `SELECT nextval('users_user_id_num_seq')`
-
-	interUserQuery = `INSERT INTO users (user_id_num, created_time, status, name, phone_number, personal_email, company, work_email, role, years_of_experience, linkedin) VALUES (:user_id_num, :created_time, :status, :name, :phone_number, :personal_email, :company, :work_email, :role, :years_of_experience, :linkedin) RETURNING user_id`
-
-	getUserSelectorFields = `user_id_num, user_id, created_time, status, name, phone_number, personal_email, company, work_email, role, years_of_experience, linkedin`
-
-	getDistinctCompanies = `SELECT DISTINCT company as name FROM users`
+	nextUserIDNum            = `SELECT nextval('users_user_id_num_seq')`
+	interUserQuery           = `INSERT INTO users (user_id_num, created_time, status, name, phone_number, personal_email, company, work_email, role, years_of_experience, linkedin) VALUES (:user_id_num, :created_time, :status, :name, :phone_number, :personal_email, :company, :work_email, :role, :years_of_experience, :linkedin) RETURNING user_id, created_time`
+	namedUpdateUserBaseQuery = `UPDATE users SET `
+	getUserSelectorFields    = `user_id_num, user_id, created_time, status, name, phone_number, personal_email, company, work_email, role, years_of_experience, linkedin`
+	selectUserBaseQuery      = `SELECT ` + getUserSelectorFields + ` FROM users WHERE `
 )
 
-func (u usersRepository) NextUserIDNum(ctx context.Context) (int64, error) {
+func (r usersRepository) NextUserIDNum(ctx context.Context) (int64, error) {
 	var userID int64
 
-	err := u.dbClient.TxRunner.RunInTxContext(ctx, func(tx *sqlx.Tx) error {
-		return u.dbClient.DBGetInTx(ctx, tx, &userID, nextUserIDNum)
+	err := r.dbClient.TxRunner.RunInTxContext(ctx, func(tx *sqlx.Tx) error {
+		return r.dbClient.DBGetInTx(ctx, tx, &userID, nextUserIDNum)
 	})
 	return userID, err
 }
 
-func (u usersRepository) CreateUser(ctx context.Context, details domain.UserProfile) (*domain.UserProfile, error) {
-	userIDNum, err := u.NextUserIDNum(ctx)
+func (r usersRepository) CreateUser(ctx context.Context, details domain.UserProfile) (*domain.UserProfile, error) {
+	userIDNum, err := r.NextUserIDNum(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -60,9 +60,9 @@ func (u usersRepository) CreateUser(ctx context.Context, details domain.UserProf
 	details.UserIDNum = userIDNum
 
 	var returning UsersReturning
-	err = u.dbClient.TxRunner.RunInTxContext(ctx, func(tx *sqlx.Tx) error {
+	err = r.dbClient.TxRunner.RunInTxContext(ctx, func(tx *sqlx.Tx) error {
 		now := time.Now()
-		return u.dbClient.DBNamedExecReturningInTx(ctx, tx, &returning, interUserQuery, map[string]interface{}{
+		return r.dbClient.DBNamedExecReturningInTx(ctx, tx, &returning, interUserQuery, map[string]interface{}{
 			"user_id_num":         details.UserIDNum,
 			"created_time":        now,
 			"status":              details.Status,
@@ -81,17 +81,55 @@ func (u usersRepository) CreateUser(ctx context.Context, details domain.UserProf
 	}
 
 	details.UserID = returning.UserID
+	details.CreatedAt = returning.CreatedAt
 	return &details, nil
 }
 
-func (u usersRepository) GetUserForParams(ctx context.Context, params domain.UserProfileParams) (*domain.UserProfile, error) {
-	getUserByParamsQuery, args, err := getQueryForParams(params)
-	if err != nil {
-		return nil, err
+func (r usersRepository) UpdateUser(ctx context.Context, details domain.UserProfile) error {
+	nqb := domain.NewNamedQueryBuilder()
+	nqb.AddEqualCondition(constants.ParamStatus, details.Status)
+	nqb.AddEqualCondition(constants.ParamCompany, details.Company)
+	nqb.AddEqualCondition(constants.ParamRole, details.Role)
+
+	namedParams, namedArgs := nqb.BuildNamedConditions()
+
+	whereCondition := `user_id = :user_id`
+	if details.UserIDNum != 0 {
+		whereCondition = `user_id_num = :user_id_num`
 	}
 
+	updateCompanyQuery := namedUpdateUserBaseQuery + namedParams + ` WHERE ` + whereCondition
+	namedArgs[constants.ParamUserID] = details.UserID
+	namedArgs[constants.ParamUserIDNum] = details.UserIDNum
+
+	err := r.dbClient.TxRunner.RunInTxContext(ctx, func(tx *sqlx.Tx) error {
+		return r.dbClient.DBNamedExecInTx(ctx, tx, updateCompanyQuery, namedArgs)
+	})
+
+	return err
+}
+
+func (r usersRepository) GetUserForParams(ctx context.Context, params domain.UserProfileParams) (*domain.UserProfile, error) {
+	qb := domain.NewQueryBuilder()
+	if params.UserIDNum != 0 {
+		qb.AddEqualCondition(constants.ParamUserIDNum, params.UserIDNum)
+	}
+	qb.AddEqualCondition(constants.ParamUserID, params.UserID)
+	qb.AddEqualCondition(constants.ParamName, params.Name)
+	qb.AddEqualCondition(constants.ParamPhoneNumber, params.PhoneNumber)
+	qb.AddEqualCondition(constants.ParamPersonalEmail, params.PersonalEmail)
+	qb.AddEqualCondition(constants.ParamWorkEmail, params.WorkEmail)
+
+	conditions, args := qb.Build()
+	if conditions == "" {
+		return nil, errors.ErrSearchParamRequired
+	}
+
+	baseQuery := `SELECT ` + getUserSelectorFields + ` FROM users`
+	getUserByParamsQuery := baseQuery + " WHERE " + conditions
+
 	var user domain.UserProfile
-	err = u.dbClient.DBGet(ctx, &user, getUserByParamsQuery, args...)
+	err := r.dbClient.DBGet(ctx, &user, getUserByParamsQuery, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -99,48 +137,37 @@ func (u usersRepository) GetUserForParams(ctx context.Context, params domain.Use
 	return &user, nil
 }
 
-func (u usersRepository) GetUsersForParams(ctx context.Context, params domain.UserProfileParams) (*domain.Users, error) {
-	getUsersByParamsQuery, args, err := getQueryForParams(params)
-	if err != nil {
-		return nil, err
+func (r usersRepository) GetUsersForParams(ctx context.Context, params domain.UserProfileParams) (*domain.Users, error) {
+	qb := domain.NewQueryBuilder()
+	qb.AddEqualCondition(constants.ParamUserIDNum, params.UserID)
+	qb.AddEqualCondition(constants.ParamUserID, params.UserID)
+	qb.AddEqualCondition(constants.ParamStatus, params.Status)
+	qb.AddEqualCondition(constants.ParamName, params.Name)
+	qb.AddEqualCondition(constants.ParamPhoneNumber, params.PhoneNumber)
+	qb.AddEqualCondition(constants.ParamPersonalEmail, params.PersonalEmail)
+	qb.AddEqualCondition(constants.ParamWorkEmail, params.WorkEmail)
+	qb.AddEqualCondition(constants.ParamCompany, params.Company)
+	qb.AddEqualCondition(constants.ParamRole, params.Role)
+	if params.CreatedAt != nil {
+		qb.AddGreaterEqualCondition(constants.ParamCreatedTime, params.CreatedAt)
+	}
+
+	conditions, args := qb.Build()
+	if conditions == "" {
+		return nil, errors.ErrSearchParamRequired
 	}
 
 	var users []domain.UserProfile
-	err = u.dbClient.DBSelect(ctx, &users, getUsersByParamsQuery, args...)
+	getUsersByParamsQuery := selectUserBaseQuery + conditions
+
+	err := r.dbClient.DBSelect(ctx, &users, getUsersByParamsQuery, args...)
 	if err != nil {
 		return nil, err
 	}
-
 	if len(users) == 0 {
-		return nil, errors.ErrUserNotFound
+		return nil, errors.ErrNoDataFound
 	}
 
 	result := domain.Users(users)
 	return &result, nil
-}
-
-func (u usersRepository) GetCompanies(ctx context.Context) (*domain.Companies, error) {
-	var companies []domain.Company
-	err := u.dbClient.DBSelect(ctx, &companies, getDistinctCompanies)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(companies) == 0 {
-		return nil, errors.ErrCompanyNotFound
-	}
-
-	result := domain.Companies(companies)
-	return &result, nil
-}
-
-func getQueryForParams(params domain.UserProfileParams) (string, []interface{}, error) {
-	conditions, args := params.GetQueryConditions()
-	if len(conditions) == 0 {
-		return "", nil, errors.ErrSearchParamRequired
-	}
-
-	baseQuery := `SELECT ` + getUserSelectorFields + ` FROM users`
-	query := baseQuery + " WHERE " + conditions
-	return query, args, nil
 }

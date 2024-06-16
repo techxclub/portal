@@ -11,14 +11,12 @@ import (
 	"github.com/techx/portal/service"
 )
 
-func CompanyUsersListHandler(cfg config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
+func CompanyUsersListHandler(_ *config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
 	return Handler(
 		request.NewCompanyUsersListRequest,
 		func(ctx context.Context, req request.CompanyUsersListRequest) (*domain.Users, error) {
 			return serviceRegistry.UserService.GetUsers(ctx, req.ToUserProfileParams())
 		},
-		func(ctx context.Context, domainObj domain.Users) (response.CompanyUsersListResponse, response.HTTPMetadata) {
-			return response.NewCompanyUsersListResponse(ctx, cfg, domainObj)
-		},
+		response.NewCompanyUsersListResponse,
 	)
 }

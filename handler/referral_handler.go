@@ -11,14 +11,14 @@ import (
 	"github.com/techx/portal/service"
 )
 
-func ReferralHandler(_ config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
+func ReferralHandler(_ *config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
 	return Handler(
 		request.NewReferralRequest,
 		func(ctx context.Context, req request.ReferralRequest) (*domain.Referral, error) {
 			return serviceRegistry.ReferralService.CreateReferral(ctx, req.ToReferral())
 		},
-		func(_ context.Context, _ domain.Referral) (response.ReferralResponse, response.HTTPMetadata) {
-			return response.NewReferralResponse()
+		func(ctx context.Context, _ domain.Referral) (response.SuccessResponse, response.HTTPMetadata) {
+			return response.NewSuccessResponse(ctx)
 		},
 	)
 }

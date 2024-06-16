@@ -6,14 +6,15 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/techx/portal/client/db"
+	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
 	"github.com/techx/portal/errors"
 )
 
 const (
-	insertReferralQuery = `INSERT INTO referrals (requester_user_id, provider_user_id, company, job_link, status, created_time) VALUES (:requester_user_id, :provider_user_id, :company, :job_link, :status, :created_time) RETURNING id, created_time`
-
+	insertReferralQuery       = `INSERT INTO referrals (requester_user_id, provider_user_id, company, job_link, status, created_time) VALUES (:requester_user_id, :provider_user_id, :company, :job_link, :status, :created_time) RETURNING id, created_time`
 	getReferralSelectorFields = `id, requester_user_id, provider_user_id, company, job_link, status, created_time`
+	selectReferralBaseQuery   = `SELECT ` + getReferralSelectorFields + ` FROM referrals WHERE `
 )
 
 type ReferralsRepository interface {
@@ -41,12 +42,12 @@ func (r referralsRepository) CreateReferral(ctx context.Context, params domain.R
 	err := r.dbClient.TxRunner.RunInTxContext(ctx, func(tx *sqlx.Tx) error {
 		now := time.Now()
 		return r.dbClient.DBNamedExecReturningInTx(ctx, tx, &returning, insertReferralQuery, map[string]interface{}{
-			"requester_user_id": params.RequesterUserID,
-			"provider_user_id":  params.ProviderUserID,
-			"company":           params.Company,
-			"job_link":          params.JobLink,
-			"status":            params.Status,
-			"created_time":      now,
+			constants.ParamRequesterID: params.RequesterUserID,
+			constants.ParamProviderID:  params.ProviderUserID,
+			constants.ParamCompany:     params.Company,
+			constants.ParamJobLink:     params.JobLink,
+			constants.ParamStatus:      params.Status,
+			constants.ParamCreatedTime: now,
 		})
 	})
 	if err != nil {
@@ -67,28 +68,26 @@ func (r referralsRepository) CreateReferral(ctx context.Context, params domain.R
 }
 
 func (r referralsRepository) GetReferralsForParams(ctx context.Context, params domain.ReferralParams) (*domain.Referrals, error) {
-	getReferralsByParamsQuery, args, err := getReferralQueryForParams(params)
-	if err != nil {
-		return nil, err
+	qb := domain.NewQueryBuilder()
+	qb.AddEqualCondition(constants.ParamID, params.ID)
+	qb.AddEqualCondition(constants.ParamRequesterID, params.RequesterUserID)
+	qb.AddEqualCondition(constants.ParamProviderID, params.ProviderUserID)
+	qb.AddEqualCondition(constants.ParamCompany, params.Company)
+	qb.AddEqualCondition(constants.ParamStatus, params.Status)
+	qb.AddGreaterEqualCondition(constants.ParamCreatedTime, params.CreatedAt)
+
+	conditions, args := qb.Build()
+	if conditions == "" {
+		return nil, errors.ErrInvalidQueryParams
 	}
 
 	var referrals []domain.Referral
-	err = r.dbClient.DBSelect(ctx, &referrals, getReferralsByParamsQuery, args...)
+	getReferralsByParamsQuery := selectReferralBaseQuery + conditions
+	err := r.dbClient.DBSelect(ctx, &referrals, getReferralsByParamsQuery, args...)
 	if err != nil {
 		return nil, err
 	}
 
 	result := domain.Referrals(referrals)
 	return &result, nil
-}
-
-func getReferralQueryForParams(params domain.ReferralParams) (string, []interface{}, error) {
-	conditions, args := params.GetQueryConditions()
-	if len(conditions) == 0 {
-		return "", nil, errors.ErrInvalidQueryParams
-	}
-
-	baseQuery := `SELECT ` + getReferralSelectorFields + ` FROM referrals`
-	query := baseQuery + " WHERE " + conditions
-	return query, args, nil
 }
