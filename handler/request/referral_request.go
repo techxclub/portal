@@ -1,31 +1,50 @@
 package request
 
 import (
-	"encoding/json"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"net/url"
+	"os"
 
+	"github.com/rs/zerolog/log"
 	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
 	"github.com/techx/portal/errors"
 )
 
 type ReferralRequest struct {
-	RequesterUserID string `json:"requester_user_id"`
-	ProviderUserID  string `json:"provider_user_id"`
-	Company         string `json:"company"`
-	JobLink         string `json:"job_link"`
-	Message         string `json:"message"`
+	RequesterUserID string
+	ProviderUserID  string
+	Company         string
+	JobLink         string
+	Message         string
+	ResumeFilePath  string
 }
 
 func NewReferralRequest(r *http.Request) (*ReferralRequest, error) {
-	var req ReferralRequest
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&req); err != nil {
-		return nil, err
+	err := r.ParseMultipartForm(10 << 20) // 10 MB limit
+	if err != nil {
+		return nil, errors.New("Error parsing form data")
+	}
+	file, _, err := r.FormFile("resume")
+	if err != nil {
+		return nil, errors.New("Error retrieving the file")
 	}
 
-	return &req, nil
+	resumeFilePath, err := saveResume(file)
+	if err != nil {
+		return nil, errors.ErrSavingResume
+	}
+
+	return &ReferralRequest{
+		RequesterUserID: r.FormValue("requester_user_id"),
+		ProviderUserID:  r.FormValue("provider_user_id"),
+		Company:         r.FormValue("company"),
+		JobLink:         r.FormValue("job_link"),
+		Message:         r.FormValue("message"),
+		ResumeFilePath:  resumeFilePath,
+	}, nil
 }
 
 func (r ReferralRequest) Validate() error {
@@ -55,6 +74,29 @@ func (r ReferralRequest) ToReferral() domain.ReferralParams {
 		JobLink:         r.JobLink,
 		Company:         r.Company,
 		Message:         r.Message,
+		ResumeFilePath:  r.ResumeFilePath,
 		Status:          constants.ReferralStatusPending,
 	}
+}
+
+func saveResume(file multipart.File) (string, error) {
+	tempFile, err := os.CreateTemp(os.TempDir(), "resume_*.pdf")
+	if err != nil {
+		log.Error().Err(err).Msg("Cannot create temporary file")
+		return "", err
+	}
+
+	_, err = io.Copy(tempFile, file)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to write to temporary file")
+		return "", err
+	}
+
+	err = tempFile.Close()
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to close temporary file")
+		return "", err
+	}
+
+	return tempFile.Name(), nil
 }

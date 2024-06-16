@@ -36,6 +36,7 @@ var (
 	ErrSearchParamRequired              = NewServiceError("search_param_required", 400, nil)
 	ErrCompanyNotFound                  = NewServiceError("company_not_found", 404, nil)
 	ErrNoDataFound                      = NewServiceError("no_data_found", 404, nil)
+	ErrSavingResume                     = NewServiceError("error_saving_resume_file", 500, nil)
 )
 
 func BadRequestError(err error) ServiceError {

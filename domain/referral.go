@@ -24,5 +24,6 @@ type ReferralParams struct {
 	Message         string
 	JobLink         string
 	Status          string
+	ResumeFilePath  string
 	CreatedAt       *time.Time
 }
