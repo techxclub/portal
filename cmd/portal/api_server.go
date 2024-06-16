@@ -124,9 +124,9 @@ func startAPIServer(ctx *cli.Context) error {
 	i18n.Initialize(applicationContext.Config.Translation)
 
 	// init registry
-	clientRegistry := client.NewRegistry(*applicationContext.Config)
-	builderRegistry := builder.NewRegistry(*applicationContext.Config, clientRegistry)
-	serviceRegistry := service.NewRegistry(*applicationContext.Config, builderRegistry)
+	clientRegistry := client.NewRegistry(applicationContext.Config)
+	builderRegistry := builder.NewRegistry(applicationContext.Config, clientRegistry)
+	serviceRegistry := service.NewRegistry(applicationContext.Config, builderRegistry)
 
 	// Create router
 	r := router.NewRouter(applicationContext.Config, serviceRegistry)

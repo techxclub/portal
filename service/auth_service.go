@@ -17,11 +17,11 @@ type AuthService interface {
 }
 
 type authService struct {
-	cfg      config.Config
+	cfg      *config.Config
 	registry *builder.Registry
 }
 
-func NewAuthService(cfg config.Config, registry *builder.Registry) AuthService {
+func NewAuthService(cfg *config.Config, registry *builder.Registry) AuthService {
 	return &authService{
 		cfg:      cfg,
 		registry: registry,

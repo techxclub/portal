@@ -10,6 +10,7 @@ type Config struct {
 	AppName     string        `yaml:"APP_NAME" env:"APP_NAME"`
 	API         HTTPAPIConfig `yaml:"API" env:",prefix=API_"`
 	Auth        *Auth         `yaml:"AUTH" env:",prefix=AUTH_"`
+	AdminAuth   *AdminAuth    `yaml:"ADMIN_AUTH" env:",prefix=ADMIN_AUTH_"`
 	Swagger     Swagger       `yaml:"SWAGGER" env:",prefix=SWAGGER_"`
 	Translation Translation   `yaml:"TRANSLATION" env:",prefix=TRANSLATION_"`
 
@@ -19,7 +20,9 @@ type Config struct {
 	GMail    GMail    `yaml:"GMAIL" env:",prefix=GMAIL_"`
 	Referral Referral `yaml:"REFERRAL" env:",prefix=REFERRAL_"`
 
-	ThirdPartySmsProvider string `yaml:"THIRD_PARTY_SMS_PROVIDER" env:"THIRD_PARTY_SMS_PROVIDER"`
+	CompanyListLimit        int    `yaml:"COMPANY_LIST_LIMIT" env:"COMPANY_LIST_LIMIT"`
+	PopularCompanyListLimit int    `yaml:"POPULAR_COMPANY_LIST_LIMIT" env:"POPULAR_COMPANY_LIST_LIMIT"`
+	ThirdPartySmsProvider   string `yaml:"THIRD_PARTY_SMS_PROVIDER" env:"THIRD_PARTY_SMS_PROVIDER"`
 }
 
 type Auth struct {
@@ -32,6 +35,11 @@ type Auth struct {
 	RefreshTokenSecret     string        `yaml:"REFRESH_TOKEN_SECRET" env:"REFRESH_TOKEN_SECRET"`
 	AuthSoftExpiryDuration time.Duration `yaml:"AUTH_SOFT_EXPIRY_DURATION" env:"AUTH_SOFT_EXPIRY_DURATION"`
 	AuthHardExpiryDuration time.Duration `yaml:"AUTH_HARD_EXPIRY_DURATION" env:"AUTH_HARD_EXPIRY_DURATION"`
+}
+
+type AdminAuth struct {
+	ClientID string `yaml:"CLIENT_ID" env:"CLIENT_ID"`
+	PassKey  string `yaml:"PASS_KEY" env:"PASS_KEY"`
 }
 
 type HTTPAPIConfig struct {
@@ -107,6 +115,11 @@ func (cfg *Config) SetDefaults() {
 		AuthHardExpiryDuration: 30 * 24 * time.Hour,
 	}
 
+	cfg.AdminAuth = &AdminAuth{
+		ClientID: "admin",
+		PassKey:  "admin",
+	}
+
 	cfg.Swagger = Swagger{
 		Enabled: true,
 		Path:    "./swagger",
@@ -143,8 +156,6 @@ func (cfg *Config) SetDefaults() {
 		VerifyServiceSID: "verify_service_sid",
 	}
 
-	cfg.ThirdPartySmsProvider = "twilio"
-
 	cfg.GMail = GMail{
 		SMTPServer:   "smtp.gmail.com",
 		SMTPPort:     587,
@@ -158,4 +169,8 @@ func (cfg *Config) SetDefaults() {
 		ProviderReferralLimit:     10,
 		ReferralMaxLookupDuration: 7 * 24 * time.Hour,
 	}
+
+	cfg.ThirdPartySmsProvider = "mocked"
+	cfg.CompanyListLimit = 100
+	cfg.PopularCompanyListLimit = 5
 }

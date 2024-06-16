@@ -15,11 +15,11 @@ type MessageBuilder interface {
 }
 
 type messageBuilder struct {
-	cfg          config.Config
+	cfg          *config.Config
 	twilioClient twilio.Client
 }
 
-func NewMessageBuilder(cfg config.Config, twilioClient twilio.Client) MessageBuilder {
+func NewMessageBuilder(cfg *config.Config, twilioClient twilio.Client) MessageBuilder {
 	return &messageBuilder{
 		cfg:          cfg,
 		twilioClient: twilioClient,

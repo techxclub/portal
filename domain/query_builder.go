@@ -66,9 +66,9 @@ func (qb *QueryBuilder) Build() (string, []interface{}) {
 	return query, qb.args
 }
 
-func (qb *QueryBuilder) BuildNamedConditions() (string, []interface{}) {
+func (qb *QueryBuilder) BuildNamedConditions() (string, map[string]interface{}) {
 	query := strings.Join(qb.conditions, ", ")
-	return query, qb.args
+	return query, qb.namedArgsMap
 }
 
 func (qb *QueryBuilder) addCondition(key string, value interface{}, operator string) {
@@ -76,7 +76,7 @@ func (qb *QueryBuilder) addCondition(key string, value interface{}, operator str
 		return
 	}
 
-	if key == "" || value == nil || value == "" || value == 0 {
+	if key == "" || value == nil || value == "" {
 		return
 	}
 
@@ -89,7 +89,7 @@ func (qb *QueryBuilder) addCondition(key string, value interface{}, operator str
 
 func (qb *QueryBuilder) getCondition(key, operator string) string {
 	if qb.queryType == queryTypeNamed {
-		return fmt.Sprintf("%s%s:%s", key, operator, key)
+		return fmt.Sprintf("%s %s :%s", key, operator, key)
 	}
 
 	return fmt.Sprintf("%s %s $%d", key, operator, qb.counter)

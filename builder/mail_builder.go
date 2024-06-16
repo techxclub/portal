@@ -29,11 +29,11 @@ type MailBuilder interface {
 }
 
 type mailBuilder struct {
-	cfg   config.Config
+	cfg   *config.Config
 	GMail *gomail.Dialer
 }
 
-func NewMailBuilder(cfg config.Config, dialer *gomail.Dialer) MailBuilder {
+func NewMailBuilder(cfg *config.Config, dialer *gomail.Dialer) MailBuilder {
 	return &mailBuilder{
 		cfg:   cfg,
 		GMail: dialer,

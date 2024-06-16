@@ -1,8 +1,8 @@
-CREATE SEQUENCE companies_id_num_seq START with 1;
+CREATE SEQUENCE IF NOT EXISTS companies_id_num_seq START with 1;
 
-CREATE TABLE companies
+CREATE TABLE IF NOT EXISTS companies
 (
-    id               INTEGER PRIMARY KEY NOT NULL DEFAULT NEXTVAL('users_user_id_num_seq'),
+    id               INTEGER PRIMARY KEY NOT NULL DEFAULT NEXTVAL('companies_id_num_seq'),
     name             VARCHAR(100)        NOT NULL,
     small_logo       VARCHAR(1000),
     big_logo         VARCHAR(1000),

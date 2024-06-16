@@ -4,8 +4,8 @@ import (
 	"github.com/techx/portal/handler/request"
 )
 
-// swagger:parameters bulkGetUsers
-type BulkGetUsersRequestParams struct {
+// swagger:parameters getUserList
+type AdminUserListRequestParams struct {
 	// in: query
 	Status string `json:"status"`
 	// in: query

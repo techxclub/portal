@@ -16,11 +16,11 @@ type ReferralService interface {
 }
 
 type referralService struct {
-	cfg      config.Config
+	cfg      *config.Config
 	registry *builder.Registry
 }
 
-func NewReferralService(cfg config.Config, registry *builder.Registry) ReferralService {
+func NewReferralService(cfg *config.Config, registry *builder.Registry) ReferralService {
 	return &referralService{
 		cfg:      cfg,
 		registry: registry,

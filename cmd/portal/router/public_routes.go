@@ -3,12 +3,13 @@ package router
 import (
 	"github.com/gorilla/mux"
 	"github.com/techx/portal/config"
+	"github.com/techx/portal/constants"
 	"github.com/techx/portal/handler"
 	"github.com/techx/portal/middleware"
 	"github.com/techx/portal/service"
 )
 
-func addPublicRoutes(router *mux.Router, cfg config.Config, sr *service.Registry) {
+func addPublicRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry) {
 	publicRouter := router.PathPrefix("/public").Subrouter()
 
 	//	swagger:route POST /public/user/register/v1 public registerUserV1
@@ -20,7 +21,7 @@ func addPublicRoutes(router *mux.Router, cfg config.Config, sr *service.Registry
 	//		500: ErrorResponse
 	//		503: ErrorResponse
 	publicRouter.
-		Methods("POST").
+		Methods(constants.MethodPost).
 		Path("/user/register/v1").
 		Handler(handler.RegisterUserV1Handler(cfg, sr))
 
@@ -33,9 +34,9 @@ func addPublicRoutes(router *mux.Router, cfg config.Config, sr *service.Registry
 	//		500: ErrorResponse
 	//		503: ErrorResponse
 	publicRouter.
-		Methods("GET").
+		Methods(constants.MethodGet).
 		Path("/user/profile").
-		Handler(middleware.AuthVerifier(cfg.Auth)(handler.UserProfileHandler(cfg, sr)))
+		Handler(middleware.Authorization(cfg.Auth)(handler.UserProfileHandler(cfg, sr)))
 
 	//	swagger:route GET /public/company/list public companyList
 	//	Responses:
@@ -46,7 +47,7 @@ func addPublicRoutes(router *mux.Router, cfg config.Config, sr *service.Registry
 	//		500: ErrorResponse
 	//		503: ErrorResponse
 	publicRouter.
-		Methods("GET").
+		Methods(constants.MethodGet).
 		Path("/company/list").
 		Handler(handler.CompanyListHandler(cfg, sr))
 
@@ -59,9 +60,9 @@ func addPublicRoutes(router *mux.Router, cfg config.Config, sr *service.Registry
 	//		500: ErrorResponse
 	//		503: ErrorResponse
 	publicRouter.
-		Methods("GET").
+		Methods(constants.MethodGet).
 		Path("/company/users/list").
-		Handler(middleware.AuthVerifier(cfg.Auth)(handler.CompanyUsersListHandler(cfg, sr)))
+		Handler(middleware.Authorization(cfg.Auth)(handler.CompanyUsersListHandler(cfg, sr)))
 
 	//	swagger:route Post /public/user/referral/request public referralRequest
 	//	Responses:
@@ -72,7 +73,7 @@ func addPublicRoutes(router *mux.Router, cfg config.Config, sr *service.Registry
 	//		500: ErrorResponse
 	//		503: ErrorResponse
 	publicRouter.
-		Methods("POST").
+		Methods(constants.MethodGet).
 		Path("/user/referral/request").
-		Handler(middleware.AuthVerifier(cfg.Auth)(handler.ReferralHandler(cfg, sr)))
+		Handler(middleware.Authorization(cfg.Auth)(handler.ReferralHandler(cfg, sr)))
 }

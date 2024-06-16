@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/techx/portal/config"
 	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
 	"github.com/techx/portal/handler/composers"
@@ -16,7 +15,7 @@ type RegisterUserV1Response struct {
 	Profile composers.UserProfile `json:"profile"`
 }
 
-func NewRegisterUserV1Response(_ context.Context, _ config.Config, registration domain.Registration) (RegisterUserV1Response, HTTPMetadata) {
+func NewRegisterUserV1Response(_ context.Context, registration domain.Registration) (RegisterUserV1Response, HTTPMetadata) {
 	profile := composers.NewUserProfile(*registration.User)
 	respBody := RegisterUserV1Response{
 		Profile: profile,

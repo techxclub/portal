@@ -14,7 +14,7 @@ type Registry struct {
 	MailBuilder         MailBuilder
 }
 
-func NewRegistry(cfg config.Config, clientRegistry *client.Registry) *Registry {
+func NewRegistry(cfg *config.Config, clientRegistry *client.Registry) *Registry {
 	return &Registry{
 		MessageBuilder:      NewMessageBuilder(cfg, clientRegistry.Twilio),
 		UsersRepository:     repository.NewUsersRepository(clientRegistry.DB),

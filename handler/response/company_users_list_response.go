@@ -3,7 +3,6 @@ package response
 import (
 	"context"
 
-	"github.com/techx/portal/config"
 	"github.com/techx/portal/domain"
 )
 
@@ -18,7 +17,7 @@ type CompanyUser struct {
 	Company string `json:"company"`
 }
 
-func NewCompanyUsersListResponse(_ context.Context, _ config.Config, users domain.Users) (CompanyUsersListResponse, HTTPMetadata) {
+func NewCompanyUsersListResponse(_ context.Context, users domain.Users) (CompanyUsersListResponse, HTTPMetadata) {
 	result := make([]CompanyUser, 0)
 	for _, u := range users {
 		result = append(result, CompanyUser{

@@ -3,11 +3,12 @@ package router
 import (
 	"github.com/gorilla/mux"
 	"github.com/techx/portal/config"
+	"github.com/techx/portal/constants"
 	"github.com/techx/portal/handler"
 	"github.com/techx/portal/service"
 )
 
-func addAuthRoutes(router *mux.Router, cfg config.Config, sr *service.Registry) {
+func addAuthRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry) {
 	authRouter := router.PathPrefix("/public/auth").Subrouter()
 
 	//	swagger:route POST /public/auth/otp/generate public generateOTP
@@ -19,7 +20,7 @@ func addAuthRoutes(router *mux.Router, cfg config.Config, sr *service.Registry) 
 	//		500: ErrorResponse
 	//		503: ErrorResponse
 	authRouter.
-		Methods("POST").
+		Methods(constants.MethodPost).
 		Path("/otp/generate").
 		Handler(handler.GenerateOTPHandler(cfg, sr))
 
@@ -32,7 +33,7 @@ func addAuthRoutes(router *mux.Router, cfg config.Config, sr *service.Registry) 
 	//		500: ErrorResponse
 	//		503: ErrorResponse
 	authRouter.
-		Methods("POST").
+		Methods(constants.MethodPost).
 		Path("/otp/verify").
 		Handler(handler.VerifyOTPHandler(cfg, sr))
 }
