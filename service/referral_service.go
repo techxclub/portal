@@ -84,16 +84,13 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 		Message:        referralDetails.Message,
 		ResumeFilePath: referralDetails.ResumeFilePath,
 	}
-	err = r.registry.MailBuilder.SendReferralMail(ctx, referralMailParams)
-	if err != nil {
-		return nil, err
-	}
 
 	referral, err := r.registry.ReferralsRepository.CreateReferral(ctx, referralDetails)
 	if err != nil {
 		return nil, err
 	}
 
+	r.registry.MailBuilder.SendReferralMailAsync(ctx, referralMailParams)
 	return referral, nil
 }
 

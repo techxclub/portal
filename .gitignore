@@ -57,6 +57,7 @@ Temporary Items
 .vscode/
 dev.application.yml
 out/
+failed_jobs/
 
 .idea/
 *.iml
