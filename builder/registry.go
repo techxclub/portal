@@ -7,19 +7,19 @@ import (
 )
 
 type Registry struct {
-	MessageBuilder      MessageBuilder
 	UsersRepository     repository.UsersRepository
 	CompaniesRepository repository.CompaniesRepository
 	ReferralsRepository repository.ReferralsRepository
+	OTPBuilder          OTPBuilder
 	MailBuilder         MailBuilder
 }
 
 func NewRegistry(cfg *config.Config, clientRegistry *client.Registry) *Registry {
 	return &Registry{
-		MessageBuilder:      NewMessageBuilder(cfg, clientRegistry.Twilio),
 		UsersRepository:     repository.NewUsersRepository(clientRegistry.DB),
 		CompaniesRepository: repository.NewCompaniesRepository(clientRegistry.DB),
 		ReferralsRepository: repository.NewReferralsRepository(clientRegistry.DB),
+		OTPBuilder:          NewOTPBuilder(cfg, clientRegistry.GMail, clientRegistry.OTPCache),
 		MailBuilder:         NewMailBuilder(cfg, clientRegistry.GMail),
 	}
 }

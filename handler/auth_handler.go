@@ -25,7 +25,7 @@ func VerifyOTPHandler(_ *config.Config, serviceRegistry *service.Registry) http.
 	return Handler(
 		request.NewVerifyOTPRequest,
 		func(ctx context.Context, req request.OTPRequest) (*domain.AuthDetails, error) {
-			return serviceRegistry.AuthService.VerifyUser(ctx, req.ToAuthRequest())
+			return serviceRegistry.AuthService.VerifyOTP(ctx, req.ToAuthRequest())
 		},
 		response.NewVerifyOTPResponse,
 	)

@@ -16,7 +16,6 @@ require (
 	github.com/satori/go.uuid v1.2.0
 	github.com/sonnes/go-envconfig v0.3.3
 	github.com/stretchr/testify v1.8.4
-	github.com/twilio/twilio-go v1.21.1
 	github.com/tylerb/graceful v1.2.15
 	github.com/urfave/cli/v2 v2.27.2
 	golang.org/x/sync v0.5.0
@@ -28,7 +27,6 @@ require (
 require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.4 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/golang/mock v1.6.0 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect

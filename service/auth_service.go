@@ -13,7 +13,8 @@ import (
 
 type AuthService interface {
 	GenerateOTP(ctx context.Context, detail domain.AuthRequest) (*domain.AuthDetails, error)
-	VerifyUser(ctx context.Context, detail domain.AuthRequest) (*domain.AuthDetails, error)
+	ResendOTP(ctx context.Context, detail domain.AuthRequest) (*domain.AuthDetails, error)
+	VerifyOTP(ctx context.Context, detail domain.AuthRequest) (*domain.AuthDetails, error)
 }
 
 type authService struct {
@@ -29,7 +30,7 @@ func NewAuthService(cfg *config.Config, registry *builder.Registry) AuthService 
 }
 
 func (s authService) GenerateOTP(ctx context.Context, otpGenerationDetail domain.AuthRequest) (*domain.AuthDetails, error) {
-	authInfo, err := s.registry.MessageBuilder.SendMobileOTP(ctx, otpGenerationDetail)
+	authInfo, err := s.registry.OTPBuilder.SendOTP(ctx, otpGenerationDetail)
 	if err != nil || authInfo.Status != constants.AuthStatusPending {
 		log.Err(err).Msg("Failed to generate OTP")
 		return nil, errors.ErrOTPGenerateFailed
@@ -41,8 +42,21 @@ func (s authService) GenerateOTP(ctx context.Context, otpGenerationDetail domain
 	return &authDetails, nil
 }
 
-func (s authService) VerifyUser(ctx context.Context, otpVerificationDetail domain.AuthRequest) (*domain.AuthDetails, error) {
-	authInfo, err := s.registry.MessageBuilder.VerifyMobileOTP(ctx, otpVerificationDetail)
+func (s authService) ResendOTP(ctx context.Context, otpGenerationDetail domain.AuthRequest) (*domain.AuthDetails, error) {
+	authInfo, err := s.registry.OTPBuilder.SendOTP(ctx, otpGenerationDetail)
+	if err != nil || authInfo.Status != constants.AuthStatusPending {
+		log.Err(err).Msg("Failed to generate OTP")
+		return nil, errors.ErrOTPGenerateFailed
+	}
+
+	authDetails := domain.AuthDetails{
+		AuthInfo: authInfo,
+	}
+	return &authDetails, nil
+}
+
+func (s authService) VerifyOTP(ctx context.Context, otpVerificationDetail domain.AuthRequest) (*domain.AuthDetails, error) {
+	authInfo, err := s.registry.OTPBuilder.VerifyOTP(ctx, otpVerificationDetail)
 	if err != nil {
 		log.Err(err).Msg("Failed to verify OTP")
 		return nil, err
@@ -52,7 +66,7 @@ func (s authService) VerifyUser(ctx context.Context, otpVerificationDetail domai
 		AuthInfo: authInfo,
 	}
 
-	if otpVerificationDetail.Channel != constants.AuthChannelSMS || authInfo.Status != constants.AuthStatusApproved {
+	if otpVerificationDetail.Channel != constants.AuthChannelSMS || authInfo.Status != constants.AuthStatusVerified {
 		return &authDetails, nil
 	}
 

@@ -26,6 +26,7 @@ type AuthDetails struct {
 
 type AuthInfo struct {
 	Status string
+	OTP    *string
 }
 
 // GenerateToken generates a JWT token for a user
