@@ -2,6 +2,8 @@ package config
 
 import (
 	"time"
+
+	"github.com/techx/portal/constants"
 )
 
 var cfg *Config
@@ -16,13 +18,12 @@ type Config struct {
 
 	DB       DB       `yaml:"DB" env:",prefix=DB_"`
 	Log      Log      `yaml:"LOG" env:",prefix=LOG_"`
-	Twilio   Twilio   `yaml:"TWILIO" env:",prefix=TWILIO_"`
+	OTP      OTP      `yaml:"OTP" env:",prefix=OTP_"`
 	GMail    GMail    `yaml:"GMAIL" env:",prefix=GMAIL_"`
 	Referral Referral `yaml:"REFERRAL" env:",prefix=REFERRAL_"`
 
-	CompanyListLimit        int    `yaml:"COMPANY_LIST_LIMIT" env:"COMPANY_LIST_LIMIT"`
-	PopularCompanyListLimit int    `yaml:"POPULAR_COMPANY_LIST_LIMIT" env:"POPULAR_COMPANY_LIST_LIMIT"`
-	ThirdPartySmsProvider   string `yaml:"THIRD_PARTY_SMS_PROVIDER" env:"THIRD_PARTY_SMS_PROVIDER"`
+	CompanyListLimit        int `yaml:"COMPANY_LIST_LIMIT" env:"COMPANY_LIST_LIMIT"`
+	PopularCompanyListLimit int `yaml:"POPULAR_COMPANY_LIST_LIMIT" env:"POPULAR_COMPANY_LIST_LIMIT"`
 }
 
 type Auth struct {
@@ -63,10 +64,12 @@ type Log struct {
 	Format string `yaml:"FORMAT" env:"FORMAT"`
 }
 
-type Twilio struct {
-	AccountSID       string `yaml:"ACCOUNT_SID" env:"ACCOUNT_SID"`
-	AuthToken        string `yaml:"AUTH_TOKEN" env:"AUTH_TOKEN"`
-	VerifyServiceSID string `yaml:"VERIFY_SERVICE_SID" env:"VERIFY_SID"`
+type OTP struct {
+	TTL                     int    `yaml:"TTL" env:"TTL"`
+	MaxRetryCount           int    `yaml:"MAX_RETRY_COUNT" env:"MAX_RETRY_COUNT"`
+	MockingEnabled          bool   `yaml:"MOCKING_ENABLED" env:"MOCKING_ENABLED"`
+	EmailThirdPartyProvider string `yaml:"EMAIL_THIRD_PARTY_PROVIDER" env:"EMAIL_THIRD_PARTY_PROVIDER"`
+	SMSThirdPartyProvider   string `yaml:"SMS_THIRD_PARTY_PROVIDER" env:"SMS_THIRD_PARTY_PROVIDER"`
 }
 
 type GMail struct {
@@ -150,10 +153,12 @@ func (cfg *Config) SetDefaults() {
 		Format: "json",
 	}
 
-	cfg.Twilio = Twilio{
-		AccountSID:       "your_account_sid",
-		AuthToken:        "your_auth_token",
-		VerifyServiceSID: "verify_service_sid",
+	cfg.OTP = OTP{
+		TTL:                     300,
+		MaxRetryCount:           3,
+		MockingEnabled:          false,
+		EmailThirdPartyProvider: constants.ThirdPartyGomail,
+		SMSThirdPartyProvider:   constants.ThirdPartyMsg91,
 	}
 
 	cfg.GMail = GMail{
@@ -170,7 +175,6 @@ func (cfg *Config) SetDefaults() {
 		ReferralMaxLookupDuration: 7 * 24 * time.Hour,
 	}
 
-	cfg.ThirdPartySmsProvider = "mocked"
 	cfg.CompanyListLimit = 100
 	cfg.PopularCompanyListLimit = 5
 }

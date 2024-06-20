@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	supportedAuthChannels = []string{constants.AuthChannelSMS, constants.AuthChannelWhatsapp}
+	supportedAuthChannels = []string{constants.AuthChannelSMS, constants.AuthChannelWhatsapp, constants.AuthChannelEmail}
 	phoneAuthChannels     = []string{constants.AuthChannelSMS, constants.AuthChannelWhatsapp}
 )
 

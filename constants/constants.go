@@ -39,17 +39,22 @@ const (
 	ParamPopular         = "popular"
 
 	// Third party sms service provider
-	ThirdPartyTwilio = "twilio"
 	ThirdPartyMsg91  = "msg91"
-	ThirdPartyMocked = "mocked"
+	ThirdPartyGomail = "gomail"
 
 	// User authorization
-	AuthActionGenerate  = "GENERATE"
-	AuthActionVerify    = "VERIFY"
+	AuthActionGenerate = "GENERATE"
+	AuthActionVerify   = "VERIFY"
+
 	AuthChannelSMS      = "sms"
+	AuthChannelEmail    = "email"
 	AuthChannelWhatsapp = "whatsapp"
-	AuthStatusApproved  = "approved"
+
+	AuthStatusGenerated = "generated"
 	AuthStatusPending   = "pending"
+	AuthStatusResent    = "resent"
+	AuthStatusVerified  = "verified"
+	AuthStatusFailed    = "failed"
 
 	// Actions
 	ActionRetryOTP        = "RETRY_OTP"

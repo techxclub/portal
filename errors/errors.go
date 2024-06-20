@@ -16,8 +16,8 @@ var (
 	ErrInvalidWorkEmail                 = NewServiceError("invalid_work_email", 400, nil)
 	ErrInvalidPersonalEmail             = NewServiceError("invalid_personal_email", 400, nil)
 	ErrInvalidAuthChannel               = NewServiceError("invalid_auth_channel", 400, nil)
-	ErrTwilioCreateVerification         = NewServiceError("twilio_create_verification_failed", 500, nil)
-	ErrTwilioCheckVerification          = NewServiceError("twilio_check_verification_failed", 500, nil)
+	ErrInvalidSMSProvider               = NewServiceError("invalid_sms_service_provider", 500, nil)
+	ErrInvalidEmailProvider             = NewServiceError("invalid_email_service_provider", 500, nil)
 	ErrMissingOTP                       = NewServiceError("otp_missing_otp", 500, nil)
 	ErrOTPGenerateFailed                = NewServiceError("otp_generation_failed", 500, nil)
 	ErrCompanyNotMatch                  = NewServiceError("company_not_match", 400, nil)
@@ -37,6 +37,10 @@ var (
 	ErrCompanyNotFound                  = NewServiceError("company_not_found", 404, nil)
 	ErrNoDataFound                      = NewServiceError("no_data_found", 404, nil)
 	ErrSavingResume                     = NewServiceError("error_saving_resume_file", 500, nil)
+	ErrOtpNotProvided                   = NewServiceError("otp_not_provided", 400, nil)
+	ErrValueCannotBeEmpty               = NewServiceError("value_cannot_be_empty", 400, nil)
+	ErrKeyCannotBeEmpty                 = NewServiceError("key_cannot_be_empty", 400, nil)
+	ErrKeyNotFound                      = NewServiceError("key_not_found", 404, nil)
 )
 
 func BadRequestError(err error) ServiceError {
