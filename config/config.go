@@ -17,9 +17,10 @@ type Config struct {
 	Translation Translation   `yaml:"TRANSLATION" env:",prefix=TRANSLATION_"`
 
 	DB       DB       `yaml:"DB" env:",prefix=DB_"`
+	Redis    Redis    `yaml:"REDIS" env:",prefix=REDIS_"`
 	Log      Log      `yaml:"LOG" env:",prefix=LOG_"`
 	OTP      OTP      `yaml:"OTP" env:",prefix=OTP_"`
-	GMail    GMail    `yaml:"GMAIL" env:",prefix=GMAIL_"`
+	Gmail    Gmail    `yaml:"GMAIL" env:",prefix=GMAIL_"`
 	Referral Referral `yaml:"REFERRAL" env:",prefix=REFERRAL_"`
 
 	CompanyListLimit        int `yaml:"COMPANY_LIST_LIMIT" env:"COMPANY_LIST_LIMIT"`
@@ -65,14 +66,14 @@ type Log struct {
 }
 
 type OTP struct {
-	TTL                     int    `yaml:"TTL" env:"TTL"`
-	MaxRetryCount           int    `yaml:"MAX_RETRY_COUNT" env:"MAX_RETRY_COUNT"`
-	MockingEnabled          bool   `yaml:"MOCKING_ENABLED" env:"MOCKING_ENABLED"`
-	EmailThirdPartyProvider string `yaml:"EMAIL_THIRD_PARTY_PROVIDER" env:"EMAIL_THIRD_PARTY_PROVIDER"`
-	SMSThirdPartyProvider   string `yaml:"SMS_THIRD_PARTY_PROVIDER" env:"SMS_THIRD_PARTY_PROVIDER"`
+	TTL                     time.Duration `yaml:"TTL" env:"TTL"`
+	MaxRetryCount           int           `yaml:"MAX_RETRY_COUNT" env:"MAX_RETRY_COUNT"`
+	MockingEnabled          bool          `yaml:"MOCKING_ENABLED" env:"MOCKING_ENABLED"`
+	EmailThirdPartyProvider string        `yaml:"EMAIL_THIRD_PARTY_PROVIDER" env:"EMAIL_THIRD_PARTY_PROVIDER"`
+	SMSThirdPartyProvider   string        `yaml:"SMS_THIRD_PARTY_PROVIDER" env:"SMS_THIRD_PARTY_PROVIDER"`
 }
 
-type GMail struct {
+type Gmail struct {
 	SMTPServer   string `yaml:"SMTP_SERVER" env:"SMTP_SERVER"`
 	SMTPPort     int    `yaml:"SMTP_PORT" env:"SMTP_PORT"`
 	SMTPUsername string `yaml:"SMTP_USERNAME" env:"SMTP_USERNAME"`
@@ -147,6 +148,25 @@ func (cfg *Config) SetDefaults() {
 		ConnMaxLifeTimeJitter: 5 * time.Minute,
 	}
 
+	cfg.Redis = Redis{
+		Host:               "localhost",
+		Port:               6379,
+		PoolSize:           30,
+		MinIdleConnections: 10,
+		DialTimeout:        1000 * time.Millisecond,
+		PoolTimeout:        1000 * time.Millisecond,
+		ReadTimeout:        1000 * time.Millisecond,
+		WriteTimeout:       1000 * time.Millisecond,
+		IdleTimeout:        30 * time.Minute,
+		IdleCheckFrequency: 5 * time.Minute,
+
+		HystrixTimeout:         1000,
+		MaxConcurrentRequests:  100,
+		RequestVolumeThreshold: 100,
+		SleepWindow:            100,
+		ErrorPercentThreshold:  10,
+	}
+
 	cfg.Log = Log{
 		Level:  "info",
 		Output: "console",
@@ -154,14 +174,14 @@ func (cfg *Config) SetDefaults() {
 	}
 
 	cfg.OTP = OTP{
-		TTL:                     300,
+		TTL:                     10 * time.Minute,
 		MaxRetryCount:           3,
 		MockingEnabled:          false,
 		EmailThirdPartyProvider: constants.ThirdPartyGomail,
 		SMSThirdPartyProvider:   constants.ThirdPartyMsg91,
 	}
 
-	cfg.GMail = GMail{
+	cfg.Gmail = Gmail{
 		SMTPServer:   "smtp.gmail.com",
 		SMTPPort:     587,
 		SMTPUsername: "username",

@@ -5,6 +5,7 @@ import (
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
+	"github.com/rs/zerolog/log"
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/db"
 	"github.com/techx/portal/errors"
@@ -19,10 +20,11 @@ type Repository struct {
 	TxRunner  TxRunner
 }
 
-func NewRepository(cfg *config.Config, tableName string) (*Repository, error) {
+func NewRepository(cfg *config.Config, tableName string) *Repository {
 	postgresDB, err := db.NewPostgresDB(context.Background(), cfg.DB)
 	if err != nil {
-		return nil, err
+		log.Error().Err(err).Msg("failed to connect to postgres")
+		panic(err)
 	}
 
 	return &Repository{
@@ -30,7 +32,7 @@ func NewRepository(cfg *config.Config, tableName string) (*Repository, error) {
 		tableName: tableName,
 		db:        postgresDB,
 		TxRunner:  NewTxRunner(postgresDB),
-	}, nil
+	}
 }
 
 func (r *Repository) DBGet(ctx context.Context, dest interface{}, query string, args ...interface{}) error {

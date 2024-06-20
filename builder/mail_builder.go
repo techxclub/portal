@@ -100,7 +100,7 @@ func (mb *mailBuilder) SendReferralMail(ctx context.Context, params ReferralMail
 
 	textHTML := fmt.Sprintf(`<html><body>%s</body></html>`, bodyHTML)
 
-	from := mb.cfg.GMail.From
+	from := mb.cfg.Gmail.From
 	to := []string{params.Provider.WorkEmail, params.Requester.PersonalEmail}
 
 	m := gomail.NewMessage()
