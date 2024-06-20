@@ -1,6 +1,10 @@
 package client
 
 import (
+	"context"
+
+	"github.com/go-redis/redis/v8"
+	"github.com/rs/zerolog/log"
 	"github.com/techx/portal/client/cache"
 	"github.com/techx/portal/client/db"
 	"github.com/techx/portal/config"
@@ -10,26 +14,51 @@ import (
 
 type Registry struct {
 	DB       *db.Repository
-	GMail    *gomail.Dialer
-	OTPCache cache.Cache[string]
+	Gmail    *gomail.Dialer
+	OTPCache cache.Cache[cache.OTPCache]
 }
 
 func NewRegistry(cfg *config.Config) *Registry {
-	usersDB, err := db.NewRepository(cfg, constants.TableNameUsers)
-	if err != nil {
+	redisClient := newRedisClient(cfg.Redis)
+	otpCache := cache.NewOTPCache(redisClient, cfg.Redis)
+	dbClient := db.NewRepository(cfg, constants.TableNameUsers)
+	gmailClient := newGmailClient(cfg.Gmail)
+
+	return &Registry{
+		DB:       dbClient,
+		Gmail:    gmailClient,
+		OTPCache: otpCache,
+	}
+}
+
+func newRedisClient(redisCfg config.Redis) redis.Cmdable {
+	client := redis.NewClient(&redis.Options{
+		Addr:               redisCfg.GetAddress(),
+		PoolSize:           redisCfg.GetPoolSize(),
+		MinIdleConns:       redisCfg.GetMinIdleConnections(),
+		Username:           redisCfg.GetUsername(),
+		Password:           redisCfg.GetPassword(),
+		DialTimeout:        redisCfg.GetDialTimeout(),
+		PoolTimeout:        redisCfg.GetPoolTimeout(),
+		ReadTimeout:        redisCfg.GetReadTimeout(),
+		WriteTimeout:       redisCfg.GetWriteTimeout(),
+		IdleTimeout:        redisCfg.GetIdleTimeout(),
+		IdleCheckFrequency: redisCfg.GetIdleCheckFrequency(),
+	})
+
+	if err := client.Ping(context.Background()).Err(); err != nil {
+		log.Error().Err(err).Msg("failed to connect to redis")
 		panic(err)
 	}
 
-	gMailClient := gomail.NewDialer(
-		cfg.GMail.SMTPServer,
-		cfg.GMail.SMTPPort,
-		cfg.GMail.From,
-		cfg.GMail.SMTPPassword,
+	return client
+}
+
+func newGmailClient(gmailCfg config.Gmail) *gomail.Dialer {
+	return gomail.NewDialer(
+		gmailCfg.SMTPServer,
+		gmailCfg.SMTPPort,
+		gmailCfg.From,
+		gmailCfg.SMTPPassword,
 	)
-	otpCache := cache.NewCache()
-	return &Registry{
-		DB:       usersDB,
-		GMail:    gMailClient,
-		OTPCache: otpCache,
-	}
 }

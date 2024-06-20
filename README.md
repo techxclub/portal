@@ -1,12 +1,18 @@
 # TechX Portal
 
 ### Code Architecture
+
 ![Code layers](docs/portal_code_arch.png)
 
 ## Prerequisites
+
 * Golang (1.22.3)
+* Postgres (14.6)
+* Docker (20.10.8)
+* Redis (6.0.16)
 
 ### Install on macosx
+
 [Docker](https://docs.docker.com/docker-for-mac/install/)
 
 Golang: `brew install go`
@@ -18,6 +24,7 @@ Ensure `$GOPATH/bin` is in `$PATH`
 `git clone https://github.com/techxclub/portal.git`
 
 ## Dev Setup
+
 * Run `make copy-config` to create a local config file
 * Run `make db-reset` to setup db
 * Run `make run-local` to start the service on port 3000
@@ -30,6 +37,7 @@ Ensure `$GOPATH/bin` is in `$PATH`
 * Run `bin/happy-path` to simulate happy path on integration
 
 ## Generating Mocks
+
 * Run `make generate-mocks` to generate mocks for all interface
 
 ## Before committing changes
@@ -38,6 +46,7 @@ Ensure `$GOPATH/bin` is in `$PATH`
 * Run `make ci` before pushing any new changes, to imitate what happens on CI
 
 ## See other make commands
+
 `make help`
 
 ## Documentation

@@ -9,6 +9,14 @@ import (
 	"github.com/techx/portal/handler/composers"
 )
 
+var authStatusToActionMap = map[string]string{
+	constants.AuthStatusGenerated: constants.ActionVerifyOTP,
+	constants.AuthStatusPending:   constants.ActionVerifyOTP,
+	constants.AuthStatusResent:    constants.ActionVerifyOTP,
+	constants.AuthStatusFailed:    constants.ActionRetryOTP,
+	constants.AuthStatusVerified:  constants.ActionSignUp,
+}
+
 // swagger:model
 type GenerateOTPResponse struct {
 	Action string `json:"action"`
@@ -25,9 +33,9 @@ func NewGenerateOTPResponse(_ context.Context, _ domain.AuthDetails) (GenerateOT
 }
 
 func NewVerifyOTPResponse(_ context.Context, authDetails domain.AuthDetails) (VerifyOTPResponse, HTTPMetadata) {
-	action := constants.ActionSignUp
-	if authDetails.AuthInfo.Status == constants.AuthStatusPending {
-		action = constants.ActionRetryOTP
+	action, ok := authStatusToActionMap[authDetails.AuthInfo.Status]
+	if !ok {
+		return VerifyOTPResponse{Action: constants.ActionRetryOTP}, HTTPMetadata{}
 	}
 
 	if authDetails.UserInfo == nil {

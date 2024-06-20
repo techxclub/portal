@@ -20,14 +20,14 @@ type OTPBuilder interface {
 type messageBuilder struct {
 	cfg           *config.Config
 	otpMailClient *gomail.Dialer
-	optCache      cache.Cache[string]
+	otpCache      cache.Cache[cache.OTPCache]
 }
 
-func NewOTPBuilder(cfg *config.Config, otpMailClient *gomail.Dialer, otpCache cache.Cache[string]) OTPBuilder {
+func NewOTPBuilder(cfg *config.Config, otpMailClient *gomail.Dialer, otpCache cache.Cache[cache.OTPCache]) OTPBuilder {
 	return &messageBuilder{
 		cfg:           cfg,
 		otpMailClient: otpMailClient,
-		optCache:      otpCache,
+		otpCache:      otpCache,
 	}
 }
 

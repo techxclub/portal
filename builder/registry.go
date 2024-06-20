@@ -19,7 +19,7 @@ func NewRegistry(cfg *config.Config, clientRegistry *client.Registry) *Registry 
 		UsersRepository:     repository.NewUsersRepository(clientRegistry.DB),
 		CompaniesRepository: repository.NewCompaniesRepository(clientRegistry.DB),
 		ReferralsRepository: repository.NewReferralsRepository(clientRegistry.DB),
-		OTPBuilder:          NewOTPBuilder(cfg, clientRegistry.GMail, clientRegistry.OTPCache),
-		MailBuilder:         NewMailBuilder(cfg, clientRegistry.GMail),
+		OTPBuilder:          NewOTPBuilder(cfg, clientRegistry.Gmail, clientRegistry.OTPCache),
+		MailBuilder:         NewMailBuilder(cfg, clientRegistry.Gmail),
 	}
 }
