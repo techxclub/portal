@@ -9,12 +9,14 @@ import (
 	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
 	"github.com/techx/portal/errors"
+	"github.com/techx/portal/utils"
 )
 
 type UsersRepository interface {
 	NextUserIDNum(ctx context.Context) (int64, error)
 	CreateUser(ctx context.Context, details domain.UserProfile) (*domain.UserProfile, error)
 	UpdateUser(ctx context.Context, details domain.UserProfile) error
+	BulkUpdateUsers(ctx context.Context, from, to domain.UserProfileParams) error
 	GetUserForParams(ctx context.Context, params domain.UserProfileParams) (*domain.UserProfile, error)
 	GetUsersForParams(ctx context.Context, params domain.UserProfileParams) (*domain.Users, error)
 }
@@ -36,9 +38,9 @@ type UsersReturning struct {
 
 const (
 	nextUserIDNum            = `SELECT nextval('users_user_id_num_seq')`
-	interUserQuery           = `INSERT INTO users (user_id_num, created_time, status, name, phone_number, personal_email, company, work_email, role, years_of_experience, linkedin) VALUES (:user_id_num, :created_time, :status, :name, :phone_number, :personal_email, :company, :work_email, :role, :years_of_experience, :linkedin) RETURNING user_id, created_time`
+	interUserQuery           = `INSERT INTO users (user_id_num, created_time, status, name, phone_number, personal_email, company_id, company_name, work_email, role, years_of_experience, linkedin) VALUES (:user_id_num, :created_time, :status, :name, :phone_number, :personal_email, :company_id, :company_name, :work_email, :role, :years_of_experience, :linkedin) RETURNING user_id, created_time`
 	namedUpdateUserBaseQuery = `UPDATE users SET `
-	getUserSelectorFields    = `user_id_num, user_id, created_time, status, name, phone_number, personal_email, company, work_email, role, years_of_experience, linkedin`
+	getUserSelectorFields    = `user_id_num, user_id, created_time, status, name, phone_number, personal_email, company_id, company_name, work_email, role, years_of_experience, linkedin`
 	selectUserBaseQuery      = `SELECT ` + getUserSelectorFields + ` FROM users WHERE `
 )
 
@@ -63,17 +65,18 @@ func (r usersRepository) CreateUser(ctx context.Context, details domain.UserProf
 	err = r.dbClient.TxRunner.RunInTxContext(ctx, func(tx *sqlx.Tx) error {
 		now := time.Now()
 		return r.dbClient.DBNamedExecReturningInTx(ctx, tx, &returning, interUserQuery, map[string]interface{}{
-			"user_id_num":         details.UserIDNum,
-			"created_time":        now,
-			"status":              details.Status,
-			"name":                details.Name,
-			"phone_number":        details.PhoneNumber,
-			"personal_email":      details.PersonalEmail,
-			"company":             details.Company,
-			"work_email":          details.WorkEmail,
-			"role":                details.Role,
-			"years_of_experience": details.YearsOfExperience,
-			"linkedin":            details.LinkedIn,
+			constants.ParamUserIDNum:         details.UserIDNum,
+			constants.ParamCreatedTime:       now,
+			constants.ParamStatus:            details.Status,
+			constants.ParamName:              details.Name,
+			constants.ParamPhoneNumber:       details.PhoneNumber,
+			constants.ParamPersonalEmail:     details.PersonalEmail,
+			constants.ParamCompanyID:         details.CompanyID,
+			constants.ParamCompanyName:       details.CompanyName,
+			constants.ParamWorkEmail:         details.WorkEmail,
+			constants.ParamRole:              details.Role,
+			constants.ParamYearsOfExperience: details.YearsOfExperience,
+			constants.ParamLinkedIn:          details.LinkedIn,
 		})
 	})
 	if err != nil {
@@ -86,12 +89,11 @@ func (r usersRepository) CreateUser(ctx context.Context, details domain.UserProf
 }
 
 func (r usersRepository) UpdateUser(ctx context.Context, details domain.UserProfile) error {
-	nqb := domain.NewNamedQueryBuilder()
+	nqb := domain.NewSetQueryBuilder()
 	nqb.AddEqualCondition(constants.ParamStatus, details.Status)
-	nqb.AddEqualCondition(constants.ParamCompany, details.Company)
-	nqb.AddEqualCondition(constants.ParamRole, details.Role)
+	nqb.AddEqualCondition(constants.ParamCompanyName, details.CompanyName)
 
-	namedParams, namedArgs := nqb.BuildNamedConditions()
+	namedParams, namedArgs := nqb.BuildNamed()
 
 	whereCondition := `user_id = :user_id`
 	if details.UserIDNum != 0 {
@@ -109,11 +111,33 @@ func (r usersRepository) UpdateUser(ctx context.Context, details domain.UserProf
 	return err
 }
 
+func (r usersRepository) BulkUpdateUsers(ctx context.Context, from, to domain.UserProfileParams) error {
+	setConditionBuilder := domain.NewSetQueryBuilder()
+	setConditionBuilder.AddEqualCondition(constants.ParamStatus, to.Status)
+	setConditionBuilder.AddEqualCondition(constants.ParamCompanyID, to.CompanyID)
+	setConditionBuilder.AddEqualCondition(constants.ParamCompanyName, to.CompanyName)
+	setParams, setNamedArgs := setConditionBuilder.BuildNamed()
+
+	whereConditionBuilder := domain.NewWhereQueryBuilder()
+	whereConditionBuilder.AddEqualCondition(constants.ParamUserIDNum, from.UserIDNum)
+	whereConditionBuilder.AddEqualCondition(constants.ParamUserID, from.UserID)
+	whereConditionBuilder.AddEqualCondition(constants.ParamCompanyID, from.CompanyID)
+	whereConditionBuilder.AddEqualCondition(constants.ParamCompanyName, from.CompanyName)
+	whereCondition, whereNamedArgs := whereConditionBuilder.BuildNamed()
+
+	namedArgs := utils.MergeMaps(setNamedArgs, whereNamedArgs)
+	updateCompanyQuery := namedUpdateUserBaseQuery + setParams + ` WHERE ` + whereCondition
+
+	err := r.dbClient.TxRunner.RunInTxContext(ctx, func(tx *sqlx.Tx) error {
+		return r.dbClient.DBNamedExecInTx(ctx, tx, updateCompanyQuery, namedArgs)
+	})
+
+	return err
+}
+
 func (r usersRepository) GetUserForParams(ctx context.Context, params domain.UserProfileParams) (*domain.UserProfile, error) {
-	qb := domain.NewQueryBuilder()
-	if params.UserIDNum != 0 {
-		qb.AddEqualCondition(constants.ParamUserIDNum, params.UserIDNum)
-	}
+	qb := domain.NewGetQueryBuilder()
+	qb.AddEqualCondition(constants.ParamUserIDNum, params.UserIDNum)
 	qb.AddEqualCondition(constants.ParamUserID, params.UserID)
 	qb.AddEqualCondition(constants.ParamName, params.Name)
 	qb.AddEqualCondition(constants.ParamPhoneNumber, params.PhoneNumber)
@@ -138,7 +162,7 @@ func (r usersRepository) GetUserForParams(ctx context.Context, params domain.Use
 }
 
 func (r usersRepository) GetUsersForParams(ctx context.Context, params domain.UserProfileParams) (*domain.Users, error) {
-	qb := domain.NewQueryBuilder()
+	qb := domain.NewGetQueryBuilder()
 	qb.AddEqualCondition(constants.ParamUserIDNum, params.UserID)
 	qb.AddEqualCondition(constants.ParamUserID, params.UserID)
 	qb.AddEqualCondition(constants.ParamStatus, params.Status)
@@ -146,11 +170,10 @@ func (r usersRepository) GetUsersForParams(ctx context.Context, params domain.Us
 	qb.AddEqualCondition(constants.ParamPhoneNumber, params.PhoneNumber)
 	qb.AddEqualCondition(constants.ParamPersonalEmail, params.PersonalEmail)
 	qb.AddEqualCondition(constants.ParamWorkEmail, params.WorkEmail)
-	qb.AddEqualCondition(constants.ParamCompany, params.Company)
+	qb.AddEqualCondition(constants.ParamCompanyID, params.CompanyID)
+	qb.AddEqualCondition(constants.ParamCompanyName, params.CompanyName)
 	qb.AddEqualCondition(constants.ParamRole, params.Role)
-	if params.CreatedAt != nil {
-		qb.AddGreaterEqualCondition(constants.ParamCreatedTime, params.CreatedAt)
-	}
+	qb.AddGreaterEqualCondition(constants.ParamCreatedTime, params.CreatedAt)
 
 	conditions, args := qb.Build()
 	if conditions == "" {

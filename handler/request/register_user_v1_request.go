@@ -15,7 +15,7 @@ type RegisterUserV1Request struct {
 	Name              string  `json:"name"`
 	PhoneNumber       string  `json:"phone_number"`
 	PersonalEmail     string  `json:"personal_email"`
-	Company           string  `json:"company"`
+	CompanyName       string  `json:"company_name"`
 	Role              string  `json:"role"`
 	YearsOfExperience float32 `json:"years_of_experience"`
 	WorkEmail         string  `json:"work_email"`
@@ -49,7 +49,7 @@ func (r RegisterUserV1Request) Validate() error {
 		return errors.ErrInvalidWorkEmail
 	}
 
-	if r.Company == "" {
+	if r.CompanyName == "" {
 		return errors.ErrCompanyRequired
 	}
 
@@ -63,7 +63,7 @@ func (r RegisterUserV1Request) Validate() error {
 func (r RegisterUserV1Request) ToUserDetails() domain.UserProfile {
 	return domain.UserProfile{
 		Name:              r.Name,
-		Company:           r.Company,
+		CompanyName:       r.CompanyName,
 		YearsOfExperience: r.YearsOfExperience,
 		PersonalEmail:     r.PersonalEmail,
 		WorkEmail:         r.WorkEmail,

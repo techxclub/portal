@@ -42,7 +42,7 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 		return nil, errors.ErrProviderNotFound
 	}
 
-	if provider.Company != referralDetails.Company {
+	if provider.CompanyID != referralDetails.CompanyID {
 		return nil, errors.ErrCompanyNotMatch
 	}
 

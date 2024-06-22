@@ -16,7 +16,8 @@ type UserProfile struct {
 	Name              string     `db:"name"`
 	PhoneNumber       string     `db:"phone_number"`
 	PersonalEmail     string     `db:"personal_email"`
-	Company           string     `db:"company"`
+	CompanyID         int64      `db:"company_id"`
+	CompanyName       string     `db:"company_name"`
 	WorkEmail         string     `db:"work_email"`
 	Role              string     `db:"role"`
 	YearsOfExperience float32    `db:"years_of_experience"`
@@ -31,7 +32,8 @@ type UserProfileParams struct {
 	PhoneNumber   string
 	PersonalEmail string
 	WorkEmail     string
-	Company       string
+	CompanyID     int64
+	CompanyName   string
 	Role          string
 	CreatedAt     *time.Time
 }

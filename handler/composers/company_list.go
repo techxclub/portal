@@ -7,7 +7,8 @@ import (
 
 type Company struct {
 	ID              int64  `json:"id"`
-	Name            string `json:"name"`
+	NormalizedName  string `json:"normalized_name"`
+	DisplayName     string `json:"display_name"`
 	SmallLogo       string `json:"small_logo"`
 	BigLogo         string `json:"big_logo"`
 	OfficialWebsite string `json:"official_website,omitempty"`
@@ -48,7 +49,8 @@ func GetAllCompanies(companies domain.Companies, limit int) []Company {
 func getCompany(c domain.Company) Company {
 	return Company{
 		ID:              c.ID,
-		Name:            c.Name,
+		NormalizedName:  c.NormalizedName,
+		DisplayName:     c.DisplayName,
 		SmallLogo:       c.SmallLogo,
 		BigLogo:         c.BigLogo,
 		OfficialWebsite: c.OfficialWebsite,

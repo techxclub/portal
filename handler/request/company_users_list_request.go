@@ -6,20 +6,27 @@ import (
 	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
 	"github.com/techx/portal/errors"
+	"github.com/techx/portal/utils"
 )
 
 type CompanyUsersListRequest struct {
-	Company string `json:"company"`
+	CompanyID string
 }
 
 func NewCompanyUsersListRequest(r *http.Request) (*CompanyUsersListRequest, error) {
-	company := r.URL.Query().Get(constants.ParamCompany)
-	return &CompanyUsersListRequest{Company: company}, nil
+	companyID := r.URL.Query().Get(constants.ParamCompanyID)
+	return &CompanyUsersListRequest{
+		CompanyID: companyID,
+	}, nil
 }
 
 func (r CompanyUsersListRequest) Validate() error {
-	if r.Company == "" {
+	if r.CompanyID == "" {
 		return errors.ErrCompanyRequired
+	}
+
+	if utils.ParseInt64WithDefault(r.CompanyID, 0) == 0 {
+		return errors.ErrInvalidCompanyID
 	}
 
 	return nil
@@ -27,6 +34,6 @@ func (r CompanyUsersListRequest) Validate() error {
 
 func (r CompanyUsersListRequest) ToUserProfileParams() domain.UserProfileParams {
 	return domain.UserProfileParams{
-		Company: r.Company,
+		CompanyID: utils.ParseInt64WithDefault(r.CompanyID, 0),
 	}
 }

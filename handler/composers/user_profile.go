@@ -15,7 +15,8 @@ type UserProfile struct {
 	Name              string     `json:"name"`
 	PhoneNumber       string     `json:"phone_number"`
 	PersonalEmail     string     `json:"personal_email"`
-	Company           string     `json:"company"`
+	CompanyID         int64      `json:"company_id"`
+	CompanyName       string     `json:"company_name"`
 	WorkEmail         string     `json:"work_email"`
 	Role              string     `json:"role"`
 	YearsOfExperience float32    `json:"years_of_experience"`
@@ -31,7 +32,8 @@ func NewUserProfile(user domain.UserProfile) UserProfile {
 		Name:              user.Name,
 		PhoneNumber:       user.PhoneNumber,
 		PersonalEmail:     user.PersonalEmail,
-		Company:           user.Company,
+		CompanyID:         user.CompanyID,
+		CompanyName:       user.CompanyName,
 		WorkEmail:         user.WorkEmail,
 		Role:              user.Role,
 		YearsOfExperience: user.YearsOfExperience,
