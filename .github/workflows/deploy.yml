@@ -10,6 +10,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    env:
+      SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -18,7 +21,6 @@ jobs:
         run: echo "$APPLICATION_YML_CONTENTS" > application.yml
         env:
           APPLICATION_YML_CONTENTS: ${{ secrets.APPLICATION_YML_CONTENTS }}
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
 
       - name: Build Go binary
         run: make build
@@ -38,14 +40,7 @@ jobs:
           ssh -i ssh_key -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
             sudo systemctl stop portal.service
           EOF
-          
-#          # Copy the built Go binary
-#          ssh -i ssh_key -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "mkdir -p /home/ubuntu/techx/portal/out"
-#          scp -i ssh_key -o StrictHostKeyChecking=no ./out/portal ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/ubuntu/techx/portal/out
-#
-          # Copy the application.yml
-          scp -i ssh_key -o StrictHostKeyChecking=no ./application.yml ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/ubuntu/techx/application.yml
-          
+
           # SSH into the EC2 instance and setup systemd service
           ssh -i ssh_key -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
             # Create systemd service file
@@ -57,7 +52,7 @@ jobs:
             [Service]
             Type=simple
             WorkingDirectory=/home/ubuntu/techx
-            ExecStart=/home/ubuntu/techx/portal/out/portal start --config-file /home/ubuntu/techx/application.yml
+            ExecStart=/home/ubuntu/techx/portal/out/portal start --config-file /home/ubuntu/techx/portal/application.yml
             Restart=always
             User=ubuntu
           
