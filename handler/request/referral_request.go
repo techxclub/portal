@@ -11,12 +11,13 @@ import (
 	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
 	"github.com/techx/portal/errors"
+	"github.com/techx/portal/utils"
 )
 
 type ReferralRequest struct {
 	RequesterUserID string
 	ProviderUserID  string
-	Company         string
+	CompanyID       int64
 	JobLink         string
 	Message         string
 	ResumeFilePath  string
@@ -27,7 +28,7 @@ func NewReferralRequest(r *http.Request) (*ReferralRequest, error) {
 	if err != nil {
 		return nil, errors.New("Error parsing form data")
 	}
-	file, _, err := r.FormFile("resume")
+	file, _, err := r.FormFile(constants.ParamResumeFile)
 	if err != nil {
 		return nil, errors.New("Error retrieving the file")
 	}
@@ -38,11 +39,11 @@ func NewReferralRequest(r *http.Request) (*ReferralRequest, error) {
 	}
 
 	return &ReferralRequest{
-		RequesterUserID: r.FormValue("requester_user_id"),
-		ProviderUserID:  r.FormValue("provider_user_id"),
-		Company:         r.FormValue("company"),
-		JobLink:         r.FormValue("job_link"),
-		Message:         r.FormValue("message"),
+		RequesterUserID: r.FormValue(constants.ParamRequesterID),
+		ProviderUserID:  r.FormValue(constants.ParamProviderID),
+		CompanyID:       utils.ParseInt64WithDefault(r.FormValue(constants.ParamCompanyID), 0),
+		JobLink:         r.FormValue(constants.ParamJobLink),
+		Message:         r.FormValue(constants.ParamMessage),
 		ResumeFilePath:  resumeFilePath,
 	}, nil
 }
@@ -54,10 +55,6 @@ func (r ReferralRequest) Validate() error {
 
 	if r.ProviderUserID == "" {
 		return errors.ErrProviderFieldIsEmpty
-	}
-
-	if r.Company == "" {
-		return errors.ErrCompanyRequired
 	}
 
 	_, err := url.ParseRequestURI(r.JobLink)
@@ -72,7 +69,7 @@ func (r ReferralRequest) ToReferral() domain.ReferralParams {
 		RequesterUserID: r.RequesterUserID,
 		ProviderUserID:  r.ProviderUserID,
 		JobLink:         r.JobLink,
-		Company:         r.Company,
+		CompanyID:       r.CompanyID,
 		Message:         r.Message,
 		ResumeFilePath:  r.ResumeFilePath,
 		Status:          constants.ReferralStatusPending,

@@ -1,15 +1,19 @@
 package service
 
 import (
+	"cmp"
 	"context"
+	"slices"
+	"strings"
 
+	"github.com/iancoleman/strcase"
 	"github.com/rs/zerolog/log"
 	"github.com/techx/portal/builder"
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
+	"github.com/techx/portal/errors"
 	"github.com/techx/portal/utils"
-	"golang.org/x/sync/errgroup"
 )
 
 type UserService interface {
@@ -33,29 +37,33 @@ func NewUserService(cfg *config.Config, registry *builder.Registry) UserService 
 }
 
 func (u userService) RegisterUser(ctx context.Context, userDetails domain.UserProfile) (*domain.Registration, error) {
-	eg := errgroup.Group{}
-
 	var user *domain.UserProfile
+	var err error
 
-	eg.Go(func() (err error) {
-		user, err = u.registry.UsersRepository.CreateUser(ctx, userDetails)
-		return
-	})
-
-	eg.Go(func() error {
-		_, err := u.registry.CompaniesRepository.AddCompany(ctx, domain.Company{
-			Name:     userDetails.Company,
-			Verified: utils.ToPtr(false),
-			Popular:  utils.ToPtr(false),
-			Actor:    constants.ActorUser,
+	normalizedCompanyName := strcase.ToScreamingSnake(strings.ToUpper(userDetails.CompanyName))
+	companyDetails, fetchCompanyErr := u.registry.CompaniesRepository.GetCompanyForParams(ctx, domain.FetchCompanyParams{NormalizedName: normalizedCompanyName})
+	if fetchCompanyErr != nil {
+		companyDetails, err = u.registry.CompaniesRepository.AddCompany(ctx, domain.Company{
+			NormalizedName: normalizedCompanyName,
+			DisplayName:    userDetails.CompanyName,
+			Verified:       utils.ToPtr(false),
+			Popular:        utils.ToPtr(false),
+			Actor:          constants.ActorUser,
 		})
 		if err != nil {
 			log.Info().Err(err).Msg("Failed to add company")
+			return nil, err
 		}
-		return nil
-	})
+	}
 
-	if err := eg.Wait(); err != nil {
+	if companyDetails == nil || companyDetails.ID <= 0 {
+		return nil, errors.ErrCompanyNotFound
+	}
+
+	userDetails.CompanyID = companyDetails.ID
+	userDetails.CompanyName = companyDetails.DisplayName
+	user, err = u.registry.UsersRepository.CreateUser(ctx, userDetails)
+	if err != nil {
 		return nil, err
 	}
 
@@ -94,6 +102,10 @@ func (u userService) GetUsers(ctx context.Context, params domain.UserProfilePara
 		return nil, err
 	}
 
+	slices.SortStableFunc(*users, func(i, j domain.UserProfile) int {
+		return cmp.Compare(i.Name, j.Name)
+	})
+
 	return users, nil
 }
 
@@ -103,5 +115,8 @@ func (u userService) GetCompanies(ctx context.Context, params domain.FetchCompan
 		return nil, err
 	}
 
+	slices.SortStableFunc(*companies, func(i, j domain.Company) int {
+		return cmp.Compare(i.GetPriority(), j.GetPriority())
+	})
 	return companies, nil
 }

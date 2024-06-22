@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	insertReferralQuery       = `INSERT INTO referrals (requester_user_id, provider_user_id, company, job_link, status, created_time) VALUES (:requester_user_id, :provider_user_id, :company, :job_link, :status, :created_time) RETURNING id, created_time`
-	getReferralSelectorFields = `id, requester_user_id, provider_user_id, company, job_link, status, created_time`
+	insertReferralQuery       = `INSERT INTO referrals (requester_user_id, provider_user_id, company_id, job_link, status, created_time) VALUES (:requester_user_id, :provider_user_id, :company_id, :job_link, :status, :created_time) RETURNING id, created_time`
+	getReferralSelectorFields = `id, requester_user_id, provider_user_id, company_id, job_link, status, created_time`
 	selectReferralBaseQuery   = `SELECT ` + getReferralSelectorFields + ` FROM referrals WHERE `
 )
 
@@ -27,7 +27,7 @@ type referralsRepository struct {
 }
 
 type ReferralsReturning struct {
-	ID        string    `db:"id"`
+	ID        int64     `db:"id"`
 	CreatedAt time.Time `db:"created_time"`
 }
 
@@ -44,7 +44,7 @@ func (r referralsRepository) CreateReferral(ctx context.Context, params domain.R
 		return r.dbClient.DBNamedExecReturningInTx(ctx, tx, &returning, insertReferralQuery, map[string]interface{}{
 			constants.ParamRequesterID: params.RequesterUserID,
 			constants.ParamProviderID:  params.ProviderUserID,
-			constants.ParamCompany:     params.Company,
+			constants.ParamCompanyID:   params.CompanyID,
 			constants.ParamJobLink:     params.JobLink,
 			constants.ParamStatus:      params.Status,
 			constants.ParamCreatedTime: now,
@@ -58,7 +58,7 @@ func (r referralsRepository) CreateReferral(ctx context.Context, params domain.R
 		ID:              returning.ID,
 		RequesterUserID: params.RequesterUserID,
 		ProviderUserID:  params.ProviderUserID,
-		Company:         params.Company,
+		CompanyID:       params.CompanyID,
 		JobLink:         params.JobLink,
 		Status:          params.Status,
 		CreatedAt:       &returning.CreatedAt,
@@ -68,11 +68,11 @@ func (r referralsRepository) CreateReferral(ctx context.Context, params domain.R
 }
 
 func (r referralsRepository) GetReferralsForParams(ctx context.Context, params domain.ReferralParams) (*domain.Referrals, error) {
-	qb := domain.NewQueryBuilder()
+	qb := domain.NewGetQueryBuilder()
 	qb.AddEqualCondition(constants.ParamID, params.ID)
 	qb.AddEqualCondition(constants.ParamRequesterID, params.RequesterUserID)
 	qb.AddEqualCondition(constants.ParamProviderID, params.ProviderUserID)
-	qb.AddEqualCondition(constants.ParamCompany, params.Company)
+	qb.AddEqualCondition(constants.ParamCompanyID, params.CompanyID)
 	qb.AddEqualCondition(constants.ParamStatus, params.Status)
 	qb.AddGreaterEqualCondition(constants.ParamCreatedTime, params.CreatedAt)
 

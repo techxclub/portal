@@ -85,7 +85,7 @@ func (mb *mailBuilder) SendReferralMail(ctx context.Context, params ReferralMail
 	i18nValues := map[string]interface{}{
 		"ProviderName":     params.Provider.Name,
 		"RequesterName":    params.Requester.Name,
-		"RequesterCompany": params.Requester.Company,
+		"RequesterCompany": params.Requester.CompanyName,
 		"RequesterEmail":   params.Requester.PersonalEmail,
 		"JobLink":          params.JobLink,
 		"RequesterMessage": params.Message,

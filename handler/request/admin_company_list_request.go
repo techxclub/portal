@@ -6,14 +6,16 @@ import (
 
 	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
+	"github.com/techx/portal/utils"
 )
 
 type BaseCompanyListRequest struct {
-	ID       string
-	Name     string
-	Priority string
-	Verified string
-	Popular  string
+	ID             string
+	NormalizedName string
+	DisplayName    string
+	Priority       string
+	Verified       string
+	Popular        string
 }
 
 type AdminCompanyListRequest struct {
@@ -22,18 +24,20 @@ type AdminCompanyListRequest struct {
 
 func NewAdminCompanyListRequest(r *http.Request) (*AdminCompanyListRequest, error) {
 	id := r.URL.Query().Get(constants.ParamID)
-	name := r.URL.Query().Get(constants.ParamName)
+	normalizedName := r.URL.Query().Get(constants.ParamNormalizedName)
+	displayName := r.URL.Query().Get(constants.ParamDisplayName)
 	priority := r.URL.Query().Get(constants.ParamPriority)
 	verified := r.URL.Query().Get(constants.ParamVerified)
 	popular := r.URL.Query().Get(constants.ParamPopular)
 
 	return &AdminCompanyListRequest{
 		BaseCompanyListRequest{
-			ID:       id,
-			Name:     name,
-			Priority: priority,
-			Verified: verified,
-			Popular:  popular,
+			ID:             id,
+			NormalizedName: normalizedName,
+			DisplayName:    displayName,
+			Priority:       priority,
+			Verified:       verified,
+			Popular:        popular,
 		},
 	}, nil
 }
@@ -44,30 +48,17 @@ func (r AdminCompanyListRequest) Validate() error {
 
 func (r AdminCompanyListRequest) ToFetchCompanyParams() domain.FetchCompanyParams {
 	return domain.FetchCompanyParams{
-		ID:       parseInt64(r.ID),
-		Name:     r.Name,
-		Priority: parseInt64(r.Priority),
-		Verified: parseBool(r.Verified),
-		Popular:  parseBool(r.Popular),
+		ID:             utils.ParseInt64WithDefault(r.ID, 0),
+		NormalizedName: r.NormalizedName,
+		DisplayName:    r.DisplayName,
+		Priority:       utils.ParseInt64WithDefault(r.Priority, 0),
+		Verified:       parseBool(r.Verified),
+		Popular:        parseBool(r.Popular),
 	}
 }
 
 func parseBool(str string) *bool {
-	if str == "" {
-		return nil
-	}
 	parsedValue, err := strconv.ParseBool(str)
-	if err != nil {
-		return nil
-	}
-	return &parsedValue
-}
-
-func parseInt64(str string) *int64 {
-	if str == "" {
-		return nil
-	}
-	parsedValue, err := strconv.ParseInt(str, 10, 64)
 	if err != nil {
 		return nil
 	}

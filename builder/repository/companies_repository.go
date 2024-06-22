@@ -12,9 +12,9 @@ import (
 )
 
 const (
-	insertCompanyQuery          = `INSERT INTO companies (name, small_logo, big_logo, official_website, careers_page, priority, verified, popular) VALUES (:name, :small_logo, :big_logo, :official_website, :careers_page, :priority, :verified, :popular) RETURNING id`
+	insertCompanyQuery          = `INSERT INTO companies (normalized_name, display_name, small_logo, big_logo, official_website, careers_page, priority, verified, popular) VALUES (:normalized_name, :display_name, :small_logo, :big_logo, :official_website, :careers_page, :priority, :verified, :popular) RETURNING id`
 	namedUpdateCompanyBaseQuery = `UPDATE companies SET %s WHERE id=:id`
-	getCompanySelectorFields    = `id, name, small_logo, big_logo, official_website, careers_page, priority, verified, popular`
+	getCompanySelectorFields    = `id, normalized_name, display_name, small_logo, big_logo, official_website, careers_page, priority, verified, popular`
 	selectCompanyBaseQuery      = `SELECT ` + getCompanySelectorFields + ` FROM companies WHERE `
 )
 
@@ -43,7 +43,8 @@ func (r companiesRepository) AddCompany(ctx context.Context, details domain.Comp
 	var returning CompaniesReturning
 	err := r.dbClient.TxRunner.RunInTxContext(ctx, func(tx *sqlx.Tx) error {
 		return r.dbClient.DBNamedExecReturningInTx(ctx, tx, &returning, insertCompanyQuery, map[string]interface{}{
-			constants.ParamName:            details.Name,
+			constants.ParamNormalizedName:  details.NormalizedName,
+			constants.ParamDisplayName:     details.DisplayName,
 			constants.ParamActor:           details.Actor,
 			constants.ParamSmallLogo:       details.SmallLogo,
 			constants.ParamBigLogo:         details.BigLogo,
@@ -60,7 +61,8 @@ func (r companiesRepository) AddCompany(ctx context.Context, details domain.Comp
 
 	company := domain.Company{
 		ID:              returning.ID,
-		Name:            details.Name,
+		NormalizedName:  details.NormalizedName,
+		DisplayName:     details.DisplayName,
 		SmallLogo:       details.SmallLogo,
 		BigLogo:         details.BigLogo,
 		OfficialWebsite: details.OfficialWebsite,
@@ -74,22 +76,17 @@ func (r companiesRepository) AddCompany(ctx context.Context, details domain.Comp
 }
 
 func (r companiesRepository) UpdateCompany(ctx context.Context, details *domain.Company) error {
-	nqb := domain.NewNamedQueryBuilder()
-	nqb.AddEqualCondition(constants.ParamName, details.Name)
+	nqb := domain.NewSetQueryBuilder()
+	nqb.AddEqualCondition(constants.ParamNormalizedName, details.NormalizedName)
+	nqb.AddEqualCondition(constants.ParamDisplayName, details.DisplayName)
 	nqb.AddEqualCondition(constants.ParamSmallLogo, details.SmallLogo)
 	nqb.AddEqualCondition(constants.ParamBigLogo, details.BigLogo)
 	nqb.AddEqualCondition(constants.ParamOfficialWebsite, details.OfficialWebsite)
 	nqb.AddEqualCondition(constants.ParamCareersPage, details.CareersPage)
-	if details.Priority != nil {
-		nqb.AddEqualCondition(constants.ParamPriority, *details.Priority)
-	}
-	if details.Verified != nil {
-		nqb.AddEqualCondition(constants.ParamVerified, *details.Verified)
-	}
-	if details.Popular != nil {
-		nqb.AddEqualCondition(constants.ParamPopular, *details.Popular)
-	}
-	namedParams, namedArgs := nqb.BuildNamedConditions()
+	nqb.AddEqualCondition(constants.ParamPriority, details.Priority)
+	nqb.AddEqualCondition(constants.ParamVerified, details.Verified)
+	nqb.AddEqualCondition(constants.ParamPopular, details.Popular)
+	namedParams, namedArgs := nqb.BuildNamed()
 
 	updateCompanyQuery := fmt.Sprintf(namedUpdateCompanyBaseQuery, namedParams)
 	namedArgs[constants.ParamID] = details.ID
@@ -102,15 +99,15 @@ func (r companiesRepository) UpdateCompany(ctx context.Context, details *domain.
 }
 
 func (r companiesRepository) GetCompanyForParams(ctx context.Context, params domain.FetchCompanyParams) (*domain.Company, error) {
-	qb := domain.NewQueryBuilder()
+	qb := domain.NewGetQueryBuilder()
 	qb.AddEqualCondition(constants.ParamID, params.ID)
-	qb.AddEqualCondition(constants.ParamName, params.Name)
+	qb.AddEqualCondition(constants.ParamNormalizedName, params.NormalizedName)
+	qb.AddEqualCondition(constants.ParamDisplayName, params.DisplayName)
 
 	conditions, args := qb.Build()
 	if conditions == "" {
 		return nil, errors.ErrInvalidQueryParams
 	}
-
 	var company domain.Company
 	getCompanyForParamsQuery := selectCompanyBaseQuery + conditions
 	err := r.dbClient.DBGet(ctx, &company, getCompanyForParamsQuery, args...)
@@ -122,20 +119,13 @@ func (r companiesRepository) GetCompanyForParams(ctx context.Context, params dom
 }
 
 func (r companiesRepository) GetCompaniesForParams(ctx context.Context, params domain.FetchCompanyParams) (*domain.Companies, error) {
-	qb := domain.NewQueryBuilder()
-	if params.ID != nil {
-		qb.AddEqualCondition(constants.ParamID, *params.ID)
-	}
-	qb.AddEqualCondition(constants.ParamName, params.Name)
-	if params.Priority != nil {
-		qb.AddEqualCondition(constants.ParamPriority, *params.Priority)
-	}
-	if params.Verified != nil {
-		qb.AddEqualCondition(constants.ParamVerified, *params.Verified)
-	}
-	if params.Popular != nil {
-		qb.AddEqualCondition(constants.ParamPopular, *params.Popular)
-	}
+	qb := domain.NewGetQueryBuilder()
+	qb.AddEqualCondition(constants.ParamID, params.ID)
+	qb.AddEqualCondition(constants.ParamNormalizedName, params.NormalizedName)
+	qb.AddEqualCondition(constants.ParamDisplayName, params.DisplayName)
+	qb.AddEqualCondition(constants.ParamPriority, params.Priority)
+	qb.AddEqualCondition(constants.ParamVerified, params.Verified)
+	qb.AddEqualCondition(constants.ParamPopular, params.Popular)
 
 	conditions, args := qb.Build()
 	if conditions == "" {

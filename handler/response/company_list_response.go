@@ -1,9 +1,7 @@
 package response
 
 import (
-	"cmp"
 	"context"
-	"slices"
 
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/domain"
@@ -17,10 +15,6 @@ type CompanyListResponse struct {
 }
 
 func NewCompanyListResponse(_ context.Context, cfg *config.Config, companies domain.Companies) (CompanyListResponse, HTTPMetadata) {
-	slices.SortStableFunc(companies, func(i, j domain.Company) int {
-		return cmp.Compare(i.GetPriority(), j.GetPriority())
-	})
-
 	return CompanyListResponse{
 		PopularCompanies: composers.GetPopularCompanies(companies, cfg.PopularCompanyListLimit),
 		AllCompanies:     composers.GetAllCompanies(companies, cfg.CompanyListLimit),

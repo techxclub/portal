@@ -8,11 +8,15 @@ import (
 )
 
 type AdminUserUpdateRequest struct {
+	From AdminUserUpdateParams `json:"from"`
+	To   AdminUserUpdateParams `json:"to"`
+}
+
+type AdminUserUpdateParams struct {
 	UserNumber int64  `json:"user_number"`
 	UserID     string `json:"user_id"`
 	Status     string `json:"status"`
 	Company    string `json:"company"`
-	Role       string `json:"role"`
 }
 
 func NewAdminUserUpdateRequest(r *http.Request) (*AdminUserUpdateRequest, error) {
@@ -29,12 +33,11 @@ func (r AdminUserUpdateRequest) Validate() error {
 	return nil
 }
 
-func (r AdminUserUpdateRequest) ToUserProfileParams() domain.UserProfile {
-	return domain.UserProfile{
-		UserIDNum: r.UserNumber,
-		UserID:    r.UserID,
-		Status:    r.Status,
-		Company:   r.Company,
-		Role:      r.Role,
+func (r AdminUserUpdateParams) ToUserProfileParams() domain.UserProfileParams {
+	return domain.UserProfileParams{
+		UserIDNum:   r.UserNumber,
+		UserID:      r.UserID,
+		Status:      r.Status,
+		CompanyName: r.Company,
 	}
 }

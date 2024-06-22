@@ -27,6 +27,7 @@ var (
 	ErrInvalidQueryParams               = NewServiceError("invalid_query_params", 400, nil)
 	ErrNameRequired                     = NewServiceError("name_required", 400, nil)
 	ErrCompanyRequired                  = NewServiceError("company_required", 400, nil)
+	ErrInvalidCompanyID                 = NewServiceError("invalid_company_id", 400, nil)
 	ErrRequesterFieldIsEmpty            = NewServiceError("requester_field_is_empty", 400, nil)
 	ErrProviderFieldIsEmpty             = NewServiceError("provider_field_is_empty", 400, nil)
 	ErrReferralLimitReachedForRequester = NewServiceError("referral_limit_reached_for_requester", 400, nil)

@@ -13,7 +13,8 @@ type BaseUserListRequest struct {
 	Status      string
 	Name        string
 	PhoneNumber string
-	Company     string
+	CompanyID   string
+	CompanyName string
 	Role        string
 }
 
@@ -26,7 +27,8 @@ func NewAdminUserListRequest(r *http.Request) (*AdminUserListRequest, error) {
 	status := r.URL.Query().Get(constants.ParamStatus)
 	name := r.URL.Query().Get(constants.ParamName)
 	phoneNumber := r.URL.Query().Get(constants.ParamPhoneNumber)
-	Company := r.URL.Query().Get(constants.ParamCompany)
+	CompanyID := r.URL.Query().Get(constants.ParamCompanyID)
+	CompanyName := r.URL.Query().Get(constants.ParamCompanyName)
 	Role := r.URL.Query().Get(constants.ParamRole)
 
 	return &AdminUserListRequest{
@@ -35,7 +37,8 @@ func NewAdminUserListRequest(r *http.Request) (*AdminUserListRequest, error) {
 			Status:      status,
 			Name:        name,
 			PhoneNumber: utils.SanitizePhoneNumber(phoneNumber),
-			Company:     Company,
+			CompanyID:   CompanyID,
+			CompanyName: CompanyName,
 			Role:        Role,
 		},
 	}, nil
@@ -51,7 +54,8 @@ func (r AdminUserListRequest) ToUserProfileParams() domain.UserProfileParams {
 		Status:      r.Status,
 		PhoneNumber: r.PhoneNumber,
 		Name:        r.Name,
-		Company:     r.Company,
+		CompanyID:   utils.ParseInt64WithDefault(r.CompanyID, 0),
+		CompanyName: r.CompanyName,
 		Role:        r.Role,
 	}
 }

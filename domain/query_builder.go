@@ -2,12 +2,18 @@ package domain
 
 import (
 	"fmt"
+	"reflect"
 	"slices"
 	"strings"
 )
 
 const (
-	queryTypeNamed = "NAMED"
+	conditionGet   = "GET"
+	conditionSet   = "SET"
+	conditionWHERE = "WHERE"
+
+	separatorAnd   = " AND "
+	separatorComma = ", "
 
 	equalOperator        = "="
 	lessOperator         = "<"
@@ -19,26 +25,36 @@ const (
 var supportedOperators = []string{equalOperator, lessOperator, greaterOperator, lessEqualOperator, greaterEqualOperator}
 
 type QueryBuilder struct {
-	queryType    string
-	counter      int
-	conditions   []string
-	args         []interface{}
-	namedArgsMap map[string]interface{}
+	separator       string
+	conditionType   string
+	counter         int
+	conditions      []string
+	namedConditions []string
+	args            []interface{}
+	namedArgsMap    map[string]interface{}
 }
 
-func NewQueryBuilder() *QueryBuilder {
+func newQueryBuilder(conditionType, separator string) *QueryBuilder {
 	return &QueryBuilder{
-		counter:      1,
-		conditions:   make([]string, 0),
-		args:         make([]interface{}, 0),
-		namedArgsMap: make(map[string]interface{}),
+		counter:       1,
+		conditionType: conditionType,
+		separator:     separator,
+		conditions:    make([]string, 0),
+		args:          make([]interface{}, 0),
+		namedArgsMap:  make(map[string]interface{}),
 	}
 }
 
-func NewNamedQueryBuilder() *QueryBuilder {
-	qb := NewQueryBuilder()
-	qb.queryType = queryTypeNamed
-	return qb
+func NewGetQueryBuilder() *QueryBuilder {
+	return newQueryBuilder(conditionGet, separatorAnd)
+}
+
+func NewSetQueryBuilder() *QueryBuilder {
+	return newQueryBuilder(conditionSet, separatorComma)
+}
+
+func NewWhereQueryBuilder() *QueryBuilder {
+	return newQueryBuilder(conditionWHERE, separatorAnd)
 }
 
 func (qb *QueryBuilder) AddEqualCondition(key string, value interface{}) {
@@ -62,12 +78,12 @@ func (qb *QueryBuilder) AddGreaterEqualCondition(key string, value interface{}) 
 }
 
 func (qb *QueryBuilder) Build() (string, []interface{}) {
-	query := strings.Join(qb.conditions, " AND ")
+	query := strings.Join(qb.conditions, qb.separator)
 	return query, qb.args
 }
 
-func (qb *QueryBuilder) BuildNamedConditions() (string, map[string]interface{}) {
-	query := strings.Join(qb.conditions, ", ")
+func (qb *QueryBuilder) BuildNamed() (string, map[string]interface{}) {
+	query := strings.Join(qb.namedConditions, qb.separator)
 	return query, qb.namedArgsMap
 }
 
@@ -76,21 +92,30 @@ func (qb *QueryBuilder) addCondition(key string, value interface{}, operator str
 		return
 	}
 
-	if key == "" || value == nil || value == "" {
+	if key == "" || reflect.ValueOf(value).IsZero() {
 		return
 	}
 
 	condition := qb.getCondition(key, operator)
 	qb.conditions = append(qb.conditions, condition)
 	qb.args = append(qb.args, value)
-	qb.namedArgsMap[key] = value
+
+	namedCondition := qb.getNamedCondition(key, operator)
+	qb.namedConditions = append(qb.namedConditions, namedCondition)
+	namedKey := qb.getNamedConditionKey(key)
+	qb.namedArgsMap[namedKey] = value
+
 	qb.counter++
 }
 
 func (qb *QueryBuilder) getCondition(key, operator string) string {
-	if qb.queryType == queryTypeNamed {
-		return fmt.Sprintf("%s %s :%s", key, operator, key)
-	}
-
 	return fmt.Sprintf("%s %s $%d", key, operator, qb.counter)
+}
+
+func (qb *QueryBuilder) getNamedCondition(key, operator string) string {
+	return fmt.Sprintf("%s %s :%s", key, operator, qb.getNamedConditionKey(key))
+}
+
+func (qb *QueryBuilder) getNamedConditionKey(key string) string {
+	return fmt.Sprintf("%s_%s", qb.conditionType, key)
 }
