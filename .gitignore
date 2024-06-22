@@ -66,6 +66,8 @@ coverage/
 testreport/
 lsif/
 application.yml
+integration.application.yml
+production.application.yml
 
 ## Tools executables
 .tools

@@ -1,0 +1,72 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+      - ec2-deploy
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Load application.yml from secrets
+        run: echo "$APPLICATION_YML_CONTENTS" > application.yml
+        env:
+          APPLICATION_YML_CONTENTS: ${{ secrets.APPLICATION_YML_CONTENTS }}
+
+      - name: Build Go binary
+        run: make build
+
+      - name: Deploy to EC2
+        run: |
+          echo "${SSH_PRIVATE_KEY}" > ssh_key
+          chmod 600 ssh_key
+          
+          # Create the directory if it does not exist
+          ssh -i ssh_key -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "mkdir -p /home/ubuntu/techx/portal"
+          
+          # Copy the portal code to the EC2 instance
+          rsync -avz -e "ssh -i ssh_key -o StrictHostKeyChecking=no" --exclude='.git' --exclude='.github' ./ ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/ubuntu/techx/portal/
+          
+          # Stop portal service 
+          ssh -i ssh_key -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
+            sudo systemctl stop portal.service
+          EOF
+
+          # SSH into the EC2 instance and setup systemd service
+          ssh -i ssh_key -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
+            # Create systemd service file
+            sudo bash -c 'cat >/etc/systemd/system/portal.service <<EOL
+            [Unit]
+            Description=Portal API Server
+            After=network.target
+          
+            [Service]
+            Type=simple
+            WorkingDirectory=/home/ubuntu/techx
+            ExecStart=/home/ubuntu/techx/portal/out/portal start --config-file /home/ubuntu/techx/portal/application.yml
+            Restart=always
+            User=ubuntu
+          
+            [Install]
+            WantedBy=multi-user.target
+            EOL'
+          
+            # Reload systemd
+            sudo systemctl daemon-reload
+          
+            # Enable and start the service
+            sudo systemctl enable portal.service
+            sudo systemctl start portal.service
+          
+            # Check status of the service
+            sudo systemctl status portal.service
+          EOF
