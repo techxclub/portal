@@ -18,13 +18,14 @@ jobs:
         run: echo "$APPLICATION_YML_CONTENTS" > application.yml
         env:
           APPLICATION_YML_CONTENTS: ${{ secrets.APPLICATION_YML_CONTENTS }}
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
 
       - name: Build Go binary
         run: make build
 
       - name: Deploy to EC2
         run: |
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ssh_key
+          echo "${SSH_PRIVATE_KEY}" > ssh_key
           chmod 600 ssh_key
           
           # Create the directory if it does not exist
