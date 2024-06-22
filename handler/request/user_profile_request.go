@@ -24,8 +24,8 @@ func (r UserProfileRequest) Validate() error {
 	return nil
 }
 
-func (r UserProfileRequest) ToUserProfileParams() domain.UserProfileParams {
-	return domain.UserProfileParams{
+func (r UserProfileRequest) ToFetchUserParams() domain.FetchUserParams {
+	return domain.FetchUserParams{
 		UserID: r.BaseUserListRequest.UserID,
 	}
 }

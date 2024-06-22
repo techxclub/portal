@@ -15,7 +15,7 @@ func CompanyUsersListHandler(_ *config.Config, serviceRegistry *service.Registry
 	return Handler(
 		request.NewCompanyUsersListRequest,
 		func(ctx context.Context, req request.CompanyUsersListRequest) (*domain.Users, error) {
-			return serviceRegistry.UserService.GetUsers(ctx, req.ToUserProfileParams())
+			return serviceRegistry.UserService.GetUsers(ctx, req.ToFetchUserParams())
 		},
 		response.NewCompanyUsersListResponse,
 	)

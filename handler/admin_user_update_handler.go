@@ -15,7 +15,7 @@ func AdminUserUpdateHandler(_ *config.Config, serviceRegistry *service.Registry)
 	return Handler(
 		request.NewAdminUserUpdateRequest,
 		func(ctx context.Context, req request.AdminUserUpdateRequest) (*domain.EmptyDomain, error) {
-			from, to := req.From.ToUserProfileParams(), req.To.ToUserProfileParams()
+			from, to := req.From.ToUserProfile(), req.To.ToUserProfile()
 			return serviceRegistry.AdminService.BulkUpdateUsers(ctx, from, to)
 		},
 		func(ctx context.Context, _ domain.EmptyDomain) (response.SuccessResponse, response.HTTPMetadata) {

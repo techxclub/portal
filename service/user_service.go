@@ -19,8 +19,8 @@ import (
 type UserService interface {
 	RegisterUser(ctx context.Context, userDetails domain.UserProfile) (*domain.Registration, error)
 	UpdateUserDetails(ctx context.Context, userDetails domain.UserProfile) (*domain.EmptyDomain, error)
-	GetProfile(ctx context.Context, params domain.UserProfileParams) (*domain.UserProfile, error)
-	GetUsers(ctx context.Context, params domain.UserProfileParams) (*domain.Users, error)
+	GetProfile(ctx context.Context, params domain.FetchUserParams) (*domain.UserProfile, error)
+	GetUsers(ctx context.Context, params domain.FetchUserParams) (*domain.Users, error)
 	GetCompanies(ctx context.Context, params domain.FetchCompanyParams) (*domain.Companies, error)
 }
 
@@ -41,9 +41,9 @@ func (u userService) RegisterUser(ctx context.Context, userDetails domain.UserPr
 	var err error
 
 	normalizedCompanyName := strcase.ToScreamingSnake(strings.ToUpper(userDetails.CompanyName))
-	companyDetails, fetchCompanyErr := u.registry.CompaniesRepository.GetCompanyForParams(ctx, domain.FetchCompanyParams{NormalizedName: normalizedCompanyName})
+	companyDetails, fetchCompanyErr := u.registry.CompaniesRepository.FetchCompanyForParams(ctx, domain.FetchCompanyParams{NormalizedName: normalizedCompanyName})
 	if fetchCompanyErr != nil {
-		companyDetails, err = u.registry.CompaniesRepository.AddCompany(ctx, domain.Company{
+		companyDetails, err = u.registry.CompaniesRepository.InsertCompany(ctx, domain.Company{
 			NormalizedName: normalizedCompanyName,
 			DisplayName:    userDetails.CompanyName,
 			Verified:       utils.ToPtr(false),
@@ -62,7 +62,7 @@ func (u userService) RegisterUser(ctx context.Context, userDetails domain.UserPr
 
 	userDetails.CompanyID = companyDetails.ID
 	userDetails.CompanyName = companyDetails.DisplayName
-	user, err = u.registry.UsersRepository.CreateUser(ctx, userDetails)
+	user, err = u.registry.UsersRepository.Insert(ctx, userDetails)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (u userService) RegisterUser(ctx context.Context, userDetails domain.UserPr
 }
 
 func (u userService) UpdateUserDetails(ctx context.Context, params domain.UserProfile) (*domain.EmptyDomain, error) {
-	err := u.registry.UsersRepository.UpdateUser(ctx, params)
+	err := u.registry.UsersRepository.Update(ctx, params)
 	if err != nil {
 		return nil, err
 	}
@@ -87,8 +87,8 @@ func (u userService) UpdateUserDetails(ctx context.Context, params domain.UserPr
 	return &domain.EmptyDomain{}, nil
 }
 
-func (u userService) GetProfile(ctx context.Context, params domain.UserProfileParams) (*domain.UserProfile, error) {
-	users, err := u.registry.UsersRepository.GetUserForParams(ctx, params)
+func (u userService) GetProfile(ctx context.Context, params domain.FetchUserParams) (*domain.UserProfile, error) {
+	users, err := u.registry.UsersRepository.FetchUserForParams(ctx, params)
 	if err != nil {
 		return nil, err
 	}
@@ -96,8 +96,8 @@ func (u userService) GetProfile(ctx context.Context, params domain.UserProfilePa
 	return users, nil
 }
 
-func (u userService) GetUsers(ctx context.Context, params domain.UserProfileParams) (*domain.Users, error) {
-	users, err := u.registry.UsersRepository.GetUsersForParams(ctx, params)
+func (u userService) GetUsers(ctx context.Context, params domain.FetchUserParams) (*domain.Users, error) {
+	users, err := u.registry.UsersRepository.FetchUsersForParams(ctx, params)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +110,7 @@ func (u userService) GetUsers(ctx context.Context, params domain.UserProfilePara
 }
 
 func (u userService) GetCompanies(ctx context.Context, params domain.FetchCompanyParams) (*domain.Companies, error) {
-	companies, err := u.registry.CompaniesRepository.GetCompaniesForParams(ctx, params)
+	companies, err := u.registry.CompaniesRepository.FetchCompaniesForParams(ctx, params)
 	if err != nil {
 		return nil, err
 	}

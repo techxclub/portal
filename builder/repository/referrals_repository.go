@@ -12,14 +12,14 @@ import (
 )
 
 const (
-	insertReferralQuery       = `INSERT INTO referrals (requester_user_id, provider_user_id, company_id, job_link, status, created_time) VALUES (:requester_user_id, :provider_user_id, :company_id, :job_link, :status, :created_time) RETURNING id, created_time`
-	getReferralSelectorFields = `id, requester_user_id, provider_user_id, company_id, job_link, status, created_time`
-	selectReferralBaseQuery   = `SELECT ` + getReferralSelectorFields + ` FROM referrals WHERE `
+	insertReferralQuery         = `INSERT INTO referrals (requester_user_id, provider_user_id, company_id, job_link, status, created_time) VALUES (:requester_user_id, :provider_user_id, :company_id, :job_link, :status, :created_time) RETURNING id, created_time`
+	fetchReferralSelectorFields = `id, requester_user_id, provider_user_id, company_id, job_link, status, created_time`
+	selectReferralBaseQuery     = `SELECT ` + fetchReferralSelectorFields + ` FROM referrals WHERE `
 )
 
 type ReferralsRepository interface {
-	CreateReferral(ctx context.Context, referral domain.ReferralParams) (*domain.Referral, error)
-	GetReferralsForParams(ctx context.Context, params domain.ReferralParams) (*domain.Referrals, error)
+	InsertReferral(ctx context.Context, referral domain.ReferralParams) (*domain.Referral, error)
+	FetchReferralsForParams(ctx context.Context, params domain.ReferralParams) (*domain.Referrals, error)
 }
 
 type referralsRepository struct {
@@ -37,7 +37,7 @@ func NewReferralsRepository(dbClient *db.Repository) ReferralsRepository {
 	}
 }
 
-func (r referralsRepository) CreateReferral(ctx context.Context, params domain.ReferralParams) (*domain.Referral, error) {
+func (r referralsRepository) InsertReferral(ctx context.Context, params domain.ReferralParams) (*domain.Referral, error) {
 	var returning ReferralsReturning
 	err := r.dbClient.TxRunner.RunInTxContext(ctx, func(tx *sqlx.Tx) error {
 		now := time.Now()
@@ -67,7 +67,7 @@ func (r referralsRepository) CreateReferral(ctx context.Context, params domain.R
 	return &referral, nil
 }
 
-func (r referralsRepository) GetReferralsForParams(ctx context.Context, params domain.ReferralParams) (*domain.Referrals, error) {
+func (r referralsRepository) FetchReferralsForParams(ctx context.Context, params domain.ReferralParams) (*domain.Referrals, error) {
 	qb := domain.NewGetQueryBuilder()
 	qb.AddEqualCondition(constants.ParamID, params.ID)
 	qb.AddEqualCondition(constants.ParamRequesterID, params.RequesterUserID)

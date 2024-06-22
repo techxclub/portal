@@ -15,7 +15,7 @@ func AdminUserListHandler(_ *config.Config, serviceRegistry *service.Registry) h
 	return Handler(
 		request.NewAdminUserListRequest,
 		func(ctx context.Context, req request.AdminUserListRequest) (*domain.Users, error) {
-			return serviceRegistry.UserService.GetUsers(ctx, req.ToUserProfileParams())
+			return serviceRegistry.UserService.GetUsers(ctx, req.ToFetchUserParams())
 		},
 		func(ctx context.Context, domainObj domain.Users) (response.UserListResponse, response.HTTPMetadata) {
 			return response.NewUserListResponse(ctx, domainObj)

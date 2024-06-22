@@ -24,7 +24,7 @@ type UserProfile struct {
 	LinkedIn          string     `db:"linkedin"`
 }
 
-type UserProfileParams struct {
+type FetchUserParams struct {
 	UserIDNum     int64
 	UserID        string
 	Status        string
