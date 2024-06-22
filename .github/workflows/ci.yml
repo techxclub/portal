@@ -3,15 +3,14 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main
-      - 'feature/*'
+      - "**"
   workflow_dispatch:
 
 jobs:
   # Static Checks
-  test:
+  test-and-lint:
     runs-on: ubuntu-latest
-    name: Run Tests
+    name: Test and Lint
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -24,25 +23,13 @@ jobs:
       - name: Run Tests
         run: LOG_LEVEL=error make ci-test
 
-  lint:
-    runs-on: ubuntu-latest
-    name: Run Lint
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.22.3'
-
       - name: Run Lint
         run: make ci-lint
 
   # Build Stage
   build:
     runs-on: ubuntu-latest
-    needs: [ test, lint ]
+    name: Build
     if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/feature/') }}
     steps:
       - name: Checkout code
@@ -64,13 +51,15 @@ jobs:
             ./out/
             ./swagger/
             ./i18n/
+            ./migrations/
           retention-days: 7
 
   # Deploy Integration Stage
   deploy_integration:
     runs-on: ubuntu-latest
-    needs: [ build ]
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.ref == 'refs/heads/main' && startsWith(github.ref, 'refs/heads/feature/')) }}
+    name: Deploy Integration EC2
+    needs: [ test-and-lint, build ]
+    if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/feature/') }}
     env:
       SSH_PRIVATE_KEY: ${{ secrets.INTEGRATION_EC2_SSH_PRIVATE_KEY }}
     steps:
@@ -96,28 +85,34 @@ jobs:
           rsync -avz -e "ssh -i ssh_key -o StrictHostKeyChecking=no" ./ ${{ secrets.INTEGRATION_EC2_USERNAME }}@${{ secrets.INTEGRATION_EC2_HOST }}:/home/ubuntu/techx/portal/
 
           ssh -i ssh_key -o StrictHostKeyChecking=no ${{ secrets.INTEGRATION_EC2_USERNAME }}@${{ secrets.INTEGRATION_EC2_HOST }} << 'EOF'
+          if systemctl is-active --quiet portal.service; then
+            echo "Stopping the running portal service..."
             sudo systemctl stop portal.service
-          EOF
+            echo "Service stopped."
+          else
+            echo "Portal service is not running."
+          fi
 
-          ssh -i ssh_key -o StrictHostKeyChecking=no ${{ secrets.INTEGRATION_EC2_USERNAME }}@${{ secrets.INTEGRATION_EC2_HOST }} << 'EOF'
-            sudo bash -c 'cat >/etc/systemd/system/portal.service <<EOL
-            [Unit]
-            Description=Portal API Server
-            After=network.target
+          sudo bash -c 'cat >/etc/systemd/system/portal.service <<EOL
+          [Unit]
+          Description=Portal API Server
+          After=network.target
 
-            [Service]
-            Type=simple
-            WorkingDirectory=/home/ubuntu/techx/portal
-            ExecStart=/home/ubuntu/techx/portal/out/portal start --config-file /home/ubuntu/techx/portal/application.yml
-            Restart=always
-            User=ubuntu
+          [Service]
+          Type=simple
+          WorkingDirectory=/home/ubuntu/techx/portal
+          ExecStartPre=/home/ubuntu/techx/portal/out/portal migrate:run --config-file /home/ubuntu/techx/portal/application.yml
+          ExecStart=/home/ubuntu/techx/portal/out/portal start --config-file /home/ubuntu/techx/portal/application.yml
+          Restart=always
+          User=ubuntu
 
-            [Install]
-            WantedBy=multi-user.target
-            EOL'
-
-            sudo systemctl daemon-reload
-            sudo systemctl enable portal.service
-            sudo systemctl start portal.service
-            sudo systemctl status portal.service
+          [Install]
+          WantedBy=multi-user.target
+          EOL'
+          
+          chmod +x /home/ubuntu/techx/portal/out/portal
+          sudo systemctl daemon-reload
+          sudo systemctl enable portal.service
+          sudo systemctl restart portal.service
+          sudo systemctl status portal.service
           EOF
