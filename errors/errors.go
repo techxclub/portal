@@ -18,6 +18,7 @@ var (
 	ErrInvalidAuthChannel               = NewServiceError("invalid_auth_channel", 400, nil)
 	ErrInvalidSMSProvider               = NewServiceError("invalid_sms_service_provider", 500, nil)
 	ErrInvalidEmailProvider             = NewServiceError("invalid_email_service_provider", 500, nil)
+	ErrInvalidUpdateRequest             = NewServiceError("invalid_update_request", 400, nil)
 	ErrMissingOTP                       = NewServiceError("otp_missing_otp", 500, nil)
 	ErrOTPGenerateFailed                = NewServiceError("otp_generation_failed", 500, nil)
 	ErrCompanyNotMatch                  = NewServiceError("company_not_match", 400, nil)

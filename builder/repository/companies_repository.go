@@ -19,10 +19,10 @@ const (
 )
 
 type CompaniesRepository interface {
-	AddCompany(ctx context.Context, details domain.Company) (*domain.Company, error)
+	InsertCompany(ctx context.Context, details domain.Company) (*domain.Company, error)
 	UpdateCompany(ctx context.Context, details *domain.Company) error
-	GetCompanyForParams(ctx context.Context, params domain.FetchCompanyParams) (*domain.Company, error)
-	GetCompaniesForParams(ctx context.Context, params domain.FetchCompanyParams) (*domain.Companies, error)
+	FetchCompanyForParams(ctx context.Context, params domain.FetchCompanyParams) (*domain.Company, error)
+	FetchCompaniesForParams(ctx context.Context, params domain.FetchCompanyParams) (*domain.Companies, error)
 }
 
 type CompaniesReturning struct {
@@ -39,7 +39,7 @@ func NewCompaniesRepository(userDB *db.Repository) CompaniesRepository {
 	}
 }
 
-func (r companiesRepository) AddCompany(ctx context.Context, details domain.Company) (*domain.Company, error) {
+func (r companiesRepository) InsertCompany(ctx context.Context, details domain.Company) (*domain.Company, error) {
 	var returning CompaniesReturning
 	err := r.dbClient.TxRunner.RunInTxContext(ctx, func(tx *sqlx.Tx) error {
 		return r.dbClient.DBNamedExecReturningInTx(ctx, tx, &returning, insertCompanyQuery, map[string]interface{}{
@@ -98,7 +98,7 @@ func (r companiesRepository) UpdateCompany(ctx context.Context, details *domain.
 	return err
 }
 
-func (r companiesRepository) GetCompanyForParams(ctx context.Context, params domain.FetchCompanyParams) (*domain.Company, error) {
+func (r companiesRepository) FetchCompanyForParams(ctx context.Context, params domain.FetchCompanyParams) (*domain.Company, error) {
 	qb := domain.NewGetQueryBuilder()
 	qb.AddEqualCondition(constants.ParamID, params.ID)
 	qb.AddEqualCondition(constants.ParamNormalizedName, params.NormalizedName)
@@ -118,7 +118,7 @@ func (r companiesRepository) GetCompanyForParams(ctx context.Context, params dom
 	return &company, nil
 }
 
-func (r companiesRepository) GetCompaniesForParams(ctx context.Context, params domain.FetchCompanyParams) (*domain.Companies, error) {
+func (r companiesRepository) FetchCompaniesForParams(ctx context.Context, params domain.FetchCompanyParams) (*domain.Companies, error) {
 	qb := domain.NewGetQueryBuilder()
 	qb.AddEqualCondition(constants.ParamID, params.ID)
 	qb.AddEqualCondition(constants.ParamNormalizedName, params.NormalizedName)

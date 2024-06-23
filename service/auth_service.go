@@ -71,8 +71,8 @@ func (s authService) VerifyOTP(ctx context.Context, otpVerificationDetail domain
 	}
 
 	phoneNumber := otpVerificationDetail.Value
-	userProfileParams := domain.UserProfileParams{PhoneNumber: phoneNumber}
-	userInfo, err := s.registry.UsersRepository.GetUserForParams(ctx, userProfileParams)
+	userProfileParams := domain.FetchUserParams{PhoneNumber: phoneNumber}
+	userInfo, err := s.registry.UsersRepository.FetchUserForParams(ctx, userProfileParams)
 	if err != nil {
 		log.Err(err).Msg("User is not registered")
 		return &authDetails, nil

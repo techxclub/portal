@@ -32,8 +32,8 @@ func (r CompanyUsersListRequest) Validate() error {
 	return nil
 }
 
-func (r CompanyUsersListRequest) ToUserProfileParams() domain.UserProfileParams {
-	return domain.UserProfileParams{
+func (r CompanyUsersListRequest) ToFetchUserParams() domain.FetchUserParams {
+	return domain.FetchUserParams{
 		CompanyID: utils.ParseInt64WithDefault(r.CompanyID, 0),
 	}
 }

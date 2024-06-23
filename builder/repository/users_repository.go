@@ -14,11 +14,11 @@ import (
 
 type UsersRepository interface {
 	NextUserIDNum(ctx context.Context) (int64, error)
-	CreateUser(ctx context.Context, details domain.UserProfile) (*domain.UserProfile, error)
-	UpdateUser(ctx context.Context, details domain.UserProfile) error
-	BulkUpdateUsers(ctx context.Context, from, to domain.UserProfileParams) error
-	GetUserForParams(ctx context.Context, params domain.UserProfileParams) (*domain.UserProfile, error)
-	GetUsersForParams(ctx context.Context, params domain.UserProfileParams) (*domain.Users, error)
+	Insert(ctx context.Context, details domain.UserProfile) (*domain.UserProfile, error)
+	Update(ctx context.Context, details domain.UserProfile) error
+	BulkUpdate(ctx context.Context, from, to domain.UserProfile) error
+	FetchUserForParams(ctx context.Context, params domain.FetchUserParams) (*domain.UserProfile, error)
+	FetchUsersForParams(ctx context.Context, params domain.FetchUserParams) (*domain.Users, error)
 }
 
 type usersRepository struct {
@@ -53,7 +53,7 @@ func (r usersRepository) NextUserIDNum(ctx context.Context) (int64, error) {
 	return userID, err
 }
 
-func (r usersRepository) CreateUser(ctx context.Context, details domain.UserProfile) (*domain.UserProfile, error) {
+func (r usersRepository) Insert(ctx context.Context, details domain.UserProfile) (*domain.UserProfile, error) {
 	userIDNum, err := r.NextUserIDNum(ctx)
 	if err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func (r usersRepository) CreateUser(ctx context.Context, details domain.UserProf
 	return &details, nil
 }
 
-func (r usersRepository) UpdateUser(ctx context.Context, details domain.UserProfile) error {
+func (r usersRepository) Update(ctx context.Context, details domain.UserProfile) error {
 	nqb := domain.NewSetQueryBuilder()
 	nqb.AddEqualCondition(constants.ParamStatus, details.Status)
 	nqb.AddEqualCondition(constants.ParamCompanyName, details.CompanyName)
@@ -111,7 +111,7 @@ func (r usersRepository) UpdateUser(ctx context.Context, details domain.UserProf
 	return err
 }
 
-func (r usersRepository) BulkUpdateUsers(ctx context.Context, from, to domain.UserProfileParams) error {
+func (r usersRepository) BulkUpdate(ctx context.Context, from, to domain.UserProfile) error {
 	setConditionBuilder := domain.NewSetQueryBuilder()
 	setConditionBuilder.AddEqualCondition(constants.ParamStatus, to.Status)
 	setConditionBuilder.AddEqualCondition(constants.ParamCompanyID, to.CompanyID)
@@ -135,7 +135,7 @@ func (r usersRepository) BulkUpdateUsers(ctx context.Context, from, to domain.Us
 	return err
 }
 
-func (r usersRepository) GetUserForParams(ctx context.Context, params domain.UserProfileParams) (*domain.UserProfile, error) {
+func (r usersRepository) FetchUserForParams(ctx context.Context, params domain.FetchUserParams) (*domain.UserProfile, error) {
 	qb := domain.NewGetQueryBuilder()
 	qb.AddEqualCondition(constants.ParamUserIDNum, params.UserIDNum)
 	qb.AddEqualCondition(constants.ParamUserID, params.UserID)
@@ -161,7 +161,7 @@ func (r usersRepository) GetUserForParams(ctx context.Context, params domain.Use
 	return &user, nil
 }
 
-func (r usersRepository) GetUsersForParams(ctx context.Context, params domain.UserProfileParams) (*domain.Users, error) {
+func (r usersRepository) FetchUsersForParams(ctx context.Context, params domain.FetchUserParams) (*domain.Users, error) {
 	qb := domain.NewGetQueryBuilder()
 	qb.AddEqualCondition(constants.ParamUserIDNum, params.UserID)
 	qb.AddEqualCondition(constants.ParamUserID, params.UserID)

@@ -48,8 +48,8 @@ func (r AdminUserListRequest) Validate() error {
 	return nil
 }
 
-func (r AdminUserListRequest) ToUserProfileParams() domain.UserProfileParams {
-	return domain.UserProfileParams{
+func (r AdminUserListRequest) ToFetchUserParams() domain.FetchUserParams {
+	return domain.FetchUserParams{
 		UserID:      r.UserID,
 		Status:      r.Status,
 		PhoneNumber: r.PhoneNumber,
