@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"path"
 	"path/filepath"
-	"runtime"
 	"slices"
 	"strings"
 
@@ -14,6 +13,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/techx/portal/apicontext"
 	"github.com/techx/portal/config"
+	"github.com/techx/portal/utils"
 	"golang.org/x/text/language"
 )
 
@@ -26,13 +26,6 @@ type Translator struct {
 
 var translator *Translator
 
-var basepath = func() string {
-	// See https://stackoverflow.com/questions/31873396/is-it-possible-to-get-the-current-root-of-package-structure-as-a-string-in-golan
-	_, f, _, _ := runtime.Caller(0)
-	// Return the project root directory path.
-	return filepath.Dir(filepath.Dir(f))
-}()
-
 func Initialize(cfg config.Translation) {
 	defaultLanguageTag := language.Make(cfg.DefaultLanguage)
 	translator = &Translator{
@@ -43,7 +36,7 @@ func Initialize(cfg config.Translation) {
 	translator.bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 
 	if !filepath.IsAbs(cfg.FilePath) {
-		cfg.FilePath = filepath.Join(basepath, cfg.FilePath)
+		cfg.FilePath = filepath.Join(utils.GetProjectDirectoryPath(), cfg.FilePath)
 	}
 
 	files, err := filepath.Glob(path.Join(cfg.FilePath, "*"+fileSuffix))

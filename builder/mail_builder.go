@@ -12,11 +12,13 @@ import (
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/domain"
 	"github.com/techx/portal/i18n"
+	"github.com/techx/portal/utils"
 	"gopkg.in/gomail.v2"
 )
 
 const (
-	failedJobsDir = "./failed_jobs/"
+	failedJobsDir       = "./failed_jobs/"
+	referralMailJobName = "referral_mail"
 
 	i18nKeyReferralMailSubject           = "referral_mail_subject"
 	i18nKeyReferralMailBodyBase          = "referral_mail_body_base"
@@ -74,7 +76,7 @@ func (mb *mailBuilder) SendReferralMailAsync(ctx context.Context, params Referra
 		log.Error().Err(err).Msgf("Failed to send referral mail with requestor_user_id: %s, "+
 			"provider_user_id: %s and filepath: %s", params.Requester.UserID, params.Provider.UserID, params.ResumeFilePath)
 
-		err = storeFailedJob(params)
+		err = storeFailedJob(referralMailJobName, params)
 		if err != nil {
 			log.Printf("Failed to store failed job: %v", err)
 		}
@@ -117,11 +119,6 @@ func (mb *mailBuilder) SendReferralMail(ctx context.Context, params ReferralMail
 		return err
 	}
 
-	if err := os.Remove(params.ResumeFilePath); err != nil {
-		log.Error().Err(err).Msgf("Failed to delete resume file with requestor_user_id: %s, "+
-			"provider_user_id: %s and filepath: %s", params.Requester.UserID, params.Provider.UserID, params.ResumeFilePath)
-	}
-
 	return nil
 }
 
@@ -131,17 +128,11 @@ func getResumeFileName(name string) string {
 	return fmt.Sprintf("Resume_%s.pdf", sanitizedName)
 }
 
-func storeFailedJob(params ReferralMailParams) error {
-	// Check if the directory exists
-	if _, err := os.Stat(failedJobsDir); os.IsNotExist(err) {
-		// If the directory does not exist, create it
-		err = os.MkdirAll(failedJobsDir, 0o755)
-		if err != nil {
-			log.Printf("Failed to create directory: %v", err)
-			return err
-		}
+func storeFailedJob(jobName string, params ReferralMailParams) error {
+	if err := utils.CreateDirectoryIfNotExist(failedJobsDir); err != nil {
+		return err
 	}
 
 	failedJobJSON, _ := json.Marshal(params)
-	return os.WriteFile(fmt.Sprintf("%s%s.json", failedJobsDir, params.Requester.UserID), failedJobJSON, 0o600)
+	return os.WriteFile(fmt.Sprintf("%s%s_%d_%d.json", failedJobsDir, jobName, params.Requester.UserIDNum, params.Provider.UserIDNum), failedJobJSON, 0o600)
 }

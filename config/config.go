@@ -23,8 +23,9 @@ type Config struct {
 	Gmail    Gmail    `yaml:"GMAIL" env:",prefix=GMAIL_"`
 	Referral Referral `yaml:"REFERRAL" env:",prefix=REFERRAL_"`
 
-	CompanyListLimit        int `yaml:"COMPANY_LIST_LIMIT" env:"COMPANY_LIST_LIMIT"`
-	PopularCompanyListLimit int `yaml:"POPULAR_COMPANY_LIST_LIMIT" env:"POPULAR_COMPANY_LIST_LIMIT"`
+	ResumeDirectory         string `yaml:"RESUME_DIRECTORY" env:"RESUME_DIRECTORY"`
+	CompanyListLimit        int    `yaml:"COMPANY_LIST_LIMIT" env:"COMPANY_LIST_LIMIT"`
+	PopularCompanyListLimit int    `yaml:"POPULAR_COMPANY_LIST_LIMIT" env:"POPULAR_COMPANY_LIST_LIMIT"`
 }
 
 type Auth struct {
@@ -195,6 +196,7 @@ func (cfg *Config) SetDefaults() {
 		ReferralMaxLookupDuration: 7 * 24 * time.Hour,
 	}
 
+	cfg.ResumeDirectory = "./resumes"
 	cfg.CompanyListLimit = 100
 	cfg.PopularCompanyListLimit = 5
 }
