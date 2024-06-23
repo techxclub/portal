@@ -18,6 +18,7 @@ import (
 
 type UserService interface {
 	RegisterUser(ctx context.Context, userDetails domain.UserProfile) (*domain.Registration, error)
+	RegisterMentor(ctx context.Context, userDetails domain.UserProfile) (*domain.Registration, error)
 	UpdateUserDetails(ctx context.Context, userDetails domain.UserProfile) (*domain.EmptyDomain, error)
 	GetProfile(ctx context.Context, params domain.FetchUserParams) (*domain.UserProfile, error)
 	GetUsers(ctx context.Context, params domain.FetchUserParams) (*domain.Users, error)
@@ -75,6 +76,46 @@ func (u userService) RegisterUser(ctx context.Context, userDetails domain.UserPr
 	return &domain.Registration{
 		AuthToken: authToken,
 		User:      user,
+	}, nil
+}
+
+func (u userService) RegisterMentor(ctx context.Context, userDetails domain.UserProfile) (*domain.Registration, error) {
+	user, err := u.registry.UsersRepository.FetchUserForParams(ctx, domain.FetchUserParams{UserID: userDetails.UserID})
+	if err != nil {
+		return nil, err
+	}
+
+	if !user.IsApproved() {
+		return nil, errors.ErrUserNotApproved
+	}
+
+	currentMentorConfig := *user.MentorConfig
+	if currentMentorConfig.IsMentor {
+		return nil, errors.ErrUserAlreadyMentor
+	}
+
+	updatedMentorConfig := currentMentorConfig
+	updatedMentorConfig.Tags = userDetails.MentorConfig.Tags
+	updatedMentorConfig.CalendalyLink = userDetails.MentorConfig.CalendalyLink
+	updatedMentorConfig.Domain = userDetails.MentorConfig.Domain
+
+	if currentMentorConfig.IsPreApproved {
+		updatedMentorConfig.IsMentor = true
+		updatedMentorConfig.Status = constants.StatusApproved
+	} else {
+		updatedMentorConfig.IsMentor = false
+		updatedMentorConfig.Status = constants.StatusPendingApproval
+	}
+
+	user.MentorConfig = &updatedMentorConfig
+
+	err = u.registry.UsersRepository.Update(ctx, *user)
+	if err != nil {
+		return nil, err
+	}
+
+	return &domain.Registration{
+		User: user,
 	}, nil
 }
 

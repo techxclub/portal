@@ -61,6 +61,10 @@ func (qb *QueryBuilder) AddEqualCondition(key string, value interface{}) {
 	qb.addCondition(key, value, equalOperator)
 }
 
+func (qb *QueryBuilder) AddEqualConditionForJSONB(field, key string, value interface{}) {
+	qb.addJSONBCondition(key, field, equalOperator, value)
+}
+
 func (qb *QueryBuilder) AddLessCondition(key string, value interface{}) {
 	qb.addCondition(key, value, lessOperator)
 }
@@ -101,6 +105,27 @@ func (qb *QueryBuilder) addCondition(key string, value interface{}, operator str
 	qb.args = append(qb.args, value)
 
 	namedCondition := qb.getNamedCondition(key, operator)
+	qb.namedConditions = append(qb.namedConditions, namedCondition)
+	namedKey := qb.getNamedConditionKey(key)
+	qb.namedArgsMap[namedKey] = value
+
+	qb.counter++
+}
+
+func (qb *QueryBuilder) addJSONBCondition(key, field, operator string, value interface{}) {
+	if !slices.Contains(supportedOperators, operator) {
+		return
+	}
+
+	if key == "" || reflect.ValueOf(value).IsZero() {
+		return
+	}
+
+	condition := fmt.Sprintf("jsonb_extract_path_text(%s, '%s') %s $%d", key, field, operator, qb.counter)
+	qb.conditions = append(qb.conditions, condition)
+	qb.args = append(qb.args, value)
+
+	namedCondition := fmt.Sprintf("jsonb_extract_path_text(%s, '%s') %s :%s", key, field, operator, key)
 	qb.namedConditions = append(qb.namedConditions, namedCondition)
 	namedKey := qb.getNamedConditionKey(key)
 	qb.namedArgsMap[namedKey] = value

@@ -12,7 +12,7 @@ import (
 func addPublicRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry) {
 	publicRouter := router.PathPrefix("/public").Subrouter()
 
-	//	swagger:route POST /public/user/register/v1 public registerUserV1
+	//	swagger:route POST /public/user/register public registerUserV1
 	//	Responses:
 	//		200: RegisterUserV1Response
 	//		401:
@@ -22,8 +22,21 @@ func addPublicRoutes(router *mux.Router, cfg *config.Config, sr *service.Registr
 	//		503: ErrorResponse
 	publicRouter.
 		Methods(constants.MethodPost).
-		Path("/user/register/v1").
+		Path("/user/register").
 		Handler(handler.RegisterUserV1Handler(cfg, sr))
+
+	//	swagger:route POST /public/mentor/register public registerUserV1
+	//	Responses:
+	//		200: RegisterUserV1Response
+	//		401:
+	// 		400: ErrorResponse
+	//		422: ErrorResponse
+	//		500: ErrorResponse
+	//		503: ErrorResponse
+	publicRouter.
+		Methods(constants.MethodPost).
+		Path("/mentor/register").
+		Handler(handler.RegisterMentorHandler(cfg, sr))
 
 	//	swagger:route GET /public/user/profile public userProfile
 	//	Responses:
@@ -63,6 +76,19 @@ func addPublicRoutes(router *mux.Router, cfg *config.Config, sr *service.Registr
 		Methods(constants.MethodGet).
 		Path("/company/users/list").
 		Handler(middleware.Authorization(cfg.Auth)(handler.CompanyUsersListHandler(cfg, sr)))
+
+	//	swagger:route GET /public/mentors/list public companyUsersList
+	//	Responses:
+	//		200: CompanyUsersListResponse
+	//		401:
+	// 		400: ErrorResponse
+	//		422: ErrorResponse
+	//		500: ErrorResponse
+	//		503: ErrorResponse
+	publicRouter.
+		Methods(constants.MethodGet).
+		Path("/mentors/list").
+		Handler(middleware.Authorization(cfg.Auth)(handler.MentorsListHandler(cfg, sr)))
 
 	//	swagger:route Post /public/user/referral/request public referralRequest
 	//	Responses:

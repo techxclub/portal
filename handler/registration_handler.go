@@ -20,3 +20,13 @@ func RegisterUserV1Handler(_ *config.Config, serviceRegistry *service.Registry) 
 		response.NewRegisterUserV1Response,
 	)
 }
+
+func RegisterMentorHandler(_ *config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
+	return Handler(
+		request.NewRegisterMentorRequest,
+		func(ctx context.Context, req request.RegisterMentorRequest) (*domain.Registration, error) {
+			return serviceRegistry.UserService.RegisterMentor(ctx, req.ToMentorDetails())
+		},
+		response.NewRegisterUserV1Response,
+	)
+}

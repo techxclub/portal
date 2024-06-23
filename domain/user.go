@@ -21,8 +21,8 @@ type UserProfile struct {
 	WorkEmail         string        `db:"work_email"`
 	Role              string        `db:"role"`
 	YearsOfExperience float32       `db:"years_of_experience"`
-	LinkedIn          string        `db:"linkedin"`
 	MentorConfig      *MentorConfig `db:"mentor_config"`
+	LinkedIn          string        `db:"linkedin"`
 }
 
 type FetchUserParams struct {
@@ -35,6 +35,7 @@ type FetchUserParams struct {
 	WorkEmail     string
 	CompanyID     int64
 	CompanyName   string
+	MentorConfig  *MentorConfig
 	Role          string
 	CreatedAt     *time.Time
 }
