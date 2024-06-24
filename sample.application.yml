@@ -61,12 +61,20 @@ OTP:
   MOCKING_ENABLED: false
   EMAIL_THIRD_PARTY_PROVIDER: gomail
   SMS_THIRD_PARTY_PROVIDER: msg91
-GMAIL:
+REFERRAL_MAIL:
   SMTP_SERVER: smtp.gmail.com
   SMTP_PORT: 587
   SMTP_USERNAME: username
   SMTP_PASSWORD: password
-  FROM: user.name@gmail.com
+  FROM_NAME: User Name
+  FROM_EMAIL: referral@domain.com
+OTP_MAIL:
+  SMTP_SERVER: smtp.gmail.com
+  SMTP_PORT: 587
+  SMTP_USERNAME: username
+  SMTP_PASSWORD: password
+  FROM_NAME: User Name
+  FROM_EMAIL: support@domain.com
 REFERRAL:
   REQUESTER_REFERRAL_LIMIT: 20
   PROVIDER_REFERRAL_LIMIT: 10

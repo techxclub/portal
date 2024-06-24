@@ -97,7 +97,7 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 		Message:        referralDetails.Message,
 		ResumeFilePath: storeResumeFilePath,
 	}
-	r.registry.MailBuilder.SendReferralMailAsync(ctx, referralMailParams)
+	r.registry.ReferralMailBuilder.SendReferralMailAsync(ctx, referralMailParams)
 	return referral, nil
 }
 

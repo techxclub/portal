@@ -111,9 +111,8 @@ func (mb messageBuilder) sendMail(ctx context.Context, otp, email string) error 
 	subject := i18n.Translate(ctx, i18nKeyEmailOTPMailSubject)
 	bodyHTML := i18n.Translate(ctx, i18nKeyEmailOTPMailBody, i18nValues)
 
-	from := mb.cfg.Gmail.From
 	m := gomail.NewMessage()
-	m.SetHeader("From", from)
+	m.SetHeader("From", mb.cfg.OTPMail.GetFrom())
 	m.SetHeader("To", email)
 	m.SetHeader("Subject", subject)
 	m.SetBody("text/html", bodyHTML)

@@ -21,7 +21,7 @@ func GetProjectDirectoryPath() string {
 func CreateDirectoryIfNotExist(dir string) error {
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		// If the directory does not exist, create it
-		err = os.MkdirAll(dir, 0o600)
+		err = os.MkdirAll(dir, 0o755)
 		if err != nil {
 			log.Printf("Failed to create directory: %v", err)
 			return err

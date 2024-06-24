@@ -34,24 +34,24 @@ type ReferralMailParams struct {
 	ResumeFilePath string             `json:"resume_file_path"`
 }
 
-type MailBuilder interface {
+type ReferralMailBuilder interface {
 	SendReferralMailAsync(ctx context.Context, params ReferralMailParams)
 	SendReferralMail(ctx context.Context, params ReferralMailParams) error
 }
 
-type mailBuilder struct {
+type referralMailBuilder struct {
 	cfg   *config.Config
 	GMail *gomail.Dialer
 }
 
-func NewMailBuilder(cfg *config.Config, dialer *gomail.Dialer) MailBuilder {
-	return &mailBuilder{
+func NewReferralMailBuilder(cfg *config.Config, dialer *gomail.Dialer) ReferralMailBuilder {
+	return &referralMailBuilder{
 		cfg:   cfg,
 		GMail: dialer,
 	}
 }
 
-func (mb *mailBuilder) SendReferralMailAsync(ctx context.Context, params ReferralMailParams) {
+func (mb *referralMailBuilder) SendReferralMailAsync(ctx context.Context, params ReferralMailParams) {
 	go func() {
 		maxRetries := 5
 		var err error
@@ -83,7 +83,7 @@ func (mb *mailBuilder) SendReferralMailAsync(ctx context.Context, params Referra
 	}()
 }
 
-func (mb *mailBuilder) SendReferralMail(ctx context.Context, params ReferralMailParams) error {
+func (mb *referralMailBuilder) SendReferralMail(ctx context.Context, params ReferralMailParams) error {
 	i18nValues := map[string]interface{}{
 		"ProviderName":     params.Provider.Name,
 		"RequesterName":    params.Requester.Name,
@@ -99,14 +99,11 @@ func (mb *mailBuilder) SendReferralMail(ctx context.Context, params ReferralMail
 		bodyHTML += i18n.Translate(ctx, i18nKeyReferralMailBodyCustomMessage, i18nValues)
 	}
 	bodyHTML += i18n.Translate(ctx, i18nKeyReferralMailBodyFooterNotes, i18nValues)
-
 	textHTML := fmt.Sprintf(`<html><body>%s</body></html>`, bodyHTML)
-
-	from := mb.cfg.Gmail.From
 	to := []string{params.Provider.WorkEmail, params.Requester.PersonalEmail}
 
 	m := gomail.NewMessage()
-	m.SetHeader("From", from)
+	m.SetHeader("From", mb.cfg.ReferralMail.GetFrom())
 	m.SetHeader("To", to...)
 	m.SetHeader("Subject", subject)
 	m.SetBody("text/html", textHTML)

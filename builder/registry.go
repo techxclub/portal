@@ -11,7 +11,7 @@ type Registry struct {
 	CompaniesRepository repository.CompaniesRepository
 	ReferralsRepository repository.ReferralsRepository
 	OTPBuilder          OTPBuilder
-	MailBuilder         MailBuilder
+	ReferralMailBuilder ReferralMailBuilder
 }
 
 func NewRegistry(cfg *config.Config, clientRegistry *client.Registry) *Registry {
@@ -19,7 +19,7 @@ func NewRegistry(cfg *config.Config, clientRegistry *client.Registry) *Registry 
 		UsersRepository:     repository.NewUsersRepository(clientRegistry.DB),
 		CompaniesRepository: repository.NewCompaniesRepository(clientRegistry.DB),
 		ReferralsRepository: repository.NewReferralsRepository(clientRegistry.DB),
-		OTPBuilder:          NewOTPBuilder(cfg, clientRegistry.Gmail, clientRegistry.OTPCache),
-		MailBuilder:         NewMailBuilder(cfg, clientRegistry.Gmail),
+		OTPBuilder:          NewOTPBuilder(cfg, clientRegistry.OTPMailClient, clientRegistry.OTPCache),
+		ReferralMailBuilder: NewReferralMailBuilder(cfg, clientRegistry.ReferralMailClient),
 	}
 }

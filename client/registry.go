@@ -13,21 +13,24 @@ import (
 )
 
 type Registry struct {
-	DB       *db.Repository
-	Gmail    *gomail.Dialer
-	OTPCache cache.Cache[cache.OTPCache]
+	DB                 *db.Repository
+	ReferralMailClient *gomail.Dialer
+	OTPMailClient      *gomail.Dialer
+	OTPCache           cache.Cache[cache.OTPCache]
 }
 
 func NewRegistry(cfg *config.Config) *Registry {
 	redisClient := newRedisClient(cfg.Redis)
 	otpCache := cache.NewOTPCache(redisClient, cfg.Redis)
 	dbClient := db.NewRepository(cfg, constants.TableNameUsers)
-	gmailClient := newGmailClient(cfg.Gmail)
+	referralMailClient := newGmailClient(cfg.ReferralMail)
+	otpMailClient := newGmailClient(cfg.OTPMail)
 
 	return &Registry{
-		DB:       dbClient,
-		Gmail:    gmailClient,
-		OTPCache: otpCache,
+		DB:                 dbClient,
+		ReferralMailClient: referralMailClient,
+		OTPMailClient:      otpMailClient,
+		OTPCache:           otpCache,
 	}
 }
 
@@ -54,11 +57,11 @@ func newRedisClient(redisCfg config.Redis) redis.Cmdable {
 	return client
 }
 
-func newGmailClient(gmailCfg config.Gmail) *gomail.Dialer {
+func newGmailClient(gmailCfg config.MailSMTP) *gomail.Dialer {
 	return gomail.NewDialer(
 		gmailCfg.SMTPServer,
 		gmailCfg.SMTPPort,
-		gmailCfg.From,
+		gmailCfg.FromEmail,
 		gmailCfg.SMTPPassword,
 	)
 }
