@@ -14,6 +14,12 @@ const (
 	StatusAutoApproved    = "AUTO_APPROVED"
 	StatusApproved        = "APPROVED"
 
+	// Mentor config
+	MentorStatusPendingApproval = "PENDING_APPROVAL"
+	MentorStatusApproved        = "APPROVED"
+	ParamMentorConfig           = "mentor_config"
+	ParamMentorConfigStatus     = "status"
+
 	// DB Fetch Params
 	ParamID                = "id"
 	ParamActor             = "actor"

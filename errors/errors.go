@@ -43,6 +43,13 @@ var (
 	ErrValueCannotBeEmpty               = NewServiceError("value_cannot_be_empty", 400, nil)
 	ErrKeyCannotBeEmpty                 = NewServiceError("key_cannot_be_empty", 400, nil)
 	ErrKeyNotFound                      = NewServiceError("key_not_found", 404, nil)
+	ErrCalendalyLinkRequired            = NewServiceError("calendaly_link_required", 400, nil)
+	ErrDescriptionRequired              = NewServiceError("description_required", 400, nil)
+	ErrTagsRequired                     = NewServiceError("tags_required", 400, nil)
+	ErrTagsLimitExceededByFive          = NewServiceError("tags_limit_exceeded_by_five", 400, nil)
+	ErrDomainRequired                   = NewServiceError("domain_required", 400, nil)
+	ErrUserNotApproved                  = NewServiceError("user_not_approved", 400, nil)
+	ErrUserAlreadyMentor                = NewServiceError("user_already_mentor", 400, nil)
 )
 
 func BadRequestError(err error) ServiceError {

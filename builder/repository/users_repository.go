@@ -38,9 +38,9 @@ type UsersReturning struct {
 
 const (
 	nextUserIDNum            = `SELECT nextval('users_user_id_num_seq')`
-	interUserQuery           = `INSERT INTO users (user_id_num, created_time, status, name, phone_number, personal_email, company_id, company_name, work_email, role, years_of_experience, linkedin) VALUES (:user_id_num, :created_time, :status, :name, :phone_number, :personal_email, :company_id, :company_name, :work_email, :role, :years_of_experience, :linkedin) RETURNING user_id, created_time`
+	interUserQuery           = `INSERT INTO users (user_id_num, created_time, status, name, phone_number, personal_email, company_id, company_name, work_email, role, years_of_experience, mentor_config, linkedin) VALUES (:user_id_num, :created_time, :status, :name, :phone_number, :personal_email, :company_id, :company_name, :work_email, :role, :years_of_experience, :mentor_config, :linkedin) RETURNING user_id, created_time`
 	namedUpdateUserBaseQuery = `UPDATE users SET `
-	getUserSelectorFields    = `user_id_num, user_id, created_time, status, name, phone_number, personal_email, company_id, company_name, work_email, role, years_of_experience, linkedin`
+	getUserSelectorFields    = `user_id_num, user_id, created_time, status, name, phone_number, personal_email, company_id, company_name, work_email, role, years_of_experience, mentor_config, linkedin`
 	selectUserBaseQuery      = `SELECT ` + getUserSelectorFields + ` FROM users WHERE `
 )
 
@@ -60,6 +60,7 @@ func (r usersRepository) Insert(ctx context.Context, details domain.UserProfile)
 	}
 
 	details.UserIDNum = userIDNum
+	details.MentorConfig = &domain.MentorConfig{Status: constants.MentorStatusPendingApproval}
 
 	var returning UsersReturning
 	err = r.dbClient.TxRunner.RunInTxContext(ctx, func(tx *sqlx.Tx) error {
@@ -76,6 +77,7 @@ func (r usersRepository) Insert(ctx context.Context, details domain.UserProfile)
 			constants.ParamWorkEmail:         details.WorkEmail,
 			constants.ParamRole:              details.Role,
 			constants.ParamYearsOfExperience: details.YearsOfExperience,
+			constants.ParamMentorConfig:      details.MentorConfig,
 			constants.ParamLinkedIn:          details.LinkedIn,
 		})
 	})
@@ -92,6 +94,7 @@ func (r usersRepository) Update(ctx context.Context, details domain.UserProfile)
 	nqb := domain.NewSetQueryBuilder()
 	nqb.AddEqualCondition(constants.ParamStatus, details.Status)
 	nqb.AddEqualCondition(constants.ParamCompanyName, details.CompanyName)
+	nqb.AddEqualCondition(constants.ParamMentorConfig, details.MentorConfig)
 
 	namedParams, namedArgs := nqb.BuildNamed()
 
@@ -174,7 +177,7 @@ func (r usersRepository) FetchUsersForParams(ctx context.Context, params domain.
 	qb.AddEqualCondition(constants.ParamCompanyName, params.CompanyName)
 	qb.AddEqualCondition(constants.ParamRole, params.Role)
 	qb.AddGreaterEqualCondition(constants.ParamCreatedTime, params.CreatedAt)
-
+	qb.AddEqualConditionForJSONB(constants.ParamMentorConfigStatus, constants.ParamMentorConfig, params.MentorConfig.Status)
 	conditions, args := qb.Build()
 	if conditions == "" {
 		return nil, errors.ErrSearchParamRequired

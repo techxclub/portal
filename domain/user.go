@@ -9,19 +9,20 @@ import (
 type Users []UserProfile
 
 type UserProfile struct {
-	UserIDNum         int64      `db:"user_id_num"` // Only for internal use
-	UserID            string     `db:"user_id"`
-	CreatedAt         *time.Time `db:"created_time"`
-	Status            string     `db:"status"`
-	Name              string     `db:"name"`
-	PhoneNumber       string     `db:"phone_number"`
-	PersonalEmail     string     `db:"personal_email"`
-	CompanyID         int64      `db:"company_id"`
-	CompanyName       string     `db:"company_name"`
-	WorkEmail         string     `db:"work_email"`
-	Role              string     `db:"role"`
-	YearsOfExperience float32    `db:"years_of_experience"`
-	LinkedIn          string     `db:"linkedin"`
+	UserIDNum         int64         `db:"user_id_num"` // Only for internal use
+	UserID            string        `db:"user_id"`
+	CreatedAt         *time.Time    `db:"created_time"`
+	Status            string        `db:"status"`
+	Name              string        `db:"name"`
+	PhoneNumber       string        `db:"phone_number"`
+	PersonalEmail     string        `db:"personal_email"`
+	CompanyID         int64         `db:"company_id"`
+	CompanyName       string        `db:"company_name"`
+	WorkEmail         string        `db:"work_email"`
+	Role              string        `db:"role"`
+	YearsOfExperience float32       `db:"years_of_experience"`
+	MentorConfig      *MentorConfig `db:"mentor_config"`
+	LinkedIn          string        `db:"linkedin"`
 }
 
 type FetchUserParams struct {
@@ -34,6 +35,7 @@ type FetchUserParams struct {
 	WorkEmail     string
 	CompanyID     int64
 	CompanyName   string
+	MentorConfig  *MentorConfig
 	Role          string
 	CreatedAt     *time.Time
 }

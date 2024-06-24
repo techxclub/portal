@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS users
     role                VARCHAR(255),
     years_of_experience FLOAT,
     work_email          VARCHAR(255)             NOT NULL UNIQUE,
+    mentor_config       JSONB                    NOT NULL,
     linkedIn            VARCHAR(255) UNIQUE
 );
 
