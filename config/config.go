@@ -16,15 +16,17 @@ type Config struct {
 	Swagger     Swagger       `yaml:"SWAGGER" env:",prefix=SWAGGER_"`
 	Translation Translation   `yaml:"TRANSLATION" env:",prefix=TRANSLATION_"`
 
-	DB       DB       `yaml:"DB" env:",prefix=DB_"`
-	Redis    Redis    `yaml:"REDIS" env:",prefix=REDIS_"`
-	Log      Log      `yaml:"LOG" env:",prefix=LOG_"`
-	OTP      OTP      `yaml:"OTP" env:",prefix=OTP_"`
-	Gmail    Gmail    `yaml:"GMAIL" env:",prefix=GMAIL_"`
-	Referral Referral `yaml:"REFERRAL" env:",prefix=REFERRAL_"`
+	DB           DB       `yaml:"DB" env:",prefix=DB_"`
+	Redis        Redis    `yaml:"REDIS" env:",prefix=REDIS_"`
+	Log          Log      `yaml:"LOG" env:",prefix=LOG_"`
+	OTP          OTP      `yaml:"OTP" env:",prefix=OTP_"`
+	ReferralMail MailSMTP `yaml:"REFERRAL_MAIL" env:",prefix=REFERRAL_MAIL_"`
+	OTPMail      MailSMTP `yaml:"OTP_MAIL" env:",prefix=OTP_MAIL_"`
+	Referral     Referral `yaml:"REFERRAL" env:",prefix=REFERRAL_"`
 
-	CompanyListLimit        int `yaml:"COMPANY_LIST_LIMIT" env:"COMPANY_LIST_LIMIT"`
-	PopularCompanyListLimit int `yaml:"POPULAR_COMPANY_LIST_LIMIT" env:"POPULAR_COMPANY_LIST_LIMIT"`
+	ResumeDirectory         string `yaml:"RESUME_DIRECTORY" env:"RESUME_DIRECTORY"`
+	CompanyListLimit        int    `yaml:"COMPANY_LIST_LIMIT" env:"COMPANY_LIST_LIMIT"`
+	PopularCompanyListLimit int    `yaml:"POPULAR_COMPANY_LIST_LIMIT" env:"POPULAR_COMPANY_LIST_LIMIT"`
 }
 
 type Auth struct {
@@ -71,14 +73,6 @@ type OTP struct {
 	MockingEnabled          bool          `yaml:"MOCKING_ENABLED" env:"MOCKING_ENABLED"`
 	EmailThirdPartyProvider string        `yaml:"EMAIL_THIRD_PARTY_PROVIDER" env:"EMAIL_THIRD_PARTY_PROVIDER"`
 	SMSThirdPartyProvider   string        `yaml:"SMS_THIRD_PARTY_PROVIDER" env:"SMS_THIRD_PARTY_PROVIDER"`
-}
-
-type Gmail struct {
-	SMTPServer   string `yaml:"SMTP_SERVER" env:"SMTP_SERVER"`
-	SMTPPort     int    `yaml:"SMTP_PORT" env:"SMTP_PORT"`
-	SMTPUsername string `yaml:"SMTP_USERNAME" env:"SMTP_USERNAME"`
-	SMTPPassword string `yaml:"SMTP_PASSWORD" env:"SMTP_PASSWORD"`
-	From         string `yaml:"FROM" env:"FROM"`
 }
 
 type Referral struct {
@@ -181,12 +175,22 @@ func (cfg *Config) SetDefaults() {
 		SMSThirdPartyProvider:   constants.ThirdPartyMsg91,
 	}
 
-	cfg.Gmail = Gmail{
+	cfg.ReferralMail = MailSMTP{
 		SMTPServer:   "smtp.gmail.com",
 		SMTPPort:     587,
 		SMTPUsername: "username",
 		SMTPPassword: "password",
-		From:         "user.name@gmail.com",
+		FromName:     "User Name",
+		FromEmail:    "referral@domain.com",
+	}
+
+	cfg.OTPMail = MailSMTP{
+		SMTPServer:   "smtp.gmail.com",
+		SMTPPort:     587,
+		SMTPUsername: "username",
+		SMTPPassword: "password",
+		FromName:     "User Name",
+		FromEmail:    "support@domain.com",
 	}
 
 	cfg.Referral = Referral{
@@ -195,6 +199,7 @@ func (cfg *Config) SetDefaults() {
 		ReferralMaxLookupDuration: 7 * 24 * time.Hour,
 	}
 
+	cfg.ResumeDirectory = "./user_resumes"
 	cfg.CompanyListLimit = 100
 	cfg.PopularCompanyListLimit = 5
 }

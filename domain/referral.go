@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"mime/multipart"
 	"time"
 )
 
@@ -25,6 +26,6 @@ type ReferralParams struct {
 	Message         string
 	JobLink         string
 	Status          string
-	ResumeFilePath  string
 	CreatedAt       *time.Time
+	ResumeFile      multipart.File
 }

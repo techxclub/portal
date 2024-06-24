@@ -58,6 +58,7 @@ Temporary Items
 dev.application.yml
 out/
 failed_jobs/
+user_resumes/
 
 .idea/
 *.iml

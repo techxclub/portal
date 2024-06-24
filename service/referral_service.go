@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"mime/multipart"
 	"time"
 
 	"github.com/techx/portal/builder"
@@ -9,6 +11,7 @@ import (
 	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
 	"github.com/techx/portal/errors"
+	"github.com/techx/portal/utils"
 )
 
 type ReferralService interface {
@@ -77,6 +80,11 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 		return nil, errors.ErrReferralAlreadyExists
 	}
 
+	storeResumeFilePath, err := storeResumeFile(referralDetails.ResumeFile, r.cfg.ResumeDirectory, requester.UserIDNum)
+	if err != nil {
+		return nil, err
+	}
+
 	referral, err := r.registry.ReferralsRepository.InsertReferral(ctx, referralDetails)
 	if err != nil {
 		return nil, err
@@ -87,9 +95,9 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 		Provider:       *provider,
 		JobLink:        referralDetails.JobLink,
 		Message:        referralDetails.Message,
-		ResumeFilePath: referralDetails.ResumeFilePath,
+		ResumeFilePath: storeResumeFilePath,
 	}
-	r.registry.MailBuilder.SendReferralMailAsync(ctx, referralMailParams)
+	r.registry.ReferralMailBuilder.SendReferralMailAsync(ctx, referralMailParams)
 	return referral, nil
 }
 
@@ -101,4 +109,14 @@ func referralExists(requesterReferrals domain.Referrals, providerUserID string) 
 	}
 
 	return false
+}
+
+// ToDo: Upload resume to S3
+func storeResumeFile(file multipart.File, resumeDirectory string, userNumber int64) (string, error) {
+	if err := utils.CreateDirectoryIfNotExist(resumeDirectory); err != nil {
+		return "", err
+	}
+
+	resumeFileName := fmt.Sprintf("resume_user_number_%d_%d.pdf", userNumber, time.Now().Unix())
+	return utils.StoreMultipartFile(file, resumeDirectory, resumeFileName)
 }
