@@ -35,7 +35,7 @@ type FetchUserParams struct {
 	WorkEmail     string
 	CompanyID     int64
 	CompanyName   string
-	MentorConfig  *MentorConfig
+	MentorConfig  MentorConfig
 	Role          string
 	CreatedAt     *time.Time
 }
