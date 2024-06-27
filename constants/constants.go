@@ -15,6 +15,7 @@ const (
 	StatusApproved        = "APPROVED"
 
 	// Mentor config
+	MentorStatusNotApproved     = "NOT_APPROVED"
 	MentorStatusPendingApproval = "PENDING_APPROVAL"
 	MentorStatusApproved        = "APPROVED"
 	ParamMentorConfig           = "mentor_config"

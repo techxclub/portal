@@ -8,6 +8,7 @@ import (
 
 	"github.com/iancoleman/strcase"
 	"github.com/rs/zerolog/log"
+	"github.com/techx/portal/apicontext"
 	"github.com/techx/portal/builder"
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/constants"
@@ -101,10 +102,10 @@ func (u userService) RegisterMentor(ctx context.Context, userDetails domain.User
 
 	if currentMentorConfig.IsPreApproved {
 		updatedMentorConfig.IsMentor = true
-		updatedMentorConfig.Status = constants.StatusApproved
+		updatedMentorConfig.Status = constants.MentorStatusApproved
 	} else {
 		updatedMentorConfig.IsMentor = false
-		updatedMentorConfig.Status = constants.StatusPendingApproval
+		updatedMentorConfig.Status = constants.MentorStatusPendingApproval
 	}
 
 	user.MentorConfig = &updatedMentorConfig
@@ -138,26 +139,61 @@ func (u userService) GetProfile(ctx context.Context, params domain.FetchUserPara
 }
 
 func (u userService) GetUsers(ctx context.Context, params domain.FetchUserParams) (*domain.Users, error) {
+	userID := apicontext.RequestContextFromContext(ctx).GetUserID()
+	user, _ := u.registry.UsersRepository.FetchUserForParams(ctx, domain.FetchUserParams{UserID: userID})
+	if userID != "" && user == nil {
+		return nil, errors.ErrUserNotFound
+	}
+
 	users, err := u.registry.UsersRepository.FetchUsersForParams(ctx, params)
 	if err != nil {
 		return nil, err
 	}
-
 	slices.SortStableFunc(*users, func(i, j domain.UserProfile) int {
 		return cmp.Compare(i.Name, j.Name)
 	})
 
-	return users, nil
+	if user == nil {
+		return users, nil
+	}
+
+	filteredUsers := utils.Filter(*users, func(user domain.UserProfile) bool {
+		return user.UserID != userID
+	})
+
+	if len(filteredUsers) == 0 {
+		return nil, errors.ErrNoDataFound
+	}
+
+	return &filteredUsers, nil
 }
 
 func (u userService) GetCompanies(ctx context.Context, params domain.FetchCompanyParams) (*domain.Companies, error) {
+	userID := apicontext.RequestContextFromContext(ctx).GetUserID()
+	user, _ := u.registry.UsersRepository.FetchUserForParams(ctx, domain.FetchUserParams{UserID: userID})
+	if userID != "" && user == nil {
+		return nil, errors.ErrUserNotFound
+	}
+
 	companies, err := u.registry.CompaniesRepository.FetchCompaniesForParams(ctx, params)
 	if err != nil {
 		return nil, err
 	}
-
 	slices.SortStableFunc(*companies, func(i, j domain.Company) int {
 		return cmp.Compare(i.GetPriority(), j.GetPriority())
 	})
-	return companies, nil
+
+	if user == nil {
+		return companies, nil
+	}
+
+	filteredCompanies := utils.Filter(*companies, func(company domain.Company) bool {
+		return company.ID != user.CompanyID
+	})
+
+	if len(filteredCompanies) == 0 {
+		return nil, errors.ErrNoDataFound
+	}
+
+	return &filteredCompanies, nil
 }

@@ -60,7 +60,7 @@ func (r usersRepository) Insert(ctx context.Context, details domain.UserProfile)
 	}
 
 	details.UserIDNum = userIDNum
-	details.MentorConfig = &domain.MentorConfig{Status: constants.MentorStatusPendingApproval}
+	details.MentorConfig = &domain.MentorConfig{Status: constants.MentorStatusNotApproved}
 
 	var returning UsersReturning
 	err = r.dbClient.TxRunner.RunInTxContext(ctx, func(tx *sqlx.Tx) error {
@@ -177,7 +177,9 @@ func (r usersRepository) FetchUsersForParams(ctx context.Context, params domain.
 	qb.AddEqualCondition(constants.ParamCompanyName, params.CompanyName)
 	qb.AddEqualCondition(constants.ParamRole, params.Role)
 	qb.AddGreaterEqualCondition(constants.ParamCreatedTime, params.CreatedAt)
-	qb.AddEqualConditionForJSONB(constants.ParamMentorConfigStatus, constants.ParamMentorConfig, params.MentorConfig.Status)
+	if params.MentorConfig != nil {
+		qb.AddEqualConditionForJSONB(constants.ParamMentorConfigStatus, constants.ParamMentorConfig, params.MentorConfig.Status)
+	}
 	conditions, args := qb.Build()
 	if conditions == "" {
 		return nil, errors.ErrSearchParamRequired

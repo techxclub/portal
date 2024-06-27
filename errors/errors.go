@@ -50,6 +50,7 @@ var (
 	ErrDomainRequired                   = NewServiceError("domain_required", 400, nil)
 	ErrUserNotApproved                  = NewServiceError("user_not_approved", 400, nil)
 	ErrUserAlreadyMentor                = NewServiceError("user_already_mentor", 400, nil)
+	ErrUserNotFound                     = NewServiceError("user_not_found", 404, nil)
 )
 
 func BadRequestError(err error) ServiceError {
