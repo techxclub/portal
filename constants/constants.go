@@ -66,7 +66,6 @@ const (
 
 	AuthStatusGenerated = "generated"
 	AuthStatusPending   = "pending"
-	AuthStatusResent    = "resent"
 	AuthStatusVerified  = "verified"
 	AuthStatusFailed    = "failed"
 

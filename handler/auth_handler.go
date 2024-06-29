@@ -30,3 +30,13 @@ func VerifyOTPHandler(_ *config.Config, serviceRegistry *service.Registry) http.
 		response.NewVerifyOTPResponse,
 	)
 }
+
+func ResendOTPHandler(_ *config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
+	return Handler(
+		request.NewGenerateOTPRequest,
+		func(ctx context.Context, req request.OTPRequest) (*domain.AuthDetails, error) {
+			return serviceRegistry.AuthService.ResendOTP(ctx, req.ToAuthRequest())
+		},
+		response.NewGenerateOTPResponse,
+	)
+}

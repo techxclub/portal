@@ -12,7 +12,6 @@ import (
 var authStatusToActionMap = map[string]string{
 	constants.AuthStatusGenerated: constants.ActionVerifyOTP,
 	constants.AuthStatusPending:   constants.ActionVerifyOTP,
-	constants.AuthStatusResent:    constants.ActionVerifyOTP,
 	constants.AuthStatusFailed:    constants.ActionRetryOTP,
 	constants.AuthStatusVerified:  constants.ActionSignUp,
 }
