@@ -36,4 +36,17 @@ func addAuthRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry)
 		Methods(constants.MethodPost).
 		Path("/otp/verify").
 		Handler(handler.VerifyOTPHandler(cfg, sr))
+
+	//	swagger:route POST /public/auth/otp/resend public ResendOTP
+	//	Responses:
+	//		200: VerifyOTPResponse
+	//		401:
+	// 		400: ErrorResponse
+	//		422: ErrorResponse
+	//		500: ErrorResponse
+	//		503: ErrorResponse
+	authRouter.
+		Methods(constants.MethodPost).
+		Path("/otp/resend").
+		Handler(handler.ResendOTPHandler(cfg, sr))
 }

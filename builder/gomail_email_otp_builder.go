@@ -99,7 +99,7 @@ func (mb messageBuilder) resendEmailOTPViaGomail(ctx context.Context, params dom
 
 	return domain.AuthInfo{
 		OTP:    &otpCacheValue.OTP,
-		Status: constants.AuthStatusResent,
+		Status: constants.AuthStatusPending,
 	}, nil
 }
 

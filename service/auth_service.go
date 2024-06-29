@@ -43,7 +43,7 @@ func (s authService) GenerateOTP(ctx context.Context, otpGenerationDetail domain
 }
 
 func (s authService) ResendOTP(ctx context.Context, otpGenerationDetail domain.AuthRequest) (*domain.AuthDetails, error) {
-	authInfo, err := s.registry.OTPBuilder.SendOTP(ctx, otpGenerationDetail)
+	authInfo, err := s.registry.OTPBuilder.ResendOTP(ctx, otpGenerationDetail)
 	if err != nil || authInfo.Status != constants.AuthStatusPending {
 		log.Err(err).Msg("Failed to generate OTP")
 		return nil, errors.ErrOTPGenerateFailed
