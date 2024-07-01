@@ -1,6 +1,10 @@
 package utils
 
-import "strconv"
+import (
+	"strconv"
+
+	"github.com/satori/go.uuid"
+)
 
 func ParseInt64WithDefault(str string, def int64) int64 {
 	parsedValue, err := strconv.ParseInt(str, 10, 64)
@@ -9,4 +13,8 @@ func ParseInt64WithDefault(str string, def int64) int64 {
 	}
 
 	return parsedValue
+}
+
+func GetRandomUUID() string {
+	return uuid.NewV4().String()
 }

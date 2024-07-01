@@ -110,12 +110,17 @@ func (mb messageBuilder) sendMail(ctx context.Context, otp, email string) error 
 
 	subject := i18n.Translate(ctx, i18nKeyEmailOTPMailSubject)
 	bodyHTML := i18n.Translate(ctx, i18nKeyEmailOTPMailBody, i18nValues)
+	mailCfg := mb.cfg.OTPMail
+	messageID := mailCfg.GetMessageID()
 
 	m := gomail.NewMessage()
-	m.SetHeader("From", mb.cfg.OTPMail.GetFrom())
-	m.SetHeader("To", email)
-	m.SetHeader("Subject", subject)
-	m.SetBody("text/html", bodyHTML)
+	m.SetHeader(constants.GomailHeaderFrom, mailCfg.GetFrom())
+	m.SetHeader(constants.GomailHeaderTo, email)
+	m.SetHeader(constants.GomailHeaderSubject, subject)
+	m.SetHeader(constants.GomailHeaderMessageID, messageID)
+	m.SetHeader(constants.GomailHeaderInReplyTo, messageID)
+	m.SetHeader(constants.GomailHeaderReferences, messageID)
+	m.SetBody(constants.GomailContentTypeHTML, bodyHTML)
 
 	err := mb.otpMailClient.DialAndSend(m)
 	if err != nil {

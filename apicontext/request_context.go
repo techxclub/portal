@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	uuid "github.com/satori/go.uuid"
 	"github.com/techx/portal/constants"
+	"github.com/techx/portal/utils"
 )
 
 const (
@@ -56,7 +56,7 @@ func getRequestTraceID(header http.Header) string {
 		}
 	}
 
-	return uuid.NewV4().String()
+	return utils.GetRandomUUID()
 }
 
 func (rctx RequestContext) GetUserID() string {

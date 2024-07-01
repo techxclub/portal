@@ -10,6 +10,7 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"github.com/techx/portal/config"
+	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
 	"github.com/techx/portal/i18n"
 	"github.com/techx/portal/utils"
@@ -40,14 +41,14 @@ type ReferralMailBuilder interface {
 }
 
 type referralMailBuilder struct {
-	cfg   *config.Config
-	GMail *gomail.Dialer
+	cfg                *config.Config
+	referralMailClient *gomail.Dialer
 }
 
 func NewReferralMailBuilder(cfg *config.Config, dialer *gomail.Dialer) ReferralMailBuilder {
 	return &referralMailBuilder{
-		cfg:   cfg,
-		GMail: dialer,
+		cfg:                cfg,
+		referralMailClient: dialer,
 	}
 }
 
@@ -101,15 +102,20 @@ func (mb *referralMailBuilder) SendReferralMail(ctx context.Context, params Refe
 	bodyHTML += i18n.Translate(ctx, i18nKeyReferralMailBodyFooterNotes, i18nValues)
 	textHTML := fmt.Sprintf(`<html><body>%s</body></html>`, bodyHTML)
 	to := []string{params.Provider.WorkEmail, params.Requester.PersonalEmail}
+	mailCfg := mb.cfg.ReferralMail
+	messageID := mailCfg.GetMessageID()
 
 	m := gomail.NewMessage()
-	m.SetHeader("From", mb.cfg.ReferralMail.GetFrom())
-	m.SetHeader("To", to...)
-	m.SetHeader("Subject", subject)
-	m.SetBody("text/html", textHTML)
+	m.SetHeader(constants.GomailHeaderFrom, mailCfg.GetFrom())
+	m.SetHeader(constants.GomailHeaderTo, to...)
+	m.SetHeader(constants.GomailHeaderSubject, subject)
+	m.SetHeader(constants.GomailHeaderMessageID, messageID)
+	m.SetHeader(constants.GomailHeaderInReplyTo, messageID)
+	m.SetHeader(constants.GomailHeaderReferences, messageID)
+	m.SetBody(constants.GomailContentTypeHTML, textHTML)
 	m.Attach(params.ResumeFilePath, gomail.Rename(getResumeFileName(params.Requester.Name)))
 
-	err := mb.GMail.DialAndSend(m)
+	err := mb.referralMailClient.DialAndSend(m)
 	if err != nil {
 		log.Error().Err(err).Msgf("Failed to send referral mail with requestor_user_id: %s, "+
 			"provider_user_id: %s and filepath: %s", params.Requester.UserID, params.Provider.UserID, params.ResumeFilePath)
