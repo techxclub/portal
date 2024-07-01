@@ -66,6 +66,7 @@ REFERRAL_MAIL:
   SMTP_PORT: 587
   SMTP_USERNAME: username
   SMTP_PASSWORD: password
+  DOMAIN: domain.com
   FROM_NAME: User Name
   FROM_EMAIL: referral@domain.com
 OTP_MAIL:
@@ -73,6 +74,7 @@ OTP_MAIL:
   SMTP_PORT: 587
   SMTP_USERNAME: username
   SMTP_PASSWORD: password
+  DOMAIN: domain.com
   FROM_NAME: User Name
   FROM_EMAIL: support@domain.com
 REFERRAL:

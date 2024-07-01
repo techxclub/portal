@@ -78,4 +78,13 @@ const (
 
 	//	Referral status
 	ReferralStatusPending = "PENDING"
+
+	//	Gomail constants
+	GomailHeaderFrom       = "From"
+	GomailHeaderTo         = "To"
+	GomailHeaderSubject    = "Subject"
+	GomailHeaderMessageID  = "Message-ID"
+	GomailHeaderInReplyTo  = "In-Reply-To"
+	GomailHeaderReferences = "References"
+	GomailContentTypeHTML  = "text/html"
 )

@@ -180,6 +180,7 @@ func (cfg *Config) SetDefaults() {
 		SMTPPort:     587,
 		SMTPUsername: "username",
 		SMTPPassword: "password",
+		Domain:       "domain.com",
 		FromName:     "User Name",
 		FromEmail:    "referral@domain.com",
 	}
@@ -189,6 +190,7 @@ func (cfg *Config) SetDefaults() {
 		SMTPPort:     587,
 		SMTPUsername: "username",
 		SMTPPassword: "password",
+		Domain:       "domain.com",
 		FromName:     "User Name",
 		FromEmail:    "support@domain.com",
 	}
