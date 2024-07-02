@@ -17,6 +17,7 @@ type Mentor struct {
 	CompanyID         int64    `json:"company_id"`
 	YearsOfExperience float32  `json:"years_of_experience"`
 	Tags              []string `json:"topics"`
+	Domain            string   `json:"domain"`
 	CalendalyLink     string   `json:"calandly_link"`
 }
 
@@ -30,6 +31,7 @@ func NewMentorsListResponse(_ context.Context, users domain.Users) (MentorsListR
 			CompanyID:         u.CompanyID,
 			YearsOfExperience: u.YearsOfExperience,
 			Tags:              u.MentorConfig.Tags,
+			Domain:            u.MentorConfig.Domain,
 			CalendalyLink:     u.MentorConfig.CalendalyLink,
 		})
 	}

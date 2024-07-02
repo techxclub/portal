@@ -35,5 +35,6 @@ func (r CompanyUsersListRequest) Validate() error {
 func (r CompanyUsersListRequest) ToFetchUserParams() domain.FetchUserParams {
 	return domain.FetchUserParams{
 		CompanyID: utils.ParseInt64WithDefault(r.CompanyID, 0),
+		Status:    constants.StatusApproved,
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
@@ -50,7 +51,8 @@ func (r ReferralRequest) Validate() error {
 		return errors.ErrProviderFieldIsEmpty
 	}
 
-	_, err := url.ParseRequestURI(r.JobLink)
+	jobURL := addSchemeIfMissing(r.JobLink)
+	_, err := url.ParseRequestURI(jobURL)
 	if err != nil {
 		return errors.ErrInvalidJobLink
 	}
@@ -67,4 +69,12 @@ func (r ReferralRequest) ToReferral() domain.ReferralParams {
 		ResumeFile:      r.ResumeFile,
 		Status:          constants.ReferralStatusPending,
 	}
+}
+
+func addSchemeIfMissing(url string) string {
+	if !strings.Contains(url, "://") {
+		return "https://" + url
+	}
+
+	return url
 }

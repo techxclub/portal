@@ -11,6 +11,18 @@
   "err_unhandled_error_message": {
     "other": "We are unable to load your details at this time. Please try again later."
   },
+  "email_otp_mail_subject": {
+    "other": "TechX: OTP Verification"
+  },
+  "email_otp_mail_body": {
+    "other": "<html><body><p>Dear Sir/Madam,</p><p>Your One Time Password (OTP) for Sign Up is:</p><p><span style=\"font-size:30px;\"> <strong>{{.OTP}}</strong></span></p><p>Your otp will expire in 10 mins.</p><p>Do not share your OTP with anyone.</p><p>Warm regards,</p><p>Team TechX</p></body></html>"
+  },
+  "get_referral_cta_title": {
+    "other": "Get Referral"
+  },
+  "pending_referral_cta_title": {
+    "other": "Pending"
+  },
   "referral_mail_subject": {
     "other": "TechX: Referral Request For {{.RequesterName}}"
   },
@@ -22,11 +34,5 @@
   },
   "referral_mail_body_footer_notes": {
     "other": "<p>We hope you consider their application!</p><p>Best regards,</p><p>TechX Community</p>"
-  },
-  "email_otp_mail_subject": {
-    "other": "TechX: OTP Verification"
-  },
-  "email_otp_mail_body": {
-    "other": "<html><body><p>Dear Sir/Madam,</p><p>Your One Time Password (OTP) for Sign Up is:</p><p><span style=\"font-size:30px;\"> <strong>{{.OTP}}</strong></span></p><p>Your otp will expire in 10 mins.</p><p>Do not share your OTP with anyone.</p><p>Warm regards,</p><p>Team TechX</p></body></html>"
   }
 }
