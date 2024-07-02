@@ -5,6 +5,7 @@ import (
 	"context"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/iancoleman/strcase"
 	"github.com/rs/zerolog/log"
@@ -24,6 +25,7 @@ type UserService interface {
 	GetProfile(ctx context.Context, params domain.FetchUserParams) (*domain.UserProfile, error)
 	GetUsers(ctx context.Context, params domain.FetchUserParams) (*domain.Users, error)
 	GetCompanies(ctx context.Context, params domain.FetchCompanyParams) (*domain.Companies, error)
+	GetCompanyUsers(ctx context.Context, params domain.FetchUserParams) (*domain.CompanyUsersService, error)
 }
 
 type userService struct {
@@ -196,4 +198,26 @@ func (u userService) GetCompanies(ctx context.Context, params domain.FetchCompan
 	}
 
 	return &filteredCompanies, nil
+}
+
+func (u userService) GetCompanyUsers(ctx context.Context, params domain.FetchUserParams) (*domain.CompanyUsersService, error) {
+	companyUsers, err := u.GetUsers(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+
+	userID := apicontext.RequestContextFromContext(ctx).GetUserID()
+	referralParams := domain.ReferralParams{
+		RequesterUserID: userID,
+		CreatedAt:       utils.ToPtr(time.Now().Add(-7 * 24 * time.Hour)),
+	}
+	userReferrals, err := u.registry.ReferralsRepository.FetchReferralsForParams(ctx, referralParams)
+	if err != nil {
+		return nil, err
+	}
+
+	return &domain.CompanyUsersService{
+		Users:     companyUsers,
+		Referrals: userReferrals,
+	}, nil
 }

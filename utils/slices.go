@@ -7,7 +7,7 @@ func Filter[S ~[]E, E any](s S, f func(E) bool) S {
 
 	for i := range s {
 		if f(s[i]) {
-			return append(filteredSlice, s[i])
+			filteredSlice = append(filteredSlice, s[i])
 		}
 	}
 

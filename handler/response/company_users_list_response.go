@@ -4,34 +4,16 @@ import (
 	"context"
 
 	"github.com/techx/portal/domain"
+	"github.com/techx/portal/handler/composers"
 )
 
 // swagger:model
 type CompanyUsersListResponse struct {
-	Users []CompanyUser `json:"users"`
+	Users []composers.CompanyUser `json:"users"`
 }
 
-type CompanyUser struct {
-	Name              string  `json:"name"`
-	UserID            string  `json:"user_id"`
-	CompanyName       string  `json:"company_name"`
-	Role              string  `json:"role"`
-	YearsOfExperience float32 `json:"years_of_experience"`
-}
-
-func NewCompanyUsersListResponse(_ context.Context, users domain.Users) (CompanyUsersListResponse, HTTPMetadata) {
-	result := make([]CompanyUser, 0)
-	for _, u := range users {
-		result = append(result, CompanyUser{
-			UserID:            u.UserID,
-			Name:              u.Name,
-			CompanyName:       u.CompanyName,
-			Role:              u.Role,
-			YearsOfExperience: u.YearsOfExperience,
-		})
-	}
-
+func NewCompanyUsersListResponse(ctx context.Context, users domain.CompanyUsersService) (CompanyUsersListResponse, HTTPMetadata) {
 	return CompanyUsersListResponse{
-		Users: result,
+		Users: composers.GetCompanyUsers(ctx, users),
 	}, HTTPMetadata{}
 }
