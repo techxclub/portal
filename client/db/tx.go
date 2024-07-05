@@ -16,7 +16,7 @@ type txRunner struct {
 	db *sqlx.DB
 }
 
-func NewTxRunner(db *sqlx.DB) *txRunner {
+func newTxRunner(db *sqlx.DB) *txRunner {
 	return &txRunner{db: db}
 }
 

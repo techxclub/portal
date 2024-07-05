@@ -27,6 +27,27 @@ type Redis struct {
 	RequestVolumeThreshold int           `yaml:"REQUEST_VOLUME_THRESHOLD" env:"REQUEST_VOLUME_THRESHOLD"`
 }
 
+func defaultRedisConfig() Redis {
+	return Redis{
+		Host:               "localhost",
+		Port:               6379,
+		PoolSize:           30,
+		MinIdleConnections: 10,
+		DialTimeout:        1000 * time.Millisecond,
+		PoolTimeout:        1000 * time.Millisecond,
+		ReadTimeout:        1000 * time.Millisecond,
+		WriteTimeout:       1000 * time.Millisecond,
+		IdleTimeout:        30 * time.Minute,
+		IdleCheckFrequency: 5 * time.Minute,
+
+		HystrixTimeout:         1000,
+		MaxConcurrentRequests:  100,
+		RequestVolumeThreshold: 100,
+		SleepWindow:            100,
+		ErrorPercentThreshold:  10,
+	}
+}
+
 func (c *Redis) HystrixConfig() hystrix.CommandConfig {
 	return hystrix.CommandConfig{
 		Timeout:                c.HystrixTimeout,

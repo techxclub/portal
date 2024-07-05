@@ -66,7 +66,13 @@ func (s authService) VerifyOTP(ctx context.Context, otpVerificationDetail domain
 		AuthInfo: authInfo,
 	}
 
-	if otpVerificationDetail.Channel != constants.AuthChannelSMS || authInfo.Status != constants.AuthStatusVerified {
+	if authInfo.Status != constants.AuthStatusVerified {
+		return &authDetails, nil
+	}
+
+	if otpVerificationDetail.Channel == constants.AuthChannelEmail {
+		authToken, _ := domain.GenerateToken(otpVerificationDetail.Value, s.cfg.Auth)
+		authDetails.AuthToken = authToken
 		return &authDetails, nil
 	}
 

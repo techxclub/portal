@@ -39,14 +39,18 @@ func RequestContextFromContext(ctx context.Context) RequestContext {
 	return c
 }
 
-func (rctx RequestContext) GetLocale() string {
-	s := strings.ReplaceAll(rctx.Language, "-", "_")
+func (r RequestContext) GetLocale() string {
+	s := strings.ReplaceAll(r.Language, "-", "_")
 	s = strings.Split(s, "_")[0]
 	s = strings.ToLower(s)
 	if s == "" {
 		return constants.DefaultLanguage
 	}
 	return s
+}
+
+func (r RequestContext) GetUserID() string {
+	return r.UserID
 }
 
 func getRequestTraceID(header http.Header) string {
@@ -57,8 +61,4 @@ func getRequestTraceID(header http.Header) string {
 	}
 
 	return utils.GetRandomUUID()
-}
-
-func (rctx RequestContext) GetUserID() string {
-	return rctx.UserID
 }

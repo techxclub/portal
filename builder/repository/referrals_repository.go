@@ -23,7 +23,7 @@ type ReferralsRepository interface {
 }
 
 type referralsRepository struct {
-	dbClient *db.Repository
+	dbClient db.Client
 }
 
 type ReferralsReturning struct {
@@ -31,7 +31,7 @@ type ReferralsReturning struct {
 	CreatedAt time.Time `db:"created_time"`
 }
 
-func NewReferralsRepository(dbClient *db.Repository) ReferralsRepository {
+func NewReferralsRepository(dbClient db.Client) ReferralsRepository {
 	return &referralsRepository{
 		dbClient: dbClient,
 	}
@@ -39,7 +39,7 @@ func NewReferralsRepository(dbClient *db.Repository) ReferralsRepository {
 
 func (r referralsRepository) InsertReferral(ctx context.Context, params domain.ReferralParams) (*domain.Referral, error) {
 	var returning ReferralsReturning
-	err := r.dbClient.TxRunner.RunInTxContext(ctx, func(tx *sqlx.Tx) error {
+	err := r.dbClient.DBRunInTxContext(ctx, func(tx *sqlx.Tx) error {
 		now := time.Now()
 		return r.dbClient.DBNamedExecReturningInTx(ctx, tx, &returning, insertReferralQuery, map[string]interface{}{
 			constants.ParamRequesterID: params.RequesterUserID,

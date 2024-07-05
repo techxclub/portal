@@ -1,13 +1,11 @@
 package constants
 
 const (
-	DefaultLanguage = "en"
-	TableNameUsers  = "users"
+	DefaultLanguage    = "en"
+	GlobalRateLimitKey = "global_rate_limit"
 
 	// Actors
-	ActorSystem = "SYSTEM"
-	ActorUser   = "USER"
-	ActorAdmin  = "ADMIN"
+	ActorUser = "USER"
 
 	// User status
 	StatusPendingApproval = "PENDING_APPROVAL"
@@ -60,9 +58,8 @@ const (
 	AuthActionGenerate = "GENERATE"
 	AuthActionVerify   = "VERIFY"
 
-	AuthChannelSMS      = "sms"
-	AuthChannelEmail    = "email"
-	AuthChannelWhatsapp = "whatsapp"
+	AuthChannelSMS   = "sms"
+	AuthChannelEmail = "email"
 
 	AuthStatusGenerated = "generated"
 	AuthStatusPending   = "pending"
