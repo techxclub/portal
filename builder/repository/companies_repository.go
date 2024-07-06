@@ -56,7 +56,7 @@ func (r companiesRepository) InsertCompany(ctx context.Context, details domain.C
 		})
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.ErrUnableInsertCompany
 	}
 
 	company := domain.Company{
@@ -112,7 +112,7 @@ func (r companiesRepository) FetchCompanyForParams(ctx context.Context, params d
 	getCompanyForParamsQuery := selectCompanyBaseQuery + conditions
 	err := r.dbClient.DBGet(ctx, &company, getCompanyForParamsQuery, args...)
 	if err != nil {
-		return nil, err
+		return nil, errors.ErrGettingCompany
 	}
 
 	return &company, nil
@@ -136,7 +136,7 @@ func (r companiesRepository) FetchCompaniesForParams(ctx context.Context, params
 	getCompanyForParamsQuery := selectCompanyBaseQuery + conditions
 	err := r.dbClient.DBSelect(ctx, &companies, getCompanyForParamsQuery, args...)
 	if err != nil {
-		return nil, err
+		return nil, errors.ErrGettingCompanies
 	}
 
 	if len(companies) == 0 {

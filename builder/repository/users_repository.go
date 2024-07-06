@@ -56,7 +56,7 @@ func (r usersRepository) NextUserIDNum(ctx context.Context) (int64, error) {
 func (r usersRepository) Insert(ctx context.Context, details domain.UserProfile) (*domain.UserProfile, error) {
 	userIDNum, err := r.NextUserIDNum(ctx)
 	if err != nil {
-		return nil, err
+		return nil, errors.ErrGettingUserID
 	}
 
 	details.UserIDNum = userIDNum
@@ -82,7 +82,7 @@ func (r usersRepository) Insert(ctx context.Context, details domain.UserProfile)
 		})
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.ErrUnableInsertUser
 	}
 
 	details.UserID = returning.UserID
@@ -158,7 +158,7 @@ func (r usersRepository) FetchUserForParams(ctx context.Context, params domain.F
 	var user domain.UserProfile
 	err := r.dbClient.DBGet(ctx, &user, getUserByParamsQuery, args...)
 	if err != nil {
-		return nil, err
+		return nil, errors.ErrGettingUser
 	}
 
 	return &user, nil

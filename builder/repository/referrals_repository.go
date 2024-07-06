@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -12,14 +13,16 @@ import (
 )
 
 const (
-	insertReferralQuery         = `INSERT INTO referrals (requester_user_id, provider_user_id, company_id, job_link, status, created_time) VALUES (:requester_user_id, :provider_user_id, :company_id, :job_link, :status, :created_time) RETURNING id, created_time`
-	fetchReferralSelectorFields = `id, requester_user_id, provider_user_id, company_id, job_link, status, created_time`
-	selectReferralBaseQuery     = `SELECT ` + fetchReferralSelectorFields + ` FROM referrals WHERE `
+	insertReferralQuery          = `INSERT INTO referrals (requester_user_id, provider_user_id, company_id, job_link, status, created_time) VALUES (:requester_user_id, :provider_user_id, :company_id, :job_link, :status, :created_time) RETURNING id, created_time`
+	fetchReferralSelectorFields  = `id, requester_user_id, provider_user_id, company_id, job_link, status, created_time`
+	selectReferralBaseQuery      = `SELECT ` + fetchReferralSelectorFields + ` FROM referrals WHERE `
+	namedUpdateReferralBaseQuery = `UPDATE referrals SET %s WHERE id=:id`
 )
 
 type ReferralsRepository interface {
 	InsertReferral(ctx context.Context, referral domain.ReferralParams) (*domain.Referral, error)
 	FetchReferralsForParams(ctx context.Context, params domain.ReferralParams) (*domain.Referrals, error)
+	UpdateReferral(ctx context.Context, referral *domain.Referral) error
 }
 
 type referralsRepository struct {
@@ -85,9 +88,29 @@ func (r referralsRepository) FetchReferralsForParams(ctx context.Context, params
 	getReferralsByParamsQuery := selectReferralBaseQuery + conditions
 	err := r.dbClient.DBSelect(ctx, &referrals, getReferralsByParamsQuery, args...)
 	if err != nil {
-		return nil, err
+		return nil, errors.ErrGettingUserReferrals
 	}
 
 	result := domain.Referrals(referrals)
 	return &result, nil
+}
+
+func (r referralsRepository) UpdateReferral(ctx context.Context, referral *domain.Referral) error {
+	nqb := domain.NewSetQueryBuilder()
+	nqb.AddEqualCondition(constants.ParamID, referral.ID)
+	nqb.AddEqualCondition(constants.ParamRequesterID, referral.RequesterUserID)
+	nqb.AddEqualCondition(constants.ParamProviderID, referral.ProviderUserID)
+	nqb.AddEqualCondition(constants.ParamCompanyID, referral.CompanyID)
+	nqb.AddEqualCondition(constants.ParamJobLink, referral.JobLink)
+	nqb.AddEqualCondition(constants.ParamStatus, referral.Status)
+	namedParams, namedArgs := nqb.BuildNamed()
+
+	updateReferralQuery := fmt.Sprintf(namedUpdateReferralBaseQuery, namedParams)
+	namedArgs[constants.ParamID] = referral.ID
+
+	err := r.dbClient.TxRunner.RunInTxContext(ctx, func(tx *sqlx.Tx) error {
+		return r.dbClient.DBNamedExecInTx(ctx, tx, updateReferralQuery, namedArgs)
+	})
+
+	return err
 }

@@ -56,7 +56,7 @@ func (u userService) RegisterUser(ctx context.Context, userDetails domain.UserPr
 		})
 		if err != nil {
 			log.Info().Err(err).Msg("Failed to add company")
-			return nil, err
+			return nil, errors.ErrUnableInsertCompany
 		}
 	}
 
@@ -68,7 +68,7 @@ func (u userService) RegisterUser(ctx context.Context, userDetails domain.UserPr
 	userDetails.CompanyName = companyDetails.DisplayName
 	user, err = u.registry.UsersRepository.Insert(ctx, userDetails)
 	if err != nil {
-		return nil, err
+		return nil, errors.ErrUnableInsertUser
 	}
 
 	authToken, err := domain.GenerateToken(user.UserID, u.cfg.Auth)
@@ -85,7 +85,7 @@ func (u userService) RegisterUser(ctx context.Context, userDetails domain.UserPr
 func (u userService) RegisterMentor(ctx context.Context, userDetails domain.UserProfile) (*domain.Registration, error) {
 	user, err := u.registry.UsersRepository.FetchUserForParams(ctx, domain.FetchUserParams{UserID: userDetails.UserID})
 	if err != nil {
-		return nil, err
+		return nil, errors.ErrGettingUser
 	}
 
 	if !user.IsApproved() {
@@ -125,7 +125,7 @@ func (u userService) RegisterMentor(ctx context.Context, userDetails domain.User
 func (u userService) UpdateUserDetails(ctx context.Context, params domain.UserProfile) (*domain.EmptyDomain, error) {
 	err := u.registry.UsersRepository.Update(ctx, params)
 	if err != nil {
-		return nil, err
+		return nil, errors.ErrUpdatingUserDetails
 	}
 
 	return &domain.EmptyDomain{}, nil
@@ -134,7 +134,7 @@ func (u userService) UpdateUserDetails(ctx context.Context, params domain.UserPr
 func (u userService) GetProfile(ctx context.Context, params domain.FetchUserParams) (*domain.UserProfile, error) {
 	users, err := u.registry.UsersRepository.FetchUserForParams(ctx, params)
 	if err != nil {
-		return nil, err
+		return nil, errors.ErrUserNotFound
 	}
 
 	return users, nil
@@ -149,7 +149,7 @@ func (u userService) GetUsers(ctx context.Context, params domain.FetchUserParams
 
 	users, err := u.registry.UsersRepository.FetchUsersForParams(ctx, params)
 	if err != nil {
-		return nil, err
+		return nil, errors.ErrUsersNotFound
 	}
 	slices.SortStableFunc(*users, func(i, j domain.UserProfile) int {
 		return cmp.Compare(i.Name, j.Name)
@@ -179,7 +179,7 @@ func (u userService) GetCompanies(ctx context.Context, params domain.FetchCompan
 
 	companies, err := u.registry.CompaniesRepository.FetchCompaniesForParams(ctx, params)
 	if err != nil {
-		return nil, err
+		return nil, errors.ErrGettingCompanies
 	}
 	slices.SortStableFunc(*companies, func(i, j domain.Company) int {
 		return cmp.Compare(i.GetPriority(), j.GetPriority())
@@ -203,7 +203,7 @@ func (u userService) GetCompanies(ctx context.Context, params domain.FetchCompan
 func (u userService) GetCompanyUsers(ctx context.Context, params domain.FetchUserParams) (*domain.CompanyUsersService, error) {
 	companyUsers, err := u.GetUsers(ctx, params)
 	if err != nil {
-		return nil, err
+		return nil, errors.ErrGettingUser
 	}
 
 	userID := apicontext.RequestContextFromContext(ctx).GetUserID()
@@ -213,7 +213,7 @@ func (u userService) GetCompanyUsers(ctx context.Context, params domain.FetchUse
 	}
 	userReferrals, err := u.registry.ReferralsRepository.FetchReferralsForParams(ctx, referralParams)
 	if err != nil {
-		return nil, err
+		return nil, errors.ErrGettingUserReferrals
 	}
 
 	return &domain.CompanyUsersService{

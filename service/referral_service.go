@@ -16,6 +16,7 @@ import (
 
 type ReferralService interface {
 	CreateReferral(ctx context.Context, referral domain.ReferralParams) (*domain.Referral, error)
+	FetchReferrals(ctx context.Context, referral domain.ReferralParams) (*domain.Referrals, error)
 }
 
 type referralService struct {
@@ -56,7 +57,7 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 		Status:          constants.ReferralStatusPending,
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.ErrGettingRequesterReferrals
 	}
 
 	if len(*requesterReferrals) >= r.cfg.Referral.RequesterReferralLimit {
@@ -69,7 +70,7 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 		Status:         constants.ReferralStatusPending,
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.ErrGettingProviderReferrals
 	}
 
 	if len(*providerReferrals) >= r.cfg.Referral.ProviderReferralLimit {
@@ -119,4 +120,8 @@ func storeResumeFile(file multipart.File, resumeDirectory string, userNumber int
 
 	resumeFileName := fmt.Sprintf("resume_user_number_%d_%d.pdf", userNumber, time.Now().Unix())
 	return utils.StoreMultipartFile(file, resumeDirectory, resumeFileName)
+}
+
+func (r referralService) FetchReferrals(ctx context.Context, referral domain.ReferralParams) (*domain.Referrals, error) {
+	return r.registry.ReferralsRepository.FetchReferralsForParams(ctx, referral)
 }
