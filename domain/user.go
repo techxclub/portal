@@ -23,6 +23,9 @@ type UserProfile struct {
 	YearsOfExperience float32       `db:"years_of_experience"`
 	MentorConfig      *MentorConfig `db:"mentor_config"`
 	LinkedIn          string        `db:"linkedin"`
+	GoogleAuthToken     string      `db:"google_auth_token"`
+    GoogleAuthTokenExpiry *time.Time `db:"google_auth_token_expiry"`
+	GoogleRefreshToken    string    `db:"google_refresh_token"`
 }
 
 type FetchUserParams struct {

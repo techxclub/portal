@@ -72,6 +72,7 @@ const (
 	ActionSignUp          = "SIGN_UP"
 	ActionPendingApproval = "PENDING_APPROVAL"
 	ActionLogIn           = "LOG_IN"
+	ActionLogInWithGoogle = "LOG_IN_WITH_GOOGLE"
 
 	//	Referral status
 	ReferralStatusPending = "PENDING"

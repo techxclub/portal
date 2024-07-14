@@ -21,5 +21,6 @@ func NewRegistry(cfg *config.Config, clientRegistry *client.Registry) *Registry 
 		ReferralsRepository: repository.NewReferralsRepository(clientRegistry.DB),
 		OTPBuilder:          NewOTPBuilder(cfg, clientRegistry.OTPMailClient, clientRegistry.OTPCache),
 		ReferralMailBuilder: NewReferralMailBuilder(cfg, clientRegistry.ReferralMailClient),
+		GmailAuthBuilder:    NewGmailAuthBuilder(cfg, clientRegistry.GmailClient),
 	}
 }

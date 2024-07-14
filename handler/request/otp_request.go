@@ -82,5 +82,6 @@ func (r OTPRequest) ToAuthRequest() domain.AuthRequest {
 	if strings.ToUpper(r.Action) == constants.AuthActionVerify {
 		authRequest.OTP = *r.OTP
 	}
+
 	return authRequest
 }

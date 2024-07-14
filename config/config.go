@@ -29,6 +29,9 @@ type Config struct {
 	ResumeDirectory         string `yaml:"RESUME_DIRECTORY" env:"RESUME_DIRECTORY"`
 	CompanyListLimit        int    `yaml:"COMPANY_LIST_LIMIT" env:"COMPANY_LIST_LIMIT"`
 	PopularCompanyListLimit int    `yaml:"POPULAR_COMPANY_LIST_LIMIT" env:"POPULAR_COMPANY_LIST_LIMIT"`
+	GoogleAuthClientID      string `yaml:"GOOGLE_AUTH_CLIENT_ID" env:"GOOGLE_AUTH_CLIENT_ID"`
+	GoogleAuthClientSecret  string `yaml:"GOOGLE_AUTH_CLIENT_SECRET" env:"GOOGLE_AUTH_CLIENT_SECRET"`
+	RedirectURI             string `yaml:"REDIRECT_URI" env:"REDIRECT_URI"`
 }
 
 type Auth struct {

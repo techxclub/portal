@@ -47,6 +47,7 @@ var (
 	ErrUserNotApproved                  = NewServiceError("user_not_approved", 400, nil)
 	ErrUserAlreadyMentor                = NewServiceError("user_already_mentor", 400, nil)
 	ErrRequesterIDRequired              = NewServiceError("requester_id_required", 400, nil)
+	ErrMissingAuthCode                  = NewServiceError("missing_auth_code", 400, nil)
 )
 
 func BadRequestError(err error) ServiceError {

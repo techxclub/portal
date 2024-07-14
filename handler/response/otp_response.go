@@ -41,7 +41,7 @@ func NewVerifyOTPResponse(_ context.Context, authDetails domain.AuthDetails) (Ve
 		return VerifyOTPResponse{Action: action}, HTTPMetadata{}
 	}
 
-	profile := composers.NewUserProfile(*authDetails.UserInfo)
+profile := composers.NewUserProfile(*authDetails.UserInfo)
 	if !authDetails.UserInfo.IsApproved() {
 		return VerifyOTPResponse{
 			Action:  constants.ActionPendingApproval,

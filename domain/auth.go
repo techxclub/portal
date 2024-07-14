@@ -29,6 +29,15 @@ type AuthInfo struct {
 	OTP    *string
 }
 
+type GmailAuthRequest struct {
+	AuthCode  string  `json:"auth_code,omitempty"`
+}
+
+type GmailAuthDetails struct {
+	UserInfo  *UserProfile
+	Status string
+}
+
 // GenerateToken generates a JWT token for a user
 func GenerateToken(subject string, authConfig *config.Auth) (string, error) {
 	now := time.Now()

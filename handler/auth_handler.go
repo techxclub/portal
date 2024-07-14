@@ -40,3 +40,13 @@ func ResendOTPHandler(_ *config.Config, serviceRegistry *service.Registry) http.
 		response.NewGenerateOTPResponse,
 	)
 }
+
+func VerifyGmailAuthHandler(_ *config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
+	return Handler(
+		request.NewVerifyGmailAuthRequest,
+		func(ctx context.Context, req request.GmailAuthRequest) (*domain.AuthDetails, error) {
+		return serviceRegistry.AuthService.VerifyGmailAuth(ctx, req.ToAuthRequest())
+		},
+		response.NewGmailAuthResponse,
+	)
+}

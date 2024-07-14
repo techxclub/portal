@@ -15,6 +15,7 @@ type AuthService interface {
 	GenerateOTP(ctx context.Context, detail domain.AuthRequest) (*domain.AuthDetails, error)
 	ResendOTP(ctx context.Context, detail domain.AuthRequest) (*domain.AuthDetails, error)
 	VerifyOTP(ctx context.Context, detail domain.AuthRequest) (*domain.AuthDetails, error)
+	VerifyGmailAuth(ctx context.Context, detail domain.GmailAuthRequest) (*domain.AuthDetails, error)
 }
 
 type authService struct {
@@ -89,4 +90,8 @@ func (s authService) VerifyOTP(ctx context.Context, otpVerificationDetail domain
 	authDetails.UserInfo = userInfo
 	authDetails.AuthToken = authToken
 	return &authDetails, nil
+}
+
+func (s authService) VerifyGmailAuth(ctx context.Context, gmailAuthDetail domain.GmailAuthRequest) (*domain.GmailAuthDetails, error) {
+	authInfo, err := s.registry.FetchAccessAndIdTokens(ctx, gmailAuthDetail)
 }

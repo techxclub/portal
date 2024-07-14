@@ -52,4 +52,9 @@ func addAuthRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry)
 		Name(constants.APINameResendOTP).
 		Path("/otp/resend").
 		Handler(handler.ResendOTPHandler(cfg, sr))
+	
+	authRouter.
+		Methods(constants.MethodPost).
+		Path("/gmail/verify").
+		Handler(handler.VerifyGmailAuthHandler(cfg, sr))	
 }
