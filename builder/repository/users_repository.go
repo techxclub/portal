@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -157,11 +158,11 @@ func (r usersRepository) FetchUserForParams(ctx context.Context, params domain.F
 
 	var user domain.UserProfile
 	err := r.dbClient.DBGet(ctx, &user, getUserByParamsQuery, args...)
-	if err != nil {
-		return nil, err
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, errors.ErrUserNotFound
 	}
 
-	return &user, nil
+	return &user, err
 }
 
 func (r usersRepository) FetchUsersForParams(ctx context.Context, params domain.FetchUserParams) (*domain.Users, error) {

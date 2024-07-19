@@ -11,6 +11,216 @@
   "err_unhandled_error_message": {
     "other": "We are unable to load your details at this time. Please try again later."
   },
+  "err_invalid_phone_number_title": {
+    "other": "Invalid Phone Number"
+  },
+  "err_invalid_phone_number_message": {
+    "other": "Please enter a valid phone number."
+  },
+  "err_invalid_years_of_experience_title": {
+    "other": "Invalid Years of Experience"
+  },
+  "err_invalid_years_of_experience_message": {
+    "other": "Please enter a valid years of experience."
+  },
+  "err_invalid_work_email_title": {
+    "other": "Invalid Work Email"
+  },
+  "err_invalid_work_email_message": {
+    "other": "Please enter a valid work email."
+  },
+  "err_invalid_personal_email_title": {
+    "other": "Invalid Personal Email"
+  },
+  "err_invalid_personal_email_message": {
+    "other": "Please enter a valid personal email."
+  },
+  "err_invalid_auth_channel_title": {
+    "other": "Invalid Auth Channel"
+  },
+  "err_invalid_auth_channel_message": {
+    "other": "Please enter a valid auth channel."
+  },
+  "err_invalid_sms_service_provider_title": {
+    "other": "Invalid SMS Service Provider"
+  },
+  "err_invalid_sms_service_provider_message": {
+    "other": "Please enter a valid SMS service provider."
+  },
+  "err_invalid_email_service_provider_title": {
+    "other": "Invalid Email Service Provider"
+  },
+  "err_invalid_email_service_provider_message": {
+    "other": "Please enter a valid email service provider."
+  },
+  "err_invalid_update_request_title": {
+    "other": "Invalid Update Request"
+  },
+  "err_invalid_update_request_message": {
+    "other": "Please enter a valid update request."
+  },
+  "err_otp_missing_title": {
+    "other": "OTP Missing"
+  },
+  "err_otp_missing_message": {
+    "other": "Please enter the OTP."
+  },
+  "err_otp_generation_failed_title": {
+    "other": "OTP Generation Failed"
+  },
+  "err_otp_generation_failed_message": {
+    "other": "Failed to generate OTP. Please try again."
+  },
+  "err_company_not_matched_title": {
+    "other": "Company Not Matched"
+  },
+  "err_company_not_matched_message": {
+    "other": "Company not matched with the provided details."
+  },
+  "err_requester_not_found_title": {
+    "other": "Requester Not Found"
+  },
+  "err_requester_not_found_message": {
+    "other": "Requester not found with the provided details."
+  },
+  "err_provider_not_found_title": {
+    "other": "Provider Not Found"
+  },
+  "err_provider_not_found_message": {
+    "other": "Provider not found with the provided details."
+  },
+  "err_invalid_job_link_title": {
+    "other": "Invalid Job Link"
+  },
+  "err_invalid_job_link_message": {
+    "other": "Please enter a valid job link."
+  },
+  "err_invalid_query_params_title": {
+    "other": "Invalid Query Params"
+  },
+  "err_invalid_query_params_message": {
+    "other": "Please enter a valid query params."
+  },
+  "err_name_required_title": {
+    "other": "Name Required"
+  },
+  "err_name_required_message": {
+    "other": "Please enter your name."
+  },
+  "err_company_required_title": {
+    "other": "Company Required"
+  },
+  "err_company_required_message": {
+    "other": "Please enter your company name."
+  },
+  "err_invalid_company_id_title": {
+    "other": "Invalid Company ID"
+  },
+  "err_invalid_company_id_message": {
+    "other": "Please enter a valid company ID."
+  },
+  "err_requester_field_is_empty_title": {
+    "other": "Requester Field is Empty"
+  },
+  "err_requester_field_is_empty_message": {
+    "other": "Requester field is empty."
+  },
+  "err_provider_field_is_empty_title": {
+    "other": "Provider Field is Empty"
+  },
+  "err_provider_field_is_empty_message": {
+    "other": "Provider field is empty."
+  },
+  "err_referral_limit_reached_for_requester_title": {
+    "other": "Referral Limit Reached"
+  },
+  "err_referral_limit_reached_for_requester_message": {
+    "other": "You have reached the referral limit."
+  },
+  "err_referral_limit_reached_for_provider_title": {
+    "other": "Referral Limit Reached"
+  },
+  "err_referral_limit_reached_for_provider_message": {
+    "other": "You have reached the referral limit."
+  },
+  "err_referral_already_exists_title": {
+    "other": "Referral Already Exists"
+  },
+  "err_referral_already_exists_message": {
+    "other": "Referral already exists."
+  },
+  "err_referral_not_found_title": {
+    "other": "Referral Not Found"
+  },
+  "err_referral_not_found_message": {
+    "other": "Referral not found."
+  },
+  "err_search_param_required_title": {
+    "other": "Search Param Required"
+  },
+  "err_search_param_required_message": {
+    "other": "Please enter a search param."
+  },
+  "err_no_data_found_title": {
+    "other": "No Data Found"
+  },
+  "err_no_data_found_message": {
+    "other": "Please enter a valid data."
+  },
+  "err_otp_not_provided_title": {
+    "other": "OTP Not Provided"
+  },
+  "err_otp_not_provided_message": {
+    "other": "Please provide the OTP."
+  },
+  "err_calendaly_link_required_title": {
+    "other": "Calendaly Link Required"
+  },
+  "err_calendaly_link_required_message": {
+    "other": "Please provide a Calendaly link."
+  },
+  "err_tags_required_title": {
+    "other": "Tags Required"
+  },
+  "err_tags_required_message": {
+    "other": "Please provide tags."
+  },
+  "err_tags_limit_exceeded_by_five_title": {
+    "other": "Tags Limit Exceeded"
+  },
+  "err_tags_limit_exceeded_by_five_message": {
+    "other": "Tags limit exceeded by five."
+  },
+  "err_domain_required_title": {
+    "other": "Domain Required"
+  },
+  "err_domain_required_message": {
+    "other": "Please provide a domain."
+  },
+  "err_user_not_approved_title": {
+    "other": "User Not Approved"
+  },
+  "err_user_not_approved_message": {
+    "other": "Please wait for the approval."
+  },
+  "err_user_already_mentor_title": {
+    "other": "User Already Mentor"
+  },
+  "err_user_already_mentor_message": {
+    "other": "User is already a mentor."
+  },
+  "err_user_not_found_title": {
+    "other": "User Not Found"
+  },
+  "err_user_not_found_message": {
+    "other": "Please enter a valid user."
+  },
+  "err_requester_id_required_title": {
+    "other": "Requester ID Required"
+  },
+  "err_requester_id_required_message": {
+    "other": "Please provide a requester ID."
+  },
   "email_otp_mail_subject": {
     "other": "TechX: OTP Verification"
   },

@@ -16,6 +16,8 @@ import (
 
 type ReferralService interface {
 	CreateReferral(ctx context.Context, referral domain.ReferralParams) (*domain.Referral, error)
+	FetchReferrals(ctx context.Context, referral domain.ReferralParams) (*domain.Referrals, error)
+	ExpireReferrals(ctx context.Context, referral *domain.Referral) (*domain.EmptyDomain, error)
 }
 
 type referralService struct {
@@ -99,6 +101,19 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 	}
 	r.registry.ReferralMailBuilder.SendReferralMailAsync(ctx, referralMailParams)
 	return referral, nil
+}
+
+func (r referralService) FetchReferrals(ctx context.Context, referral domain.ReferralParams) (*domain.Referrals, error) {
+	return r.registry.ReferralsRepository.FetchReferralsForParams(ctx, referral)
+}
+
+func (r referralService) ExpireReferrals(ctx context.Context, referral *domain.Referral) (*domain.EmptyDomain, error) {
+	err := r.registry.ReferralsRepository.ExpirePendingReferrals(ctx, referral)
+	if err != nil {
+		return nil, err
+	}
+
+	return &domain.EmptyDomain{}, nil
 }
 
 func referralExists(requesterReferrals domain.Referrals, providerUserID string) bool {

@@ -55,13 +55,9 @@ func (u userService) RegisterUser(ctx context.Context, userDetails domain.UserPr
 			Actor:          constants.ActorUser,
 		})
 		if err != nil {
-			log.Info().Err(err).Msg("Failed to add company")
+			log.Info().Err(err).Msg("Failed to add new company")
 			return nil, err
 		}
-	}
-
-	if companyDetails == nil || companyDetails.ID <= 0 {
-		return nil, errors.ErrCompanyNotFound
 	}
 
 	userDetails.CompanyID = companyDetails.ID
@@ -173,6 +169,7 @@ func (u userService) GetUsers(ctx context.Context, params domain.FetchUserParams
 func (u userService) GetCompanies(ctx context.Context, params domain.FetchCompanyParams) (*domain.Companies, error) {
 	userID := apicontext.RequestContextFromContext(ctx).GetUserID()
 	user, _ := u.registry.UsersRepository.FetchUserForParams(ctx, domain.FetchUserParams{UserID: userID})
+	// ToDo: Update this flow to be used by only approved users
 	if userID != "" && user == nil {
 		return nil, errors.ErrUserNotFound
 	}
@@ -181,6 +178,7 @@ func (u userService) GetCompanies(ctx context.Context, params domain.FetchCompan
 	if err != nil {
 		return nil, err
 	}
+
 	slices.SortStableFunc(*companies, func(i, j domain.Company) int {
 		return cmp.Compare(i.GetPriority(), j.GetPriority())
 	})
