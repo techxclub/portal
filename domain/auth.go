@@ -30,10 +30,10 @@ type AuthInfo struct {
 }
 
 // GenerateToken generates a JWT token for a user
-func GenerateToken(userID string, authConfig *config.Auth) (string, error) {
+func GenerateToken(subject string, authConfig *config.Auth) (string, error) {
 	now := time.Now()
 	expirationTime := now.Add(authConfig.AuthSoftExpiryDuration)
-	encryptedUserID, err := encrypt(userID, authConfig.CipherKey)
+	encryptedSubject, err := encrypt(subject, authConfig.CipherKey)
 	if err != nil {
 		return "", err
 	}
@@ -42,7 +42,7 @@ func GenerateToken(userID string, authConfig *config.Auth) (string, error) {
 		Id:        authConfig.AuthIssuerUUID,
 		Issuer:    authConfig.AuthIssuer,
 		Audience:  authConfig.AuthAudience,
-		Subject:   encryptedUserID,
+		Subject:   encryptedSubject,
 		IssuedAt:  now.Unix(),
 		ExpiresAt: expirationTime.Unix(),
 	}
@@ -52,7 +52,7 @@ func GenerateToken(userID string, authConfig *config.Auth) (string, error) {
 }
 
 // VerifyToken verifies a JWT token and returns the user's phone number
-func VerifyToken(tokenStr, userID string, authConfig *config.Auth) error {
+func VerifyToken(tokenStr, subject string, authConfig *config.Auth) error {
 	claims := &jwt.StandardClaims{}
 	token, err := jwt.ParseWithClaims(tokenStr, claims, func(_ *jwt.Token) (interface{}, error) {
 		return []byte(authConfig.AccessTokenSecret), nil
@@ -81,12 +81,12 @@ func VerifyToken(tokenStr, userID string, authConfig *config.Auth) error {
 		return jwt.NewValidationError("invalid issuer uuid", jwt.ValidationErrorClaimsInvalid)
 	}
 
-	decryptedUserID, err := decrypt(claims.Subject, authConfig.CipherKey)
+	decryptedSubject, err := decrypt(claims.Subject, authConfig.CipherKey)
 	if err != nil {
 		return err
 	}
 
-	if decryptedUserID != userID {
+	if decryptedSubject != subject {
 		return jwt.NewValidationError("user id mismatch", jwt.ValidationErrorClaimsInvalid)
 	}
 

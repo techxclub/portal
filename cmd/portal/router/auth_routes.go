@@ -21,6 +21,7 @@ func addAuthRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry)
 	//		503: ErrorResponse
 	authRouter.
 		Methods(constants.MethodPost).
+		Name(constants.APINameGenerateOTP).
 		Path("/otp/generate").
 		Handler(handler.GenerateOTPHandler(cfg, sr))
 
@@ -34,6 +35,7 @@ func addAuthRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry)
 	//		503: ErrorResponse
 	authRouter.
 		Methods(constants.MethodPost).
+		Name(constants.APINameVerifyOTP).
 		Path("/otp/verify").
 		Handler(handler.VerifyOTPHandler(cfg, sr))
 
@@ -47,6 +49,7 @@ func addAuthRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry)
 	//		503: ErrorResponse
 	authRouter.
 		Methods(constants.MethodPost).
+		Name(constants.APINameResendOTP).
 		Path("/otp/resend").
 		Handler(handler.ResendOTPHandler(cfg, sr))
 }

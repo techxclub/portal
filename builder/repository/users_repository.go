@@ -22,10 +22,10 @@ type UsersRepository interface {
 }
 
 type usersRepository struct {
-	dbClient *db.Repository
+	dbClient db.Client
 }
 
-func NewUsersRepository(userDB *db.Repository) UsersRepository {
+func NewUsersRepository(userDB db.Client) UsersRepository {
 	return &usersRepository{
 		dbClient: userDB,
 	}
@@ -47,7 +47,7 @@ const (
 func (r usersRepository) NextUserIDNum(ctx context.Context) (int64, error) {
 	var userID int64
 
-	err := r.dbClient.TxRunner.RunInTxContext(ctx, func(tx *sqlx.Tx) error {
+	err := r.dbClient.DBRunInTxContext(ctx, func(tx *sqlx.Tx) error {
 		return r.dbClient.DBGetInTx(ctx, tx, &userID, nextUserIDNum)
 	})
 	return userID, err
@@ -63,7 +63,7 @@ func (r usersRepository) Insert(ctx context.Context, details domain.UserProfile)
 	details.MentorConfig = &domain.MentorConfig{Status: constants.MentorStatusNotApproved}
 
 	var returning UsersReturning
-	err = r.dbClient.TxRunner.RunInTxContext(ctx, func(tx *sqlx.Tx) error {
+	err = r.dbClient.DBRunInTxContext(ctx, func(tx *sqlx.Tx) error {
 		now := time.Now()
 		return r.dbClient.DBNamedExecReturningInTx(ctx, tx, &returning, interUserQuery, map[string]interface{}{
 			constants.ParamUserIDNum:         details.UserIDNum,
@@ -107,7 +107,7 @@ func (r usersRepository) Update(ctx context.Context, details domain.UserProfile)
 	namedArgs[constants.ParamUserID] = details.UserID
 	namedArgs[constants.ParamUserIDNum] = details.UserIDNum
 
-	err := r.dbClient.TxRunner.RunInTxContext(ctx, func(tx *sqlx.Tx) error {
+	err := r.dbClient.DBRunInTxContext(ctx, func(tx *sqlx.Tx) error {
 		return r.dbClient.DBNamedExecInTx(ctx, tx, updateCompanyQuery, namedArgs)
 	})
 
@@ -131,7 +131,7 @@ func (r usersRepository) BulkUpdate(ctx context.Context, from, to domain.UserPro
 	namedArgs := utils.MergeMaps(setNamedArgs, whereNamedArgs)
 	updateCompanyQuery := namedUpdateUserBaseQuery + setParams + ` WHERE ` + whereCondition
 
-	err := r.dbClient.TxRunner.RunInTxContext(ctx, func(tx *sqlx.Tx) error {
+	err := r.dbClient.DBRunInTxContext(ctx, func(tx *sqlx.Tx) error {
 		return r.dbClient.DBNamedExecInTx(ctx, tx, updateCompanyQuery, namedArgs)
 	})
 
@@ -177,9 +177,8 @@ func (r usersRepository) FetchUsersForParams(ctx context.Context, params domain.
 	qb.AddEqualCondition(constants.ParamCompanyName, params.CompanyName)
 	qb.AddEqualCondition(constants.ParamRole, params.Role)
 	qb.AddGreaterEqualCondition(constants.ParamCreatedTime, params.CreatedAt)
-	if params.MentorConfig != nil {
-		qb.AddEqualConditionForJSONB(constants.ParamMentorConfigStatus, constants.ParamMentorConfig, params.MentorConfig.Status)
-	}
+	qb.AddEqualConditionForJSONB(constants.ParamMentorConfigStatus, constants.ParamMentorConfig, params.MentorConfig.Status)
+
 	conditions, args := qb.Build()
 	if conditions == "" {
 		return nil, errors.ErrSearchParamRequired

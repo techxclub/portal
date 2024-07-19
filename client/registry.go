@@ -7,13 +7,14 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/techx/portal/client/cache"
 	"github.com/techx/portal/client/db"
+	"github.com/techx/portal/client/ratelimiter"
 	"github.com/techx/portal/config"
-	"github.com/techx/portal/constants"
 	"gopkg.in/gomail.v2"
 )
 
 type Registry struct {
-	DB                 *db.Repository
+	DB                 db.Client
+	RateLimiter        ratelimiter.RateLimiter
 	ReferralMailClient *gomail.Dialer
 	OTPMailClient      *gomail.Dialer
 	OTPCache           cache.Cache[cache.OTPCache]
@@ -21,20 +22,22 @@ type Registry struct {
 
 func NewRegistry(cfg *config.Config) *Registry {
 	redisClient := newRedisClient(cfg.Redis)
+	dbClient := db.NewPostgresDBClient(cfg)
+	rateLimiter := ratelimiter.NewRateLimiter(redisClient)
 	otpCache := cache.NewOTPCache(redisClient, cfg.Redis)
-	dbClient := db.NewRepository(cfg, constants.TableNameUsers)
 	referralMailClient := newGmailClient(cfg.ReferralMail)
 	otpMailClient := newGmailClient(cfg.OTPMail)
 
 	return &Registry{
 		DB:                 dbClient,
+		RateLimiter:        rateLimiter,
 		ReferralMailClient: referralMailClient,
 		OTPMailClient:      otpMailClient,
 		OTPCache:           otpCache,
 	}
 }
 
-func newRedisClient(redisCfg config.Redis) redis.Cmdable {
+func newRedisClient(redisCfg config.Redis) *redis.Client {
 	client := redis.NewClient(&redis.Options{
 		Addr:               redisCfg.GetAddress(),
 		PoolSize:           redisCfg.GetPoolSize(),

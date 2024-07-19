@@ -133,6 +133,7 @@ func startAPIServer(ctx *cli.Context) error {
 
 	r.Use(middleware.RecoverMiddleware())
 	r.Use(middleware.RequestContext())
+	r.Use(middleware.RateLimiter(applicationContext.Config, clientRegistry.RateLimiter))
 
 	// Start API Server
 	server := NewHTTPAPIServer(applicationContext.Config.API, r)

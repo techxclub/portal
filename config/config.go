@@ -16,9 +16,11 @@ type Config struct {
 	Swagger     Swagger       `yaml:"SWAGGER" env:",prefix=SWAGGER_"`
 	Translation Translation   `yaml:"TRANSLATION" env:",prefix=TRANSLATION_"`
 
-	DB           DB       `yaml:"DB" env:",prefix=DB_"`
-	Redis        Redis    `yaml:"REDIS" env:",prefix=REDIS_"`
-	Log          Log      `yaml:"LOG" env:",prefix=LOG_"`
+	DB        DB        `yaml:"DB" env:",prefix=DB_"`
+	Redis     Redis     `yaml:"REDIS" env:",prefix=REDIS_"`
+	Log       Log       `yaml:"LOG" env:",prefix=LOG_"`
+	RateLimit RateLimit `yaml:"RATE_LIMIT" env:",prefix=RATE_LIMIT_"`
+
 	OTP          OTP      `yaml:"OTP" env:",prefix=OTP_"`
 	ReferralMail MailSMTP `yaml:"REFERRAL_MAIL" env:",prefix=REFERRAL_MAIL_"`
 	OTPMail      MailSMTP `yaml:"OTP_MAIL" env:",prefix=OTP_MAIL_"`
@@ -30,7 +32,7 @@ type Config struct {
 }
 
 type Auth struct {
-	DebugMode              bool          `yaml:"DEBUG_MODE" env:"DEBUG_MODE"`
+	Enabled                bool          `yaml:"ENABLED" env:"ENABLED"`
 	CipherKey              string        `yaml:"CIPHER_KEY" env:"CIPHER_KEY"`
 	AuthIssuer             string        `yaml:"AUTH_ISSUER" env:"AUTH_ISSUER"`
 	AuthIssuerUUID         string        `yaml:"AUTH_ISSUER_UUID" env:"AUTH_ISSUER_UUID"`
@@ -102,7 +104,7 @@ func (cfg *Config) SetDefaults() {
 	}
 
 	cfg.Auth = &Auth{
-		DebugMode:              false,
+		Enabled:                false,
 		CipherKey:              "6c13b7338aa24366181369dbc6540f28",
 		AuthIssuer:             "portal",
 		AuthIssuerUUID:         "portal-uuid",
@@ -128,38 +130,9 @@ func (cfg *Config) SetDefaults() {
 		DefaultLanguage: "en",
 	}
 
-	cfg.DB = DB{
-		Name:                  "portal_local",
-		Host:                  "localhost",
-		Port:                  5432,
-		User:                  "postgres",
-		Password:              "",
-		SSLMode:               "disable",
-		MaxPoolSize:           10,
-		MaxIdleConnections:    5,
-		ConnMaxIdleTime:       5 * time.Minute,
-		ConnMaxLifeTime:       30 * time.Minute,
-		ConnMaxLifeTimeJitter: 5 * time.Minute,
-	}
-
-	cfg.Redis = Redis{
-		Host:               "localhost",
-		Port:               6379,
-		PoolSize:           30,
-		MinIdleConnections: 10,
-		DialTimeout:        1000 * time.Millisecond,
-		PoolTimeout:        1000 * time.Millisecond,
-		ReadTimeout:        1000 * time.Millisecond,
-		WriteTimeout:       1000 * time.Millisecond,
-		IdleTimeout:        30 * time.Minute,
-		IdleCheckFrequency: 5 * time.Minute,
-
-		HystrixTimeout:         1000,
-		MaxConcurrentRequests:  100,
-		RequestVolumeThreshold: 100,
-		SleepWindow:            100,
-		ErrorPercentThreshold:  10,
-	}
+	cfg.DB = defaultDBConfig()
+	cfg.Redis = defaultRedisConfig()
+	cfg.RateLimit = defaultRateLimit()
 
 	cfg.Log = Log{
 		Level:  "info",

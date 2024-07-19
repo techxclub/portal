@@ -28,7 +28,6 @@ func LoadConfig(path string, cfg interface{}) error {
 
 	// then the environment variables override any set values
 	ctx := context.Background()
-
 	return envconfig.Load(ctx, cfg)
 }
 

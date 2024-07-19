@@ -20,6 +20,22 @@ type DB struct {
 	ConnMaxLifeTimeJitter time.Duration `yaml:"CONNECTION_MAX_LIFE_TIME_JITTER" env:"CONNECTION_MAX_LIFE_TIME_JITTER"`
 }
 
+func defaultDBConfig() DB {
+	return DB{
+		Name:                  "portal_local",
+		Host:                  "localhost",
+		Port:                  5432,
+		User:                  "postgres",
+		Password:              "",
+		SSLMode:               "disable",
+		MaxPoolSize:           10,
+		MaxIdleConnections:    5,
+		ConnMaxIdleTime:       5 * time.Minute,
+		ConnMaxLifeTime:       30 * time.Minute,
+		ConnMaxLifeTimeJitter: 5 * time.Minute,
+	}
+}
+
 func (c *DB) GetConnectionString() string {
 	return fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s", c.User, c.Password, c.Host, c.Port, c.Name, c.SSLMode)
 }

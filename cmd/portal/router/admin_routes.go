@@ -20,6 +20,7 @@ func addAdminRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry
 	//		500: ErrorResponse
 	adminRouter.
 		Methods(constants.MethodGet).
+		Name(constants.APINameAdminUserList).
 		Path("/user/list").
 		Handler(handler.AdminUserListHandler(cfg, sr))
 
@@ -30,6 +31,7 @@ func addAdminRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry
 	//		500: ErrorResponse
 	adminRouter.
 		Methods(constants.MethodPut).
+		Name(constants.APINameAdminUserUpdate).
 		Path("/user/update").
 		Handler(handler.AdminUserUpdateHandler(cfg, sr))
 
@@ -40,6 +42,7 @@ func addAdminRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry
 	//		500: ErrorResponse
 	adminRouter.
 		Methods(constants.MethodGet).
+		Name(constants.APINameAdminCompanyList).
 		Path("/company/list").
 		Handler(handler.AdminCompanyListHandler(cfg, sr))
 
@@ -50,6 +53,7 @@ func addAdminRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry
 	//		500: ErrorResponse
 	adminRouter.
 		Methods(constants.MethodPut).
+		Name(constants.APINameAdminCompanyUpdate).
 		Path("/company/update").
 		Handler(handler.AdminCompanyUpdateHandler(cfg, sr))
 }

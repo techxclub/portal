@@ -30,10 +30,10 @@ type CompaniesReturning struct {
 }
 
 type companiesRepository struct {
-	dbClient *db.Repository
+	dbClient db.Client
 }
 
-func NewCompaniesRepository(userDB *db.Repository) CompaniesRepository {
+func NewCompaniesRepository(userDB db.Client) CompaniesRepository {
 	return &companiesRepository{
 		dbClient: userDB,
 	}
@@ -41,7 +41,7 @@ func NewCompaniesRepository(userDB *db.Repository) CompaniesRepository {
 
 func (r companiesRepository) InsertCompany(ctx context.Context, details domain.Company) (*domain.Company, error) {
 	var returning CompaniesReturning
-	err := r.dbClient.TxRunner.RunInTxContext(ctx, func(tx *sqlx.Tx) error {
+	err := r.dbClient.DBRunInTxContext(ctx, func(tx *sqlx.Tx) error {
 		return r.dbClient.DBNamedExecReturningInTx(ctx, tx, &returning, insertCompanyQuery, map[string]interface{}{
 			constants.ParamNormalizedName:  details.NormalizedName,
 			constants.ParamDisplayName:     details.DisplayName,
@@ -91,7 +91,7 @@ func (r companiesRepository) UpdateCompany(ctx context.Context, details *domain.
 	updateCompanyQuery := fmt.Sprintf(namedUpdateCompanyBaseQuery, namedParams)
 	namedArgs[constants.ParamID] = details.ID
 
-	err := r.dbClient.TxRunner.RunInTxContext(ctx, func(tx *sqlx.Tx) error {
+	err := r.dbClient.DBRunInTxContext(ctx, func(tx *sqlx.Tx) error {
 		return r.dbClient.DBNamedExecInTx(ctx, tx, updateCompanyQuery, namedArgs)
 	})
 

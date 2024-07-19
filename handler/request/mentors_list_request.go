@@ -23,7 +23,7 @@ func (r MentorsListRequest) Validate() error {
 
 func (r MentorsListRequest) ToMentorProfileParams() domain.FetchUserParams {
 	return domain.FetchUserParams{
-		MentorConfig: &domain.MentorConfig{
+		MentorConfig: domain.MentorConfig{
 			Status: r.Status,
 		},
 	}
