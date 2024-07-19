@@ -17,6 +17,7 @@ import (
 type ReferralService interface {
 	CreateReferral(ctx context.Context, referral domain.ReferralParams) (*domain.Referral, error)
 	FetchReferrals(ctx context.Context, referral domain.ReferralParams) (*domain.Referrals, error)
+	ExpireReferrals(ctx context.Context, referral *domain.Referral) (*domain.EmptyDomain, error)
 }
 
 type referralService struct {
@@ -57,7 +58,7 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 		Status:          constants.ReferralStatusPending,
 	})
 	if err != nil {
-		return nil, errors.ErrGettingRequesterReferrals
+		return nil, err
 	}
 
 	if len(*requesterReferrals) >= r.cfg.Referral.RequesterReferralLimit {
@@ -70,7 +71,7 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 		Status:         constants.ReferralStatusPending,
 	})
 	if err != nil {
-		return nil, errors.ErrGettingProviderReferrals
+		return nil, err
 	}
 
 	if len(*providerReferrals) >= r.cfg.Referral.ProviderReferralLimit {
@@ -102,6 +103,19 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 	return referral, nil
 }
 
+func (r referralService) FetchReferrals(ctx context.Context, referral domain.ReferralParams) (*domain.Referrals, error) {
+	return r.registry.ReferralsRepository.FetchReferralsForParams(ctx, referral)
+}
+
+func (r referralService) ExpireReferrals(ctx context.Context, referral *domain.Referral) (*domain.EmptyDomain, error) {
+	err := r.registry.ReferralsRepository.ExpirePendingReferrals(ctx, referral)
+	if err != nil {
+		return nil, err
+	}
+
+	return &domain.EmptyDomain{}, nil
+}
+
 func referralExists(requesterReferrals domain.Referrals, providerUserID string) bool {
 	for _, r := range requesterReferrals {
 		if r.ProviderUserID == providerUserID {
@@ -120,8 +134,4 @@ func storeResumeFile(file multipart.File, resumeDirectory string, userNumber int
 
 	resumeFileName := fmt.Sprintf("resume_user_number_%d_%d.pdf", userNumber, time.Now().Unix())
 	return utils.StoreMultipartFile(file, resumeDirectory, resumeFileName)
-}
-
-func (r referralService) FetchReferrals(ctx context.Context, referral domain.ReferralParams) (*domain.Referrals, error) {
-	return r.registry.ReferralsRepository.FetchReferralsForParams(ctx, referral)
 }

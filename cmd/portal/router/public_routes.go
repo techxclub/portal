@@ -27,9 +27,9 @@ func addPublicRoutes(router *mux.Router, cfg *config.Config, sr *service.Registr
 		Path("/user/register").
 		Handler(handler.RegisterUserV1Handler(cfg, sr))
 
-	//	swagger:route POST /public/mentor/register public registerUserV1
+	//	swagger:route POST /public/mentor/register public registerMentor
 	//	Responses:
-	//		200: RegisterUserV1Response
+	//		200: RegisterMentorResponse
 	//		401:
 	// 		400: ErrorResponse
 	//		422: ErrorResponse
@@ -43,7 +43,7 @@ func addPublicRoutes(router *mux.Router, cfg *config.Config, sr *service.Registr
 
 	//	swagger:route GET /public/user/profile public userProfile
 	//	Responses:
-	//		200: UserProfile
+	//		200: UserProfileResponse
 	//		401:
 	// 		400: ErrorResponse
 	//		422: ErrorResponse
@@ -83,9 +83,9 @@ func addPublicRoutes(router *mux.Router, cfg *config.Config, sr *service.Registr
 		Path("/company/users/list").
 		Handler(handler.CompanyUsersListHandler(cfg, sr))
 
-	//	swagger:route GET /public/mentors/list public companyUsersList
+	//	swagger:route GET /public/mentors/list public mentorsList
 	//	Responses:
-	//		200: CompanyUsersListResponse
+	//		200: mentorsListResponse
 	//		401:
 	// 		400: ErrorResponse
 	//		422: ErrorResponse
@@ -96,6 +96,20 @@ func addPublicRoutes(router *mux.Router, cfg *config.Config, sr *service.Registr
 		Name(constants.APINameMentorList).
 		Path("/mentors/list").
 		Handler(handler.MentorsListHandler(cfg, sr))
+
+	//	swagger:route GET /public/referral/list public referralList
+	//	Responses:
+	//		200: referralListResponse
+	//		401:
+	// 		400: ErrorResponse
+	//		422: ErrorResponse
+	//		500: ErrorResponse
+	//		503: ErrorResponse
+	publicRouter.
+		Methods(constants.MethodGet).
+		Name(constants.APINameReferralList).
+		Path("/referral/list").
+		Handler(handler.ReferralListHandler(cfg, sr))
 
 	//	swagger:route Post /public/user/referral/request public referralRequest
 	//	Responses:
@@ -110,4 +124,18 @@ func addPublicRoutes(router *mux.Router, cfg *config.Config, sr *service.Registr
 		Name(constants.APINameReferralRequest).
 		Path("/user/referral/request").
 		Handler(handler.ReferralHandler(cfg, sr))
+
+	//	swagger:route PUT /public/referral/update public referralUpdateRequest
+	//	Responses:
+	//		200: ReferralUpdateResponse
+	//		401:
+	// 		400: ErrorResponse
+	//		422: ErrorResponse
+	//		500: ErrorResponse
+	//		503: ErrorResponse
+	publicRouter.
+		Methods(constants.MethodPut).
+		Name(constants.APINameReferralUpdate).
+		Path("/referral/update").
+		Handler(handler.ReferralUpdateHandler(cfg, sr))
 }

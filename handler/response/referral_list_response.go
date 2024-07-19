@@ -7,12 +7,12 @@ import (
 	"github.com/techx/portal/handler/composers"
 )
 
-type AdminUserReferralListResponse struct {
+type ReferralListResponse struct {
 	Referrals []composers.Referral `json:"referrals"`
 }
 
-func NewAdminUserReferralListResponse(ctx context.Context, referrals domain.Referrals) (AdminUserReferralListResponse, HTTPMetadata) {
-	return AdminUserReferralListResponse{
+func NewReferralListResponse(ctx context.Context, referrals domain.Referrals) (ReferralListResponse, HTTPMetadata) {
+	return ReferralListResponse{
 		Referrals: composers.ReferralListResponse(ctx, referrals),
 	}, HTTPMetadata{}
 }

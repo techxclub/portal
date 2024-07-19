@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -56,7 +57,7 @@ func (r usersRepository) NextUserIDNum(ctx context.Context) (int64, error) {
 func (r usersRepository) Insert(ctx context.Context, details domain.UserProfile) (*domain.UserProfile, error) {
 	userIDNum, err := r.NextUserIDNum(ctx)
 	if err != nil {
-		return nil, errors.ErrGettingUserID
+		return nil, err
 	}
 
 	details.UserIDNum = userIDNum
@@ -82,7 +83,7 @@ func (r usersRepository) Insert(ctx context.Context, details domain.UserProfile)
 		})
 	})
 	if err != nil {
-		return nil, errors.ErrUnableInsertUser
+		return nil, err
 	}
 
 	details.UserID = returning.UserID
@@ -157,11 +158,11 @@ func (r usersRepository) FetchUserForParams(ctx context.Context, params domain.F
 
 	var user domain.UserProfile
 	err := r.dbClient.DBGet(ctx, &user, getUserByParamsQuery, args...)
-	if err != nil {
-		return nil, errors.ErrGettingUser
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, errors.ErrUserNotFound
 	}
 
-	return &user, nil
+	return &user, err
 }
 
 func (r usersRepository) FetchUsersForParams(ctx context.Context, params domain.FetchUserParams) (*domain.Users, error) {

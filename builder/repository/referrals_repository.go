@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -23,6 +24,7 @@ type ReferralsRepository interface {
 	InsertReferral(ctx context.Context, referral domain.ReferralParams) (*domain.Referral, error)
 	FetchReferralsForParams(ctx context.Context, params domain.ReferralParams) (*domain.Referrals, error)
 	UpdateReferral(ctx context.Context, referral *domain.Referral) error
+	ExpirePendingReferrals(ctx context.Context, referral *domain.Referral) error
 }
 
 type referralsRepository struct {
@@ -87,12 +89,12 @@ func (r referralsRepository) FetchReferralsForParams(ctx context.Context, params
 	var referrals []domain.Referral
 	getReferralsByParamsQuery := selectReferralBaseQuery + conditions
 	err := r.dbClient.DBSelect(ctx, &referrals, getReferralsByParamsQuery, args...)
-	if err != nil {
-		return nil, errors.ErrGettingUserReferrals
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, errors.ErrReferralNotFound
 	}
 
 	result := domain.Referrals(referrals)
-	return &result, nil
+	return &result, err
 }
 
 func (r referralsRepository) UpdateReferral(ctx context.Context, referral *domain.Referral) error {
@@ -108,9 +110,14 @@ func (r referralsRepository) UpdateReferral(ctx context.Context, referral *domai
 	updateReferralQuery := fmt.Sprintf(namedUpdateReferralBaseQuery, namedParams)
 	namedArgs[constants.ParamID] = referral.ID
 
-	err := r.dbClient.TxRunner.RunInTxContext(ctx, func(tx *sqlx.Tx) error {
+	return r.dbClient.DBRunInTxContext(ctx, func(tx *sqlx.Tx) error {
 		return r.dbClient.DBNamedExecInTx(ctx, tx, updateReferralQuery, namedArgs)
 	})
+}
 
-	return err
+func (r referralsRepository) ExpirePendingReferrals(ctx context.Context, _ *domain.Referral) error {
+	expirePendingReferralsQuery := `UPDATE referrals SET status='EXPIRED' WHERE status='PENDING' AND created_time <= NOW() - INTERVAL '7 days'`
+	return r.dbClient.DBRunInTxContext(ctx, func(tx *sqlx.Tx) error {
+		return r.dbClient.DBExecInTx(ctx, tx, expirePendingReferralsQuery)
+	})
 }

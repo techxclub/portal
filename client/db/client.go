@@ -11,8 +11,6 @@ import (
 	"github.com/techx/portal/errors"
 )
 
-var ErrZeroRowsAffected = errors.New("no rows affected")
-
 type Client interface {
 	DBGet(ctx context.Context, dest interface{}, query string, args ...interface{}) error
 	DBGetInTx(ctx context.Context, tx *sqlx.Tx, dest interface{}, query string, args ...interface{}) error
@@ -90,7 +88,7 @@ func (r *dbClient) DBExecInTx(ctx context.Context, tx *sqlx.Tx, query string, ar
 	}
 	rowsAffected, err := res.RowsAffected()
 	if rowsAffected == int64(0) {
-		return ErrZeroRowsAffected
+		return errors.ErrZeroRowsAffected
 	}
 	return err
 }
@@ -131,7 +129,7 @@ func (r *dbClient) DBNamedExecInTx(ctx context.Context, tx *sqlx.Tx, query strin
 
 	rowsAffected, err := res.RowsAffected()
 	if rowsAffected == int64(0) {
-		return ErrZeroRowsAffected
+		return errors.ErrZeroRowsAffected
 	}
 
 	return err

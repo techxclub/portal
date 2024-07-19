@@ -46,13 +46,14 @@ func addAdminRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry
 		Path("/company/list").
 		Handler(handler.AdminCompanyListHandler(cfg, sr))
 
-	//	swagger:route GET /admin/referral/list admin getUserReferralList
+	//	swagger:route GET /admin/referral/list admin getAdminReferralList
 	//	Responses:
-	//		200: AdminUserReferralListResponse
+	//		200: AdminReferralListResponse
 	// 		400: ErrorResponse
 	//		500: ErrorResponse
 	adminRouter.
 		Methods(constants.MethodGet).
+		Name(constants.APINameAdminReferralList).
 		Path("/referral/list").
 		Handler(handler.AdminUserReferralListHandler(cfg, sr))
 
@@ -74,6 +75,18 @@ func addAdminRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry
 	//		500: ErrorResponse
 	adminRouter.
 		Methods(constants.MethodPut).
+		Name(constants.APINameAdminReferralUpdate).
 		Path("/referral/update").
 		Handler(handler.AdminReferralUpdateHandler(cfg, sr))
+
+	// swagger:route PUT /admin/referral/expire admin expireReferral
+	// Responses:
+	// 	200: SuccessResponse
+	// 	400: ErrorResponse
+	// 	500: ErrorResponse
+	adminRouter.
+		Methods(constants.MethodPut).
+		Name(constants.APINameAdminReferralExpire).
+		Path("/referral/expire").
+		Handler(handler.AdminExpireReferralHandler(cfg, sr))
 }

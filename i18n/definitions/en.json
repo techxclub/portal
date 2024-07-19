@@ -161,23 +161,11 @@
   "err_search_param_required_message": {
     "other": "Please enter a search param."
   },
-  "err_company_not_found_title": {
-    "other": "Company Not Found"
-  },
-  "err_company_not_found_message": {
-    "other": "Please enter a valid company name."
-  },
   "err_no_data_found_title": {
     "other": "No Data Found"
   },
   "err_no_data_found_message": {
     "other": "Please enter a valid data."
-  },
-  "err_error_saving_resume_file_title": {
-    "other": "Error Saving Resume File"
-  },
-  "err_error_saving_resume_file_message": {
-    "other": "Error saving resume file."
   },
   "err_otp_not_provided_title": {
     "other": "OTP Not Provided"
@@ -185,35 +173,11 @@
   "err_otp_not_provided_message": {
     "other": "Please provide the OTP."
   },
-  "err_value_cannot_be_empty_title": {
-    "other": "Value Cannot Be Empty"
-  },
-  "err_value_cannot_be_empty_message": {
-    "other": "Please provide a value."
-  },
-  "err_key_cannot_be_empty_title": {
-    "other": "Key Cannot Be Empty"
-  },
-  "err_key_cannot_be_empty_message": {
-    "other": "Please provide a key."
-  },
-  "err_key_not_found_title": {
-    "other": "Key Not Found"
-  },
-  "err_key_not_found_message": {
-    "other": "Provided key not found."
-  },
   "err_calendaly_link_required_title": {
     "other": "Calendaly Link Required"
   },
   "err_calendaly_link_required_message": {
     "other": "Please provide a Calendaly link."
-  },
-  "err_description_required_title": {
-    "other": "Description Required"
-  },
-  "err_description_required_message": {
-    "other": "Please provide a description."
   },
   "err_tags_required_title": {
     "other": "Tags Required"
@@ -251,77 +215,11 @@
   "err_user_not_found_message": {
     "other": "Please enter a valid user."
   },
-  "err_unable_insert_user_title": {
-    "other": "Problem Inserting User"
+  "err_requester_id_required_title": {
+    "other": "Requester ID Required"
   },
-  "err_unable_insert_user_message": {
-    "other": "Problem inserting user."
-  },
-  "err_unable_insert_company_title": {
-    "other": "Company Insertion Failed"
-  },
-  "err_unable_insert_company_message": {
-    "other": "Problem inserting company."
-  },
-  "err_getting_company_title": {
-    "other": "Problem Getting Company"
-  },
-  "err_getting_company_message": {
-    "other": "Unable to get company details."
-  },
-  "err_users_not_found_title": {
-    "other": "Users Not Found"
-  },
-  "err_users_not_found_message": {
-    "other": "No users found."
-  },
-  "err_error_getting_user_title": {
-    "other": "Error Getting User"
-  },
-  "err_error_getting_user_message": {
-    "other": "Unable to get user details."
-  },
-  "err_error_getting_user_referrals_title": {
-    "other": "Error Getting User Referrals"
-  },
-  "err_error_getting_user_referrals_message": {
-    "other": "Unable to get user referrals."
-  },
-  "err_error_getting_requester_referrals_title": {
-    "other": "Error Getting Requester Referrals"
-  },
-  "err_error_getting_requester_referrals_message": {
-    "other": "Unable to get requester referrals."
-  },
-  "err_error_getting_provider_referrals_title": {
-    "other": "Error Getting Provider Referrals"
-  },
-  "err_error_getting_provider_referrals_message": {
-    "other": "Unable to get provider referrals."
-  },
-  "err_error_updating_user_details_title": {
-    "other": "Error Updating User Details"
-  },
-  "err_error_updating_user_details_message": {
-    "other": "Unable to update user details."
-  },
-  "err_error_getting_companies_title": {
-    "other": "Error Getting Companies"
-  },
-  "err_error_getting_companies_message": {
-    "other": "Unable to get companies."
-  },
-  "er_error_updating_referral_details_title": {
-    "other": "Error Updating Referral Details"
-  },
-  "er_error_updating_referral_details_message": {
-    "other": "Unable to update referral details."
-  },
-  "error_updating_company_details_title": {
-    "other": "Error Updating Company Details"
-  },
-  "error_updating_company_details_message": {
-    "other": "Unable to update company details."
+  "err_requester_id_required_message": {
+    "other": "Please provide a requester ID."
   },
   "email_otp_mail_subject": {
     "other": "TechX: OTP Verification"
