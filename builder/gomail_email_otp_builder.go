@@ -5,8 +5,8 @@ import (
 	"crypto/rand"
 	"math/big"
 	"strconv"
-	"time"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/rs/zerolog/log"
 	"github.com/techx/portal/client/cache"
 	"github.com/techx/portal/constants"
@@ -23,7 +23,7 @@ const (
 	i18nKeyEmailOTPMailBody    = "email_otp_mail_body"
 )
 
-func (mb messageBuilder) sendEmailOTPViaGomail(ctx context.Context, params domain.AuthRequest) (domain.AuthInfo, error) {
+func (mb messageBuilder) sendEmailOTPViaGomail(ctx context.Context, params domain.OTPRequest) (domain.AuthInfo, error) {
 	otp := generateOTP()
 
 	err := mb.sendMail(ctx, otp, params.Value)
@@ -33,11 +33,9 @@ func (mb messageBuilder) sendEmailOTPViaGomail(ctx context.Context, params domai
 	}
 
 	ttl := mb.cfg.OTP.TTL
-	expiry := time.Now().Add(ttl)
 	otpCacheValue := &cache.OTPCache{
-		OTP:        otp,
-		ExpiryTime: expiry,
-		Attempts:   0,
+		OTP:      otp,
+		Attempts: 0,
 	}
 	err = mb.otpCache.Set(ctx, params.Value, otpCacheValue, ttl)
 	if err != nil {
@@ -46,16 +44,13 @@ func (mb messageBuilder) sendEmailOTPViaGomail(ctx context.Context, params domai
 	}
 
 	return domain.AuthInfo{
-		OTP:    &otp,
-		Status: constants.AuthStatusPending,
+		Status: constants.OTPStatusPending,
 	}, nil
 }
 
-func (mb messageBuilder) verifyEmailOTPViaGomail(ctx context.Context, params domain.AuthRequest) (domain.AuthInfo, error) {
+func (mb messageBuilder) verifyEmailOTPViaGomail(ctx context.Context, params domain.OTPRequest) (domain.AuthInfo, error) {
 	if params.OTP == "" {
-		return domain.AuthInfo{
-			Status: constants.AuthStatusFailed,
-		}, errors.ErrOtpNotProvided
+		return domain.AuthInfo{}, errors.ErrMissingOTP
 	}
 
 	otpCacheValue, err := mb.otpCache.Get(ctx, params.Value)
@@ -65,26 +60,18 @@ func (mb messageBuilder) verifyEmailOTPViaGomail(ctx context.Context, params dom
 	}
 
 	if otpCacheValue.OTP != params.OTP {
-		go func() {
-			mb.updateOTPAttempts(ctx, params.Value, otpCacheValue)
-		}()
-
-		return domain.AuthInfo{
-			Status: constants.AuthStatusFailed,
-		}, nil
+		mb.updateOTPAttempts(ctx, params.Value, otpCacheValue)
+		return domain.AuthInfo{Status: constants.OTPStatusFailed}, nil
 	}
 
-	err = mb.otpCache.Del(ctx, params.Value)
-	if err != nil {
-		log.Error().Err(err).Msgf("Failed to delete otpCacheValue from cache")
+	if err := mb.updateVerifiedOTP(ctx, params.Value, otpCacheValue); err != nil {
+		return domain.AuthInfo{}, err
 	}
 
-	return domain.AuthInfo{
-		Status: constants.AuthStatusVerified,
-	}, nil
+	return domain.AuthInfo{Status: constants.OTPStatusVerified}, nil
 }
 
-func (mb messageBuilder) resendEmailOTPViaGomail(ctx context.Context, params domain.AuthRequest) (domain.AuthInfo, error) {
+func (mb messageBuilder) resendEmailOTPViaGomail(ctx context.Context, params domain.OTPRequest) (domain.AuthInfo, error) {
 	otpCacheValue, err := mb.otpCache.Get(ctx, params.Value)
 	if err != nil {
 		log.Error().Err(err).Msgf("Existing OTP not found in cache, sending new otp")
@@ -98,8 +85,7 @@ func (mb messageBuilder) resendEmailOTPViaGomail(ctx context.Context, params dom
 	}
 
 	return domain.AuthInfo{
-		OTP:    &otpCacheValue.OTP,
-		Status: constants.AuthStatusPending,
+		Status: constants.OTPStatusPending,
 	}, nil
 }
 
@@ -132,10 +118,20 @@ func (mb messageBuilder) sendMail(ctx context.Context, otp, email string) error 
 
 func (mb messageBuilder) updateOTPAttempts(ctx context.Context, email string, otpCacheValue *cache.OTPCache) {
 	otpCacheValue.Attempts++
-	err := mb.otpCache.Set(ctx, email, otpCacheValue, mb.cfg.OTP.TTL)
+	err := mb.otpCache.Set(ctx, email, otpCacheValue, redis.KeepTTL)
 	if err != nil {
 		log.Error().Err(err).Msgf("Failed to update attempts in cache")
 	}
+}
+
+func (mb messageBuilder) updateVerifiedOTP(ctx context.Context, email string, otpCacheValue *cache.OTPCache) error {
+	otpCacheValue.Attempts++
+	err := mb.otpCache.Set(ctx, email, otpCacheValue, mb.cfg.OTP.TTL)
+	if err != nil {
+		log.Error().Err(err).Msgf("Failed to store verified status in otp cache")
+	}
+
+	return err
 }
 
 func generateOTP() string {

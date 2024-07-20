@@ -28,11 +28,11 @@ const (
 )
 
 type ReferralMailParams struct {
-	Requester      domain.UserProfile `json:"requester"`
-	Provider       domain.UserProfile `json:"provider"`
-	JobLink        string             `json:"job_link"`
-	Message        string             `json:"message"`
-	ResumeFilePath string             `json:"resume_file_path"`
+	Requester      domain.User `json:"requester"`
+	Provider       domain.User `json:"provider"`
+	JobLink        string      `json:"job_link"`
+	Message        string      `json:"message"`
+	ResumeFilePath string      `json:"resume_file_path"`
 }
 
 type ReferralMailBuilder interface {
@@ -58,10 +58,10 @@ func (mb *referralMailBuilder) SendReferralMailAsync(ctx context.Context, params
 		var err error
 		for i := 0; i < maxRetries; i++ {
 			log.Info().Msgf("Start processing referral mail with requestor_user_id: %s, provider_user_id: %s and "+
-				"filepath: %s", params.Requester.UserID, params.Provider.UserID, params.ResumeFilePath)
+				"filepath: %s", params.Requester.UserUUID, params.Provider.UserUUID, params.ResumeFilePath)
 			err = mb.SendReferralMail(ctx, params)
 			log.Info().Msgf("Finish processing referral mail with requestor_user_id: %s, provider_user_id: %s and "+
-				"filepath: %s", params.Requester.UserID, params.Provider.UserID, params.ResumeFilePath)
+				"filepath: %s", params.Requester.UserUUID, params.Provider.UserUUID, params.ResumeFilePath)
 
 			if err != nil {
 				log.Printf("Failed to send email: %v", err)
@@ -75,7 +75,7 @@ func (mb *referralMailBuilder) SendReferralMailAsync(ctx context.Context, params
 			return
 		}
 		log.Error().Err(err).Msgf("Failed to send referral mail with requestor_user_id: %s, "+
-			"provider_user_id: %s and filepath: %s", params.Requester.UserID, params.Provider.UserID, params.ResumeFilePath)
+			"provider_user_id: %s and filepath: %s", params.Requester.UserUUID, params.Provider.UserUUID, params.ResumeFilePath)
 
 		err = storeFailedJob(referralMailJobName, params)
 		if err != nil {
@@ -89,7 +89,7 @@ func (mb *referralMailBuilder) SendReferralMail(ctx context.Context, params Refe
 		"ProviderName":     params.Provider.Name,
 		"RequesterName":    params.Requester.Name,
 		"RequesterCompany": params.Requester.CompanyName,
-		"RequesterEmail":   params.Requester.PersonalEmail,
+		"RequesterEmail":   params.Requester.RegisteredEmail,
 		"JobLink":          params.JobLink,
 		"RequesterMessage": params.Message,
 	}
@@ -101,7 +101,7 @@ func (mb *referralMailBuilder) SendReferralMail(ctx context.Context, params Refe
 	}
 	bodyHTML += i18n.Translate(ctx, i18nKeyReferralMailBodyFooterNotes, i18nValues)
 	textHTML := fmt.Sprintf(`<html><body>%s</body></html>`, bodyHTML)
-	to := []string{params.Provider.WorkEmail, params.Requester.PersonalEmail}
+	to := []string{params.Provider.WorkEmail, params.Requester.RegisteredEmail}
 	mailCfg := mb.cfg.ReferralMail
 	messageID := mailCfg.GetMessageID()
 
@@ -118,7 +118,7 @@ func (mb *referralMailBuilder) SendReferralMail(ctx context.Context, params Refe
 	err := mb.referralMailClient.DialAndSend(m)
 	if err != nil {
 		log.Error().Err(err).Msgf("Failed to send referral mail with requestor_user_id: %s, "+
-			"provider_user_id: %s and filepath: %s", params.Requester.UserID, params.Provider.UserID, params.ResumeFilePath)
+			"provider_user_id: %s and filepath: %s", params.Requester.UserUUID, params.Provider.UserUUID, params.ResumeFilePath)
 		return err
 	}
 
@@ -137,5 +137,5 @@ func storeFailedJob(jobName string, params ReferralMailParams) error {
 	}
 
 	failedJobJSON, _ := json.Marshal(params)
-	return os.WriteFile(fmt.Sprintf("%s%s_%d_%d.json", failedJobsDir, jobName, params.Requester.UserIDNum, params.Provider.UserIDNum), failedJobJSON, 0o600)
+	return os.WriteFile(fmt.Sprintf("%s%s_%d_%d.json", failedJobsDir, jobName, params.Requester.UserNumber, params.Provider.UserNumber), failedJobJSON, 0o600)
 }

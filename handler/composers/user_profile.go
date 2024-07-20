@@ -9,16 +9,16 @@ import (
 // swagger:model
 type UserProfile struct {
 	UserNumber        int64         `json:"user_number"`
-	UserID            string        `json:"user_id"`
+	UserUUID          string        `json:"user_uuid"`
 	CreatedAt         *time.Time    `json:"created_at"`
 	Status            string        `json:"status"`
 	Name              string        `json:"name"`
 	PhoneNumber       string        `json:"phone_number"`
-	PersonalEmail     string        `json:"personal_email"`
+	RegisteredEmail   string        `json:"registered_email"`
 	CompanyID         int64         `json:"company_id"`
 	CompanyName       string        `json:"company_name"`
 	WorkEmail         string        `json:"work_email"`
-	Role              string        `json:"role"`
+	Designation       string        `json:"designation"`
 	YearsOfExperience float32       `json:"years_of_experience"`
 	LinkedIn          string        `json:"linkedin"`
 	MentorConfig      *MentorConfig `json:"mentor_config"`
@@ -40,21 +40,21 @@ func NewMentorConfig(mentorConfig domain.MentorConfig) *MentorConfig {
 	}
 }
 
-func NewUserProfile(user domain.UserProfile) UserProfile {
+func NewUserProfile(user domain.User) UserProfile {
 	return UserProfile{
-		UserNumber:        user.UserIDNum,
-		UserID:            user.UserID,
+		UserNumber:        user.UserNumber,
+		UserUUID:          user.UserUUID,
 		CreatedAt:         user.CreatedAt,
 		Status:            user.Status,
 		Name:              user.Name,
 		PhoneNumber:       user.PhoneNumber,
-		PersonalEmail:     user.PersonalEmail,
+		RegisteredEmail:   user.RegisteredEmail,
 		CompanyID:         user.CompanyID,
 		CompanyName:       user.CompanyName,
 		WorkEmail:         user.WorkEmail,
-		Role:              user.Role,
+		Designation:       user.Designation,
 		YearsOfExperience: user.YearsOfExperience,
 		LinkedIn:          user.LinkedIn,
-		MentorConfig:      NewMentorConfig(*user.MentorConfig),
+		MentorConfig:      NewMentorConfig(user.MentorConfig()),
 	}
 }

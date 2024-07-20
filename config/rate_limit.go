@@ -16,6 +16,9 @@ type RateLimit struct {
 	AdminReferralList   RateLimitConfig `yaml:"ADMIN_REFERRAL_LIST" env:",prefix=ADMIN_REFERRAL_LIST_"`
 	AdminReferralUpdate RateLimitConfig `yaml:"ADMIN_REFERRAL_UPDATE" env:",prefix=ADMIN_REFERRAL_UPDATE_"`
 	AdminReferralExpire RateLimitConfig `yaml:"ADMIN_REFERRAL_EXPIRE" env:",prefix=ADMIN_REFERRAL_EXPIRE_"`
+	GoogleOAuthDebug    RateLimitConfig `yaml:"GOOGLE_OAUTH_DEBUG" env:",prefix=GOOGLE_OAUTH_DEBUG_"`
+	GoogleOAuthLogin    RateLimitConfig `yaml:"GOOGLE_OAUTH_LOGIN" env:",prefix=GOOGLE_OAUTH_LOGIN_"`
+	GoogleOAuthCallback RateLimitConfig `yaml:"GOOGLE_OAUTH_CALLBACK" env:",prefix=GOOGLE_OAUTH_CALLBACK_"`
 	GenerateOTP         RateLimitConfig `yaml:"GENERATE_OTP" env:",prefix=GENERATE_OTP_"`
 	ResendOTP           RateLimitConfig `yaml:"RESEND_OTP" env:",prefix=RESEND_OTP_"`
 	VerifyOTP           RateLimitConfig `yaml:"VERIFY_OTP" env:",prefix=VERIFY_OTP_"`
@@ -45,6 +48,9 @@ func defaultRateLimit() RateLimit {
 		AdminReferralList:   RateLimitConfig{Enabled: true, Attempts: 100},
 		AdminReferralUpdate: RateLimitConfig{Enabled: true, Attempts: 100},
 		AdminReferralExpire: RateLimitConfig{Enabled: true, Attempts: 100},
+		GoogleOAuthDebug:    RateLimitConfig{Enabled: true, Attempts: 5, WindowSecs: 600},
+		GoogleOAuthLogin:    RateLimitConfig{Enabled: true, Attempts: 5, WindowSecs: 600},
+		GoogleOAuthCallback: RateLimitConfig{Enabled: true, Attempts: 5, WindowSecs: 600},
 		GenerateOTP:         RateLimitConfig{Enabled: true, Attempts: 5, WindowSecs: 600},
 		ResendOTP:           RateLimitConfig{Enabled: true, Attempts: 5, WindowSecs: 600},
 		VerifyOTP:           RateLimitConfig{Enabled: true, Attempts: 10, WindowSecs: 600},
@@ -76,6 +82,12 @@ func (rl RateLimit) GetAPIRateLimitConfig(apiName string) RateLimitConfig {
 		return rl.AdminReferralUpdate
 	case constants.APINameAdminReferralExpire:
 		return rl.AdminReferralExpire
+	case constants.APINameGoogleOAuthDebug:
+		return rl.GoogleOAuthDebug
+	case constants.APINameGoogleOAuthLogin:
+		return rl.GoogleOAuthLogin
+	case constants.APINameGoogleOAuthCallback:
+		return rl.GoogleOAuthCallback
 	case constants.APINameGenerateOTP:
 		return rl.GenerateOTP
 	case constants.APINameResendOTP:

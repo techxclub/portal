@@ -11,27 +11,27 @@ import (
 	"github.com/techx/portal/errors"
 )
 
-type AuthService interface {
-	GenerateOTP(ctx context.Context, detail domain.AuthRequest) (*domain.AuthDetails, error)
-	ResendOTP(ctx context.Context, detail domain.AuthRequest) (*domain.AuthDetails, error)
-	VerifyOTP(ctx context.Context, detail domain.AuthRequest) (*domain.AuthDetails, error)
+type OTPService interface {
+	GenerateOTP(ctx context.Context, otpRequest domain.OTPRequest) (*domain.AuthDetails, error)
+	ResendOTP(ctx context.Context, otpRequest domain.OTPRequest) (*domain.AuthDetails, error)
+	VerifyOTP(ctx context.Context, otpRequest domain.OTPRequest) (*domain.AuthDetails, error)
 }
 
-type authService struct {
+type otpService struct {
 	cfg      *config.Config
 	registry *builder.Registry
 }
 
-func NewAuthService(cfg *config.Config, registry *builder.Registry) AuthService {
-	return &authService{
+func NewOTPService(cfg *config.Config, registry *builder.Registry) OTPService {
+	return &otpService{
 		cfg:      cfg,
 		registry: registry,
 	}
 }
 
-func (s authService) GenerateOTP(ctx context.Context, otpGenerationDetail domain.AuthRequest) (*domain.AuthDetails, error) {
+func (s otpService) GenerateOTP(ctx context.Context, otpGenerationDetail domain.OTPRequest) (*domain.AuthDetails, error) {
 	authInfo, err := s.registry.OTPBuilder.SendOTP(ctx, otpGenerationDetail)
-	if err != nil || authInfo.Status != constants.AuthStatusPending {
+	if err != nil || authInfo.Status != constants.OTPStatusPending {
 		log.Err(err).Msg("Failed to generate OTP")
 		return nil, errors.ErrOTPGenerateFailed
 	}
@@ -42,9 +42,9 @@ func (s authService) GenerateOTP(ctx context.Context, otpGenerationDetail domain
 	return &authDetails, nil
 }
 
-func (s authService) ResendOTP(ctx context.Context, otpGenerationDetail domain.AuthRequest) (*domain.AuthDetails, error) {
+func (s otpService) ResendOTP(ctx context.Context, otpGenerationDetail domain.OTPRequest) (*domain.AuthDetails, error) {
 	authInfo, err := s.registry.OTPBuilder.ResendOTP(ctx, otpGenerationDetail)
-	if err != nil || authInfo.Status != constants.AuthStatusPending {
+	if err != nil || authInfo.Status != constants.OTPStatusPending {
 		log.Err(err).Msg("Failed to generate OTP")
 		return nil, errors.ErrOTPGenerateFailed
 	}
@@ -55,7 +55,7 @@ func (s authService) ResendOTP(ctx context.Context, otpGenerationDetail domain.A
 	return &authDetails, nil
 }
 
-func (s authService) VerifyOTP(ctx context.Context, otpVerificationDetail domain.AuthRequest) (*domain.AuthDetails, error) {
+func (s otpService) VerifyOTP(ctx context.Context, otpVerificationDetail domain.OTPRequest) (*domain.AuthDetails, error) {
 	authInfo, err := s.registry.OTPBuilder.VerifyOTP(ctx, otpVerificationDetail)
 	if err != nil {
 		log.Err(err).Msg("Failed to verify OTP")
@@ -66,13 +66,13 @@ func (s authService) VerifyOTP(ctx context.Context, otpVerificationDetail domain
 		AuthInfo: authInfo,
 	}
 
-	if authInfo.Status != constants.AuthStatusVerified {
+	if authInfo.Status != constants.OTPStatusVerified {
 		return &authDetails, nil
 	}
 
-	if otpVerificationDetail.Channel == constants.AuthChannelEmail {
+	if otpVerificationDetail.Channel == constants.OTPChannelEmail {
 		authToken, _ := domain.GenerateToken(otpVerificationDetail.Value, s.cfg.Auth)
-		authDetails.AuthToken = authToken
+		authDetails.Token = authToken
 		return &authDetails, nil
 	}
 
@@ -84,9 +84,9 @@ func (s authService) VerifyOTP(ctx context.Context, otpVerificationDetail domain
 		return &authDetails, nil
 	}
 
-	authToken, _ := domain.GenerateToken(userInfo.UserID, s.cfg.Auth)
+	authToken, _ := domain.GenerateToken(userInfo.UserUUID, s.cfg.Auth)
 
 	authDetails.UserInfo = userInfo
-	authDetails.AuthToken = authToken
+	authDetails.Token = authToken
 	return &authDetails, nil
 }

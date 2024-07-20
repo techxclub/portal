@@ -29,10 +29,10 @@
   "err_invalid_work_email_message": {
     "other": "Please enter a valid work email."
   },
-  "err_invalid_personal_email_title": {
+  "err_invalid_registered_email_title": {
     "other": "Invalid Personal Email"
   },
-  "err_invalid_personal_email_message": {
+  "err_invalid_registered_email_message": {
     "other": "Please enter a valid personal email."
   },
   "err_invalid_auth_channel_title": {
@@ -40,12 +40,6 @@
   },
   "err_invalid_auth_channel_message": {
     "other": "Please enter a valid auth channel."
-  },
-  "err_invalid_sms_service_provider_title": {
-    "other": "Invalid SMS Service Provider"
-  },
-  "err_invalid_sms_service_provider_message": {
-    "other": "Please enter a valid SMS service provider."
   },
   "err_invalid_email_service_provider_title": {
     "other": "Invalid Email Service Provider"
@@ -166,12 +160,6 @@
   },
   "err_no_data_found_message": {
     "other": "Please enter a valid data."
-  },
-  "err_otp_not_provided_title": {
-    "other": "OTP Not Provided"
-  },
-  "err_otp_not_provided_message": {
-    "other": "Please provide the OTP."
   },
   "err_calendaly_link_required_title": {
     "other": "Calendaly Link Required"

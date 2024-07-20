@@ -14,7 +14,7 @@ import (
 func UserProfileHandler(_ *config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
 	return Handler(
 		request.NewUserProfileRequest,
-		func(ctx context.Context, req request.UserProfileRequest) (*domain.UserProfile, error) {
+		func(ctx context.Context, req request.UserProfileRequest) (*domain.User, error) {
 			return serviceRegistry.UserService.GetProfile(ctx, req.ToFetchUserParams())
 		},
 		response.NewUserProfileResponse,

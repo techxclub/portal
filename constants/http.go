@@ -1,7 +1,7 @@
 package constants
 
 const (
-	HeaderXUserID         = "X-User-Id"
+	HeaderXUserUUID       = "X-User-Id"
 	HeaderXForwardedFor   = "X-FORWARDED-FOR"
 	HeaderXRequestTraceID = "X-Request-Trace-Id"
 	HeaderContentType     = "Content-Type"
@@ -21,7 +21,7 @@ const (
 )
 
 var (
-	AllowedHeaders = []string{HeaderXUserID, HeaderXRequestTraceID, HeaderContentType, HeaderXForwardedFor, HeaderAuthorization, HeaderAuthToken}
+	AllowedHeaders = []string{HeaderXUserUUID, HeaderXRequestTraceID, HeaderContentType, HeaderXForwardedFor, HeaderAuthorization, HeaderAuthToken}
 	ExposedHeaders = []string{HeaderAuthToken, HeaderContentType}
 	AllowedMethods = []string{MethodGet, MethodPost, MethodPut, MethodPatch, MethodHead, MethodOptions}
 	AllowedOrigins = []string{"*"}

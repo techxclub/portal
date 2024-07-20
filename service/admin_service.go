@@ -10,7 +10,7 @@ import (
 
 type AdminService interface {
 	UpdateCompanyDetails(ctx context.Context, params *domain.Company) (*domain.EmptyDomain, error)
-	BulkUpdateUsers(ctx context.Context, from, to domain.UserProfile) (*domain.EmptyDomain, error)
+	BulkUpdateUsers(ctx context.Context, from, to domain.User) (*domain.EmptyDomain, error)
 	UpdateReferralDetails(ctx context.Context, params *domain.Referral) (*domain.EmptyDomain, error)
 }
 
@@ -35,7 +35,7 @@ func (a adminService) UpdateCompanyDetails(ctx context.Context, params *domain.C
 	return &domain.EmptyDomain{}, nil
 }
 
-func (a adminService) BulkUpdateUsers(ctx context.Context, from, to domain.UserProfile) (*domain.EmptyDomain, error) {
+func (a adminService) BulkUpdateUsers(ctx context.Context, from, to domain.User) (*domain.EmptyDomain, error) {
 	err := a.registry.UsersRepository.BulkUpdate(ctx, from, to)
 	if err != nil {
 		return nil, err

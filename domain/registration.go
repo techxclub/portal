@@ -2,5 +2,5 @@ package domain
 
 type Registration struct {
 	AuthToken string
-	User      *UserProfile
+	User      *User
 }

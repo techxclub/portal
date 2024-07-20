@@ -19,10 +19,10 @@ import (
 )
 
 type UserService interface {
-	RegisterUser(ctx context.Context, userDetails domain.UserProfile) (*domain.Registration, error)
-	RegisterMentor(ctx context.Context, userDetails domain.UserProfile) (*domain.Registration, error)
-	UpdateUserDetails(ctx context.Context, userDetails domain.UserProfile) (*domain.EmptyDomain, error)
-	GetProfile(ctx context.Context, params domain.FetchUserParams) (*domain.UserProfile, error)
+	RegisterUser(ctx context.Context, userDetails domain.User) (*domain.Registration, error)
+	RegisterMentor(ctx context.Context, userDetails domain.User) (*domain.Registration, error)
+	UpdateUserDetails(ctx context.Context, userDetails domain.User) (*domain.EmptyDomain, error)
+	GetProfile(ctx context.Context, params domain.FetchUserParams) (*domain.User, error)
 	GetUsers(ctx context.Context, params domain.FetchUserParams) (*domain.Users, error)
 	GetCompanies(ctx context.Context, params domain.FetchCompanyParams) (*domain.Companies, error)
 	GetCompanyUsers(ctx context.Context, params domain.FetchUserParams) (*domain.CompanyUsersService, error)
@@ -40,8 +40,8 @@ func NewUserService(cfg *config.Config, registry *builder.Registry) UserService 
 	}
 }
 
-func (u userService) RegisterUser(ctx context.Context, userDetails domain.UserProfile) (*domain.Registration, error) {
-	var user *domain.UserProfile
+func (u userService) RegisterUser(ctx context.Context, userDetails domain.User) (*domain.Registration, error) {
+	var user *domain.User
 	var err error
 
 	normalizedCompanyName := strcase.ToScreamingSnake(strings.ToUpper(userDetails.CompanyName))
@@ -67,7 +67,7 @@ func (u userService) RegisterUser(ctx context.Context, userDetails domain.UserPr
 		return nil, err
 	}
 
-	authToken, err := domain.GenerateToken(user.UserID, u.cfg.Auth)
+	authToken, err := domain.GenerateToken(user.UserUUID, u.cfg.Auth)
 	if err != nil {
 		return nil, err
 	}
@@ -78,8 +78,8 @@ func (u userService) RegisterUser(ctx context.Context, userDetails domain.UserPr
 	}, nil
 }
 
-func (u userService) RegisterMentor(ctx context.Context, userDetails domain.UserProfile) (*domain.Registration, error) {
-	user, err := u.registry.UsersRepository.FetchUserForParams(ctx, domain.FetchUserParams{UserID: userDetails.UserID})
+func (u userService) RegisterMentor(ctx context.Context, userDetails domain.User) (*domain.Registration, error) {
+	user, err := u.registry.UsersRepository.FetchUserForParams(ctx, domain.FetchUserParams{UserUUID: userDetails.UserUUID})
 	if err != nil {
 		return nil, err
 	}
@@ -88,15 +88,15 @@ func (u userService) RegisterMentor(ctx context.Context, userDetails domain.User
 		return nil, errors.ErrUserNotApproved
 	}
 
-	currentMentorConfig := *user.MentorConfig
+	currentMentorConfig := user.MentorConfig()
 	if currentMentorConfig.IsMentor {
 		return nil, errors.ErrUserAlreadyMentor
 	}
 
 	updatedMentorConfig := currentMentorConfig
-	updatedMentorConfig.Tags = userDetails.MentorConfig.Tags
-	updatedMentorConfig.CalendalyLink = userDetails.MentorConfig.CalendalyLink
-	updatedMentorConfig.Domain = userDetails.MentorConfig.Domain
+	updatedMentorConfig.Tags = userDetails.MentorConfig().Tags
+	updatedMentorConfig.CalendalyLink = userDetails.MentorConfig().CalendalyLink
+	updatedMentorConfig.Domain = userDetails.MentorConfig().Domain
 
 	if currentMentorConfig.IsPreApproved {
 		updatedMentorConfig.IsMentor = true
@@ -106,7 +106,7 @@ func (u userService) RegisterMentor(ctx context.Context, userDetails domain.User
 		updatedMentorConfig.Status = constants.MentorStatusPendingApproval
 	}
 
-	user.MentorConfig = &updatedMentorConfig
+	user.SetMentorConfig(updatedMentorConfig)
 
 	err = u.registry.UsersRepository.Update(ctx, *user)
 	if err != nil {
@@ -118,7 +118,7 @@ func (u userService) RegisterMentor(ctx context.Context, userDetails domain.User
 	}, nil
 }
 
-func (u userService) UpdateUserDetails(ctx context.Context, params domain.UserProfile) (*domain.EmptyDomain, error) {
+func (u userService) UpdateUserDetails(ctx context.Context, params domain.User) (*domain.EmptyDomain, error) {
 	err := u.registry.UsersRepository.Update(ctx, params)
 	if err != nil {
 		return nil, err
@@ -127,7 +127,7 @@ func (u userService) UpdateUserDetails(ctx context.Context, params domain.UserPr
 	return &domain.EmptyDomain{}, nil
 }
 
-func (u userService) GetProfile(ctx context.Context, params domain.FetchUserParams) (*domain.UserProfile, error) {
+func (u userService) GetProfile(ctx context.Context, params domain.FetchUserParams) (*domain.User, error) {
 	users, err := u.registry.UsersRepository.FetchUserForParams(ctx, params)
 	if err != nil {
 		return nil, err
@@ -137,8 +137,8 @@ func (u userService) GetProfile(ctx context.Context, params domain.FetchUserPara
 }
 
 func (u userService) GetUsers(ctx context.Context, params domain.FetchUserParams) (*domain.Users, error) {
-	userID := apicontext.RequestContextFromContext(ctx).GetUserID()
-	user, _ := u.registry.UsersRepository.FetchUserForParams(ctx, domain.FetchUserParams{UserID: userID})
+	userID := apicontext.RequestContextFromContext(ctx).GetUserUUID()
+	user, _ := u.registry.UsersRepository.FetchUserForParams(ctx, domain.FetchUserParams{UserUUID: userID})
 	if userID != "" && user == nil {
 		return nil, errors.ErrUserNotFound
 	}
@@ -147,7 +147,7 @@ func (u userService) GetUsers(ctx context.Context, params domain.FetchUserParams
 	if err != nil {
 		return nil, err
 	}
-	slices.SortStableFunc(*users, func(i, j domain.UserProfile) int {
+	slices.SortStableFunc(*users, func(i, j domain.User) int {
 		return cmp.Compare(i.Name, j.Name)
 	})
 
@@ -155,8 +155,8 @@ func (u userService) GetUsers(ctx context.Context, params domain.FetchUserParams
 		return users, nil
 	}
 
-	filteredUsers := utils.Filter(*users, func(user domain.UserProfile) bool {
-		return user.UserID != userID
+	filteredUsers := utils.Filter(*users, func(user domain.User) bool {
+		return user.UserUUID != userID
 	})
 
 	if len(filteredUsers) == 0 {
@@ -167,8 +167,8 @@ func (u userService) GetUsers(ctx context.Context, params domain.FetchUserParams
 }
 
 func (u userService) GetCompanies(ctx context.Context, params domain.FetchCompanyParams) (*domain.Companies, error) {
-	userID := apicontext.RequestContextFromContext(ctx).GetUserID()
-	user, _ := u.registry.UsersRepository.FetchUserForParams(ctx, domain.FetchUserParams{UserID: userID})
+	userID := apicontext.RequestContextFromContext(ctx).GetUserUUID()
+	user, _ := u.registry.UsersRepository.FetchUserForParams(ctx, domain.FetchUserParams{UserUUID: userID})
 	// ToDo: Update this flow to be used by only approved users
 	if userID != "" && user == nil {
 		return nil, errors.ErrUserNotFound
@@ -204,10 +204,10 @@ func (u userService) GetCompanyUsers(ctx context.Context, params domain.FetchUse
 		return nil, err
 	}
 
-	userID := apicontext.RequestContextFromContext(ctx).GetUserID()
+	userID := apicontext.RequestContextFromContext(ctx).GetUserUUID()
 	referralParams := domain.ReferralParams{
-		RequesterUserID: userID,
-		CreatedAt:       utils.ToPtr(time.Now().Add(-7 * 24 * time.Hour)),
+		RequesterUserUUID: userID,
+		CreatedAt:         utils.ToPtr(time.Now().Add(-7 * 24 * time.Hour)),
 	}
 	userReferrals, err := u.registry.ReferralsRepository.FetchReferralsForParams(ctx, referralParams)
 	if err != nil {

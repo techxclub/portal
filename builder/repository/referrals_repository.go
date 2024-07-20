@@ -47,8 +47,8 @@ func (r referralsRepository) InsertReferral(ctx context.Context, params domain.R
 	err := r.dbClient.DBRunInTxContext(ctx, func(tx *sqlx.Tx) error {
 		now := time.Now()
 		return r.dbClient.DBNamedExecReturningInTx(ctx, tx, &returning, insertReferralQuery, map[string]interface{}{
-			constants.ParamRequesterID: params.RequesterUserID,
-			constants.ParamProviderID:  params.ProviderUserID,
+			constants.ParamRequesterID: params.RequesterUserUUID,
+			constants.ParamProviderID:  params.ProviderUserUUID,
 			constants.ParamCompanyID:   params.CompanyID,
 			constants.ParamJobLink:     params.JobLink,
 			constants.ParamStatus:      params.Status,
@@ -60,13 +60,13 @@ func (r referralsRepository) InsertReferral(ctx context.Context, params domain.R
 	}
 
 	referral := domain.Referral{
-		ID:              returning.ID,
-		RequesterUserID: params.RequesterUserID,
-		ProviderUserID:  params.ProviderUserID,
-		CompanyID:       params.CompanyID,
-		JobLink:         params.JobLink,
-		Status:          params.Status,
-		CreatedAt:       &returning.CreatedAt,
+		ID:                returning.ID,
+		RequesterUserUUID: params.RequesterUserUUID,
+		ProviderUserUUID:  params.ProviderUserUUID,
+		CompanyID:         params.CompanyID,
+		JobLink:           params.JobLink,
+		Status:            params.Status,
+		CreatedAt:         &returning.CreatedAt,
 	}
 
 	return &referral, nil
@@ -75,8 +75,8 @@ func (r referralsRepository) InsertReferral(ctx context.Context, params domain.R
 func (r referralsRepository) FetchReferralsForParams(ctx context.Context, params domain.ReferralParams) (*domain.Referrals, error) {
 	qb := domain.NewGetQueryBuilder()
 	qb.AddEqualCondition(constants.ParamID, params.ID)
-	qb.AddEqualCondition(constants.ParamRequesterID, params.RequesterUserID)
-	qb.AddEqualCondition(constants.ParamProviderID, params.ProviderUserID)
+	qb.AddEqualCondition(constants.ParamRequesterID, params.RequesterUserUUID)
+	qb.AddEqualCondition(constants.ParamProviderID, params.ProviderUserUUID)
 	qb.AddEqualCondition(constants.ParamCompanyID, params.CompanyID)
 	qb.AddEqualCondition(constants.ParamStatus, params.Status)
 	qb.AddGreaterEqualCondition(constants.ParamCreatedTime, params.CreatedAt)
@@ -100,8 +100,8 @@ func (r referralsRepository) FetchReferralsForParams(ctx context.Context, params
 func (r referralsRepository) UpdateReferral(ctx context.Context, referral *domain.Referral) error {
 	nqb := domain.NewSetQueryBuilder()
 	nqb.AddEqualCondition(constants.ParamID, referral.ID)
-	nqb.AddEqualCondition(constants.ParamRequesterID, referral.RequesterUserID)
-	nqb.AddEqualCondition(constants.ParamProviderID, referral.ProviderUserID)
+	nqb.AddEqualCondition(constants.ParamRequesterID, referral.RequesterUserUUID)
+	nqb.AddEqualCondition(constants.ParamProviderID, referral.ProviderUserUUID)
 	nqb.AddEqualCondition(constants.ParamCompanyID, referral.CompanyID)
 	nqb.AddEqualCondition(constants.ParamJobLink, referral.JobLink)
 	nqb.AddEqualCondition(constants.ParamStatus, referral.Status)

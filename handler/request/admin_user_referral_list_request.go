@@ -10,11 +10,11 @@ import (
 )
 
 type BaseUserReferralListRequest struct {
-	RequesterUserID string
-	ProviderUserID  string
-	CompanyID       string
-	Status          string
-	CreatedAt       *time.Time
+	RequesterUserUUID string
+	ProviderUserUUID  string
+	CompanyID         string
+	Status            string
+	CreatedAt         *time.Time
 }
 
 type AdminUserReferralListRequest struct {
@@ -22,8 +22,8 @@ type AdminUserReferralListRequest struct {
 }
 
 func NewAdminUserReferralListRequest(r *http.Request) (*AdminUserReferralListRequest, error) {
-	requesterUserID := r.URL.Query().Get(constants.ParamRequesterID)
-	providerUserID := r.URL.Query().Get(constants.ParamProviderID)
+	requesterUserUUID := r.URL.Query().Get(constants.ParamRequesterID)
+	providerUserUUID := r.URL.Query().Get(constants.ParamProviderID)
 	status := r.URL.Query().Get(constants.ParamStatus)
 	companyID := r.URL.Query().Get(constants.ParamCompanyID)
 	createdAtStr := r.URL.Query().Get(constants.ParamCreatedTime)
@@ -34,11 +34,11 @@ func NewAdminUserReferralListRequest(r *http.Request) (*AdminUserReferralListReq
 
 	return &AdminUserReferralListRequest{
 		BaseUserReferralListRequest{
-			RequesterUserID: requesterUserID,
-			ProviderUserID:  providerUserID,
-			CompanyID:       companyID,
-			Status:          status,
-			CreatedAt:       createdAt,
+			RequesterUserUUID: requesterUserUUID,
+			ProviderUserUUID:  providerUserUUID,
+			CompanyID:         companyID,
+			Status:            status,
+			CreatedAt:         createdAt,
 		},
 	}, nil
 }
@@ -49,11 +49,11 @@ func (r AdminUserReferralListRequest) Validate() error {
 
 func (r AdminUserReferralListRequest) ToFetchReferralParams() domain.ReferralParams {
 	return domain.ReferralParams{
-		RequesterUserID: r.RequesterUserID,
-		ProviderUserID:  r.ProviderUserID,
-		CompanyID:       utils.ParseInt64WithDefault(r.CompanyID, 0),
-		Status:          r.Status,
-		CreatedAt:       r.CreatedAt,
+		RequesterUserUUID: r.RequesterUserUUID,
+		ProviderUserUUID:  r.ProviderUserUUID,
+		CompanyID:         utils.ParseInt64WithDefault(r.CompanyID, 0),
+		Status:            r.Status,
+		CreatedAt:         r.CreatedAt,
 	}
 }
 

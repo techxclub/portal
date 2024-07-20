@@ -9,13 +9,13 @@ import (
 )
 
 type BaseUserListRequest struct {
-	UserID      string
+	UserUUID    string
 	Status      string
 	Name        string
 	PhoneNumber string
 	CompanyID   string
 	CompanyName string
-	Role        string
+	Designation string
 }
 
 type AdminUserListRequest struct {
@@ -23,23 +23,23 @@ type AdminUserListRequest struct {
 }
 
 func NewAdminUserListRequest(r *http.Request) (*AdminUserListRequest, error) {
-	userID := r.URL.Query().Get(constants.ParamUserID)
+	userID := r.URL.Query().Get(constants.ParamUserUUID)
 	status := r.URL.Query().Get(constants.ParamStatus)
 	name := r.URL.Query().Get(constants.ParamName)
 	phoneNumber := r.URL.Query().Get(constants.ParamPhoneNumber)
-	CompanyID := r.URL.Query().Get(constants.ParamCompanyID)
-	CompanyName := r.URL.Query().Get(constants.ParamCompanyName)
-	Role := r.URL.Query().Get(constants.ParamRole)
+	companyID := r.URL.Query().Get(constants.ParamCompanyID)
+	companyName := r.URL.Query().Get(constants.ParamCompanyName)
+	designation := r.URL.Query().Get(constants.ParamDesignation)
 
 	return &AdminUserListRequest{
 		BaseUserListRequest{
-			UserID:      userID,
+			UserUUID:    userID,
 			Status:      status,
 			Name:        name,
 			PhoneNumber: utils.SanitizePhoneNumber(phoneNumber),
-			CompanyID:   CompanyID,
-			CompanyName: CompanyName,
-			Role:        Role,
+			CompanyID:   companyID,
+			CompanyName: companyName,
+			Designation: designation,
 		},
 	}, nil
 }
@@ -50,12 +50,12 @@ func (r AdminUserListRequest) Validate() error {
 
 func (r AdminUserListRequest) ToFetchUserParams() domain.FetchUserParams {
 	return domain.FetchUserParams{
-		UserID:      r.UserID,
+		UserUUID:    r.UserUUID,
 		Status:      r.Status,
 		PhoneNumber: r.PhoneNumber,
 		Name:        r.Name,
 		CompanyID:   utils.ParseInt64WithDefault(r.CompanyID, 0),
 		CompanyName: r.CompanyName,
-		Role:        r.Role,
+		Designation: r.Designation,
 	}
 }

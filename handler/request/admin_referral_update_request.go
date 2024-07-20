@@ -8,12 +8,12 @@ import (
 )
 
 type AdminReferralUpdateRequest struct {
-	ID              int64  `json:"id"`
-	CompanyID       int64  `json:"company_id"`
-	RequesterUserID string `db:"requester_user_id"`
-	ProviderUserID  string `db:"provider_user_id"`
-	JobLink         string `db:"job_link"`
-	Status          string `db:"status"`
+	ID                int64  `json:"id"`
+	CompanyID         int64  `json:"company_id"`
+	RequesterUserUUID string `db:"requester_user_id"`
+	ProviderUserUUID  string `db:"provider_user_id"`
+	JobLink           string `db:"job_link"`
+	Status            string `db:"status"`
 }
 
 func NewAdminReferralUpdateRequest(r *http.Request) (*AdminReferralUpdateRequest, error) {
@@ -32,11 +32,11 @@ func (r AdminReferralUpdateRequest) Validate() error {
 
 func (r AdminReferralUpdateRequest) ToReferralParams() *domain.Referral {
 	return &domain.Referral{
-		ID:              r.ID,
-		CompanyID:       r.CompanyID,
-		RequesterUserID: r.RequesterUserID,
-		ProviderUserID:  r.ProviderUserID,
-		JobLink:         r.JobLink,
-		Status:          r.Status,
+		ID:                r.ID,
+		CompanyID:         r.CompanyID,
+		RequesterUserUUID: r.RequesterUserUUID,
+		ProviderUserUUID:  r.ProviderUserUUID,
+		JobLink:           r.JobLink,
+		Status:            r.Status,
 	}
 }

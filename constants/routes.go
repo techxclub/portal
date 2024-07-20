@@ -9,6 +9,9 @@ const (
 	APINameAdminReferralList   = "AdminReferralList"
 	APINameAdminReferralUpdate = "AdminReferralUpdate"
 	APINameAdminReferralExpire = "AdminReferralExpire"
+	APINameGoogleOAuthDebug    = "GoogleOAuthDebug"
+	APINameGoogleOAuthLogin    = "GoogleOAuthLogin"
+	APINameGoogleOAuthCallback = "GoogleOAuthCallback"
 	APINameGenerateOTP         = "GenerateOTP"
 	APINameVerifyOTP           = "VerifyOTP"
 	APINameResendOTP           = "ResendOTP"
@@ -24,6 +27,6 @@ const (
 )
 
 var (
-	AuthRoutes  = []string{APINameGenerateOTP, APINameVerifyOTP, APINameResendOTP}
+	AuthRoutes  = []string{APINameGoogleOAuthLogin, APINameGoogleOAuthCallback, APINameGenerateOTP, APINameVerifyOTP, APINameResendOTP}
 	AdminRoutes = []string{APINameAdminUserList, APINameAdminUserUpdate, APINameAdminCompanyList, APINameAdminCompanyUpdate}
 )

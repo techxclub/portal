@@ -34,14 +34,14 @@ func NewReferralService(cfg *config.Config, registry *builder.Registry) Referral
 
 func (r referralService) CreateReferral(ctx context.Context, referralDetails domain.ReferralParams) (*domain.Referral, error) {
 	requester, err := r.registry.UsersRepository.FetchUserForParams(ctx, domain.FetchUserParams{
-		UserID: referralDetails.RequesterUserID,
+		UserUUID: referralDetails.RequesterUserUUID,
 	})
 	if err != nil {
 		return nil, errors.ErrRequesterNotFound
 	}
 
 	provider, err := r.registry.UsersRepository.FetchUserForParams(ctx, domain.FetchUserParams{
-		UserID: referralDetails.ProviderUserID,
+		UserUUID: referralDetails.ProviderUserUUID,
 	})
 	if err != nil {
 		return nil, errors.ErrProviderNotFound
@@ -53,9 +53,9 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 
 	referralMaxLookupTime := time.Now().Add(-r.cfg.Referral.ReferralMaxLookupDuration)
 	requesterReferrals, err := r.registry.ReferralsRepository.FetchReferralsForParams(ctx, domain.ReferralParams{
-		RequesterUserID: requester.UserID,
-		CreatedAt:       &referralMaxLookupTime,
-		Status:          constants.ReferralStatusPending,
+		RequesterUserUUID: requester.UserUUID,
+		CreatedAt:         &referralMaxLookupTime,
+		Status:            constants.ReferralStatusPending,
 	})
 	if err != nil {
 		return nil, err
@@ -66,9 +66,9 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 	}
 
 	providerReferrals, err := r.registry.ReferralsRepository.FetchReferralsForParams(ctx, domain.ReferralParams{
-		ProviderUserID: provider.UserID,
-		CreatedAt:      &referralMaxLookupTime,
-		Status:         constants.ReferralStatusPending,
+		ProviderUserUUID: provider.UserUUID,
+		CreatedAt:        &referralMaxLookupTime,
+		Status:           constants.ReferralStatusPending,
 	})
 	if err != nil {
 		return nil, err
@@ -78,11 +78,11 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 		return nil, errors.ErrReferralLimitReachedForProvider
 	}
 
-	if referralExists(*requesterReferrals, provider.UserID) {
+	if referralExists(*requesterReferrals, provider.UserUUID) {
 		return nil, errors.ErrReferralAlreadyExists
 	}
 
-	storeResumeFilePath, err := storeResumeFile(referralDetails.ResumeFile, r.cfg.ResumeDirectory, requester.UserIDNum)
+	storeResumeFilePath, err := storeResumeFile(referralDetails.ResumeFile, r.cfg.ResumeDirectory, requester.UserNumber)
 	if err != nil {
 		return nil, err
 	}
@@ -116,9 +116,9 @@ func (r referralService) ExpireReferrals(ctx context.Context, referral *domain.R
 	return &domain.EmptyDomain{}, nil
 }
 
-func referralExists(requesterReferrals domain.Referrals, providerUserID string) bool {
+func referralExists(requesterReferrals domain.Referrals, providerUserUUID string) bool {
 	for _, r := range requesterReferrals {
-		if r.ProviderUserID == providerUserID {
+		if r.ProviderUserUUID == providerUserUUID {
 			return true
 		}
 	}

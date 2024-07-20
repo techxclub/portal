@@ -17,9 +17,9 @@ const (
 
 type CompanyUser struct {
 	Name              string      `json:"name"`
-	UserID            string      `json:"user_id"`
+	UserUUID          string      `json:"user_uuid"`
 	CompanyName       string      `json:"company_name"`
-	Role              string      `json:"role"`
+	Designation       string      `json:"designation"`
 	YearsOfExperience float32     `json:"years_of_experience"`
 	ReferralCTA       ReferralCTA `json:"referral_cta"`
 }
@@ -34,18 +34,18 @@ func GetCompanyUsers(ctx context.Context, companyUsers domain.CompanyUsersServic
 	referralReceivedMap := make(map[string]bool)
 
 	for _, referral := range *companyUsers.Referrals {
-		referralReceivedMap[referral.ProviderUserID] = true
+		referralReceivedMap[referral.ProviderUserUUID] = true
 	}
 
 	companyUsersList := make([]CompanyUser, 0)
 	for _, user := range *companyUsers.Users {
 		companyUsersList = append(companyUsersList, CompanyUser{
 			Name:              user.Name,
-			UserID:            user.UserID,
+			UserUUID:          user.UserUUID,
 			CompanyName:       user.CompanyName,
-			Role:              user.Role,
+			Designation:       user.Designation,
 			YearsOfExperience: user.YearsOfExperience,
-			ReferralCTA:       getReferralCTA(ctx, referralReceivedMap[user.UserID]),
+			ReferralCTA:       getReferralCTA(ctx, referralReceivedMap[user.UserUUID]),
 		})
 	}
 

@@ -35,9 +35,12 @@ func LoadConfig(path string, cfg interface{}) error {
 func GenerateDefaultsFile(ctx *cli.Context) error {
 	path := ctx.String("config-file")
 
-	cfg := &Config{}
-	cfg.SetDefaults()
+	defaultCfg := &Config{}
+	defaultCfg.SetDefaults()
+	return saveConfig(path, defaultCfg)
+}
 
+func saveConfig(path string, cfg interface{}) error {
 	d, err := yaml.Marshal(&cfg)
 	if err != nil {
 		return err

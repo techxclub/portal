@@ -8,7 +8,7 @@ import (
 // ScanJSON is a helper function to deduplicate code for scanning database
 // column value of type JSONB into a concrete Go type.
 func ScanJSON(data, value interface{}) error {
-	b, err := scanBytes(data)
+	b, err := ScanBytes(data)
 	if err != nil {
 		return err
 	}
@@ -20,7 +20,7 @@ func ScanJSON(data, value interface{}) error {
 	return json.Unmarshal(b, value)
 }
 
-func scanBytes(data interface{}) ([]byte, error) {
+func ScanBytes(data interface{}) ([]byte, error) {
 	switch data := data.(type) {
 	case string:
 		return []byte(data), nil

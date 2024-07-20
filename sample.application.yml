@@ -15,6 +15,13 @@ AUTH:
 ADMIN_AUTH:
   CLIENT_ID: admin
   PASS_KEY: admin
+GOOGLE_AUTH:
+  DEBUG: true
+  FORCE_APPROVAL: false
+  CLIENT_STATE: google
+  CLIENT_ID: google-client-id
+  CLIENT_SECRET: google-client-secret
+  REDIRECT_URL: https://secure.localhost.com/public/google/oauth/callback
 SWAGGER:
   ENABLED: true
   PATH: ./swagger
@@ -84,6 +91,18 @@ RATE_LIMIT:
     ENABLED: true
     ATTEMPTS: 100
     WINDOW_SECS: 0
+  GOOGLE_OAUTH_DEBUG:
+    ENABLED: true
+    ATTEMPTS: 5
+    WINDOW_SECS: 600
+  GOOGLE_OAUTH_LOGIN:
+    ENABLED: true
+    ATTEMPTS: 5
+    WINDOW_SECS: 600
+  GOOGLE_OAUTH_CALLBACK:
+    ENABLED: true
+    ATTEMPTS: 5
+    WINDOW_SECS: 600
   GENERATE_OTP:
     ENABLED: true
     ATTEMPTS: 5
@@ -138,6 +157,19 @@ OTP:
   MOCKING_ENABLED: false
   EMAIL_THIRD_PARTY_PROVIDER: gomail
   SMS_THIRD_PARTY_PROVIDER: msg91
+GOOGLE_CLIENT:
+  HOST: www.googleapis.com
+  HTTP_TIMEOUT: 1000
+  RETRY_COUNT: 0
+  USERNAME: ""
+  PASSWORD: ""
+  HYSTRIX_TIMEOUT: 1000
+  MAX_CONCURRENT_REQUESTS: 100
+  REQUEST_VOLUME_THRESHOLD: 100
+  SLEEP_WINDOW: 100
+  ERROR_PERCENT_THRESHOLD: 10
+  retryoncodes: []
+  transport: null
 REFERRAL_MAIL:
   SMTP_SERVER: smtp.gmail.com
   SMTP_PORT: 587

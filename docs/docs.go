@@ -9,7 +9,7 @@ type AdminUserListRequestParams struct {
 	// in: query
 	Status string `json:"status"`
 	// in: query
-	UserID string `json:"user_id"`
+	UserUUID string `json:"user_uuid"`
 	// in: query
 	PhoneNumber string `json:"phone_number"`
 	// in: query
@@ -17,7 +17,7 @@ type AdminUserListRequestParams struct {
 	// in: query
 	Company string `json:"company"`
 	// in: query
-	Role string `json:"role"`
+	Designation string `json:"designation"`
 }
 
 // swagger:parameters generateOTP
@@ -45,21 +45,21 @@ type RegisterUserV1Request struct {
 type UserProfileRequest struct {
 	// in: header
 	// required: true
-	UserID string `json:"X-User-Id"`
+	UserUUID string `json:"X-User-Id"`
 }
 
 // swagger:parameters companyUsersList
 type CompanyUsersListRequest struct {
 	// in: header
 	// required: true
-	UserID string `json:"X-User-Id"`
+	UserUUID string `json:"X-User-Id"`
 }
 
 // swagger:parameters referralRequest
 type ReferralRequest struct {
 	// in: header
 	// required: true
-	UserID string `json:"X-User-Id"`
+	UserUUID string `json:"X-User-Id"`
 	// in: body
 	// required: true
 	Body request.ReferralRequest

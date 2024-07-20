@@ -16,14 +16,14 @@ const (
 type RequestContext struct {
 	Language string
 	TraceID  string
-	UserID   string
+	UserUUID string
 }
 
 func NewRequestContextFromHTTP(r *http.Request) RequestContext {
 	return RequestContext{
 		Language: constants.DefaultLanguage,
 		TraceID:  getRequestTraceID(r.Header),
-		UserID:   r.Header.Get(constants.HeaderXUserID),
+		UserUUID: r.Header.Get(constants.HeaderXUserUUID),
 	}
 }
 
@@ -49,8 +49,8 @@ func (r RequestContext) GetLocale() string {
 	return s
 }
 
-func (r RequestContext) GetUserID() string {
-	return r.UserID
+func (r RequestContext) GetUserUUID() string {
+	return r.UserUUID
 }
 
 func getRequestTraceID(header http.Header) string {

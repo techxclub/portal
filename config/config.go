@@ -13,6 +13,7 @@ type Config struct {
 	API         HTTPAPIConfig `yaml:"API" env:",prefix=API_"`
 	Auth        *Auth         `yaml:"AUTH" env:",prefix=AUTH_"`
 	AdminAuth   *AdminAuth    `yaml:"ADMIN_AUTH" env:",prefix=ADMIN_AUTH_"`
+	GoogleAuth  GoogleAuth    `yaml:"GOOGLE_AUTH" env:",prefix=GOOGLE_AUTH_"`
 	Swagger     Swagger       `yaml:"SWAGGER" env:",prefix=SWAGGER_"`
 	Translation Translation   `yaml:"TRANSLATION" env:",prefix=TRANSLATION_"`
 
@@ -20,8 +21,10 @@ type Config struct {
 	Redis     Redis     `yaml:"REDIS" env:",prefix=REDIS_"`
 	Log       Log       `yaml:"LOG" env:",prefix=LOG_"`
 	RateLimit RateLimit `yaml:"RATE_LIMIT" env:",prefix=RATE_LIMIT_"`
+	OTP       OTP       `yaml:"OTP" env:",prefix=OTP_"`
 
-	OTP          OTP      `yaml:"OTP" env:",prefix=OTP_"`
+	GoogleClient HTTPConfig `yaml:"GOOGLE_CLIENT" env:",prefix=GOOGLE_CLIENT_"`
+
 	ReferralMail MailSMTP `yaml:"REFERRAL_MAIL" env:",prefix=REFERRAL_MAIL_"`
 	OTPMail      MailSMTP `yaml:"OTP_MAIL" env:",prefix=OTP_MAIL_"`
 	Referral     Referral `yaml:"REFERRAL" env:",prefix=REFERRAL_"`
@@ -46,6 +49,15 @@ type Auth struct {
 type AdminAuth struct {
 	ClientID string `yaml:"CLIENT_ID" env:"CLIENT_ID"`
 	PassKey  string `yaml:"PASS_KEY" env:"PASS_KEY"`
+}
+
+type GoogleAuth struct {
+	Debug         bool   `yaml:"DEBUG" env:"DEBUG"`
+	ForceApproval bool   `yaml:"FORCE_APPROVAL" env:"FORCE_APPROVAL"`
+	ClientState   string `yaml:"CLIENT_STATE" env:"CLIENT_STATE"`
+	ClientID      string `yaml:"CLIENT_ID" env:"CLIENT_ID"`
+	ClientSecret  string `yaml:"CLIENT_SECRET" env:"CLIENT_SECRET"`
+	RedirectURL   string `yaml:"REDIRECT_URL" env:"REDIRECT_URL"`
 }
 
 type HTTPAPIConfig struct {
@@ -120,6 +132,14 @@ func (cfg *Config) SetDefaults() {
 		PassKey:  "admin",
 	}
 
+	cfg.GoogleAuth = GoogleAuth{
+		Debug:        true,
+		ClientState:  "google",
+		ClientID:     "google-client-id",
+		ClientSecret: "google-client-secret",
+		RedirectURL:  "https://secure.localhost.com/public/google/oauth/callback",
+	}
+
 	cfg.Swagger = Swagger{
 		Enabled: true,
 		Path:    "./swagger",
@@ -146,6 +166,16 @@ func (cfg *Config) SetDefaults() {
 		MockingEnabled:          false,
 		EmailThirdPartyProvider: constants.ThirdPartyGomail,
 		SMSThirdPartyProvider:   constants.ThirdPartyMsg91,
+	}
+
+	cfg.GoogleClient = HTTPConfig{
+		Host:                   "www.googleapis.com",
+		HTTPTimeout:            1000,
+		HystrixTimeout:         1000,
+		MaxConcurrentRequests:  100,
+		RequestVolumeThreshold: 100,
+		SleepWindow:            100,
+		ErrorPercentThreshold:  10,
 	}
 
 	cfg.ReferralMail = MailSMTP{

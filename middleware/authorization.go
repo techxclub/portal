@@ -39,11 +39,13 @@ func Authorization(authConfig *config.Auth) mux.MiddlewareFunc {
 			}
 
 			authToken := tokens[1]
-			if err := domain.VerifyToken(authToken, subject, authConfig); err != nil {
+			userUUID, err := domain.VerifyToken(authConfig, authToken, subject)
+			if err != nil {
 				http.Error(w, err.Error(), http.StatusUnauthorized)
 				return
 			}
 
+			r.Header.Set(constants.HeaderXUserUUID, userUUID)
 			next.ServeHTTP(w, r)
 		})
 	}

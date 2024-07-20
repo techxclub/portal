@@ -10,10 +10,10 @@ import (
 )
 
 var authStatusToActionMap = map[string]string{
-	constants.AuthStatusGenerated: constants.ActionVerifyOTP,
-	constants.AuthStatusPending:   constants.ActionVerifyOTP,
-	constants.AuthStatusFailed:    constants.ActionRetryOTP,
-	constants.AuthStatusVerified:  constants.ActionSignUp,
+	constants.OTPStatusGenerated: constants.ActionVerifyOTP,
+	constants.OTPStatusPending:   constants.ActionVerifyOTP,
+	constants.OTPStatusFailed:    constants.ActionRetryOTP,
+	constants.OTPStatusVerified:  constants.ActionSignUp,
 }
 
 // swagger:model
@@ -56,7 +56,7 @@ func NewVerifyOTPResponse(_ context.Context, authDetails domain.AuthDetails) (Ve
 
 	httpMetadata := HTTPMetadata{
 		Headers: &http.Header{
-			constants.HeaderAuthToken: []string{authDetails.AuthToken},
+			constants.HeaderAuthToken: []string{authDetails.Token},
 		},
 	}
 
