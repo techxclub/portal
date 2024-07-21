@@ -71,6 +71,7 @@ jobs:
     if: ${{ github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/feature/') }}
     env:
       SSH_PRIVATE_KEY: ${{ secrets.INTEGRATION_EC2_SSH_PRIVATE_KEY }}
+      AZURE_SSH_PRIVATE_KEY: ${{ secrets.INTEGRATION_AZURE_EC2_SSH_PRIVATE_KEY }}
     steps:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
@@ -94,6 +95,48 @@ jobs:
           rsync -avz -e "ssh -i ssh_key -o StrictHostKeyChecking=no" ./ ${{ secrets.INTEGRATION_EC2_USERNAME }}@${{ secrets.INTEGRATION_EC2_HOST }}:/home/ubuntu/techx/portal/
 
           ssh -i ssh_key -o StrictHostKeyChecking=no ${{ secrets.INTEGRATION_EC2_USERNAME }}@${{ secrets.INTEGRATION_EC2_HOST }} << 'EOF'
+          if systemctl is-active --quiet portal.service; then
+            echo "Stopping the running portal service..."
+            sudo systemctl stop portal.service
+            echo "Service stopped."
+          else
+            echo "Portal service is not running."
+          fi
+
+          sudo bash -c 'cat >/etc/systemd/system/portal.service <<EOL
+          [Unit]
+          Description=Portal API Server
+          After=network.target
+
+          [Service]
+          Type=simple
+          WorkingDirectory=/home/ubuntu/techx/portal
+          ExecStartPre=/home/ubuntu/techx/portal/out/portal migrate:run --config-file /home/ubuntu/techx/portal/application.yml
+          ExecStart=/home/ubuntu/techx/portal/out/portal start --config-file /home/ubuntu/techx/portal/application.yml
+          Restart=always
+          User=ubuntu
+
+          [Install]
+          WantedBy=multi-user.target
+          EOL'
+          
+          chmod +x /home/ubuntu/techx/portal/out/portal
+          sudo systemctl daemon-reload
+          sudo systemctl enable portal.service
+          sudo systemctl restart portal.service
+          sudo systemctl status portal.service
+
+      - name: Deploy to Azure Integration EC2
+        run: |
+          echo "${AZURE_SSH_PRIVATE_KEY}" > ssh_key
+          chmod 600 ssh_key
+
+          ssh -i ssh_key -o StrictHostKeyChecking=no ${{ secrets.INTEGRATION_AZURE_EC2_USERNAME }}@${{ secrets.INTEGRATION_AZURE_EC2_HOST }} "mkdir -p /home/ubuntu/techx/portal"
+
+          # Copy the portal code to the EC2 instance
+          rsync -avz -e "ssh -i ssh_key -o StrictHostKeyChecking=no" ./ ${{ secrets.INTEGRATION_AZURE_EC2_USERNAME }}@${{ secrets.INTEGRATION_AZURE_EC2_HOST }}:/home/ubuntu/techx/portal/
+
+          ssh -i ssh_key -o StrictHostKeyChecking=no ${{ secrets.INTEGRATION_AZURE_EC2_USERNAME }}@${{ secrets.INTEGRATION_AZURE_EC2_HOST }} << 'EOF'
           if systemctl is-active --quiet portal.service; then
             echo "Stopping the running portal service..."
             sudo systemctl stop portal.service
