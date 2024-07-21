@@ -5,6 +5,7 @@ import (
 
 	"github.com/techx/portal/client/http"
 	"github.com/techx/portal/config"
+	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
 )
 
@@ -49,7 +50,7 @@ func (gc *googleClient) FetchUserInfo(ctx context.Context, oauthDetails domain.G
 	var userInfo UserInfo
 	err := http.NewRequest(ctx, googleClientCmd).
 		SetScheme(http.SchemeHTTPS).
-		SetMethod(http.MethodGet).
+		SetMethod(constants.MethodGet).
 		SetHost(gc.host).
 		SetPath(userInfoAPIEndpoint).
 		SetQueryParam(paramAccessToken, oauthDetails.AccessToken).

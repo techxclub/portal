@@ -12,99 +12,113 @@ import (
 )
 
 type OTPBuilder interface {
-	SendOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthInfo, error)
-	ResendOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthInfo, error)
-	VerifyOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthInfo, error)
+	SendOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthDetails, error)
+	ResendOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthDetails, error)
+	VerifyOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthDetails, error)
+	Check(ctx context.Context, email string) bool
 }
 
-type messageBuilder struct {
+type otpBuilder struct {
 	cfg           *config.Config
 	otpMailClient *gomail.Dialer
 	otpCache      cache.Cache[cache.OTPCache]
 }
 
 func NewOTPBuilder(cfg *config.Config, otpMailClient *gomail.Dialer, otpCache cache.Cache[cache.OTPCache]) OTPBuilder {
-	return &messageBuilder{
+	return &otpBuilder{
 		cfg:           cfg,
 		otpMailClient: otpMailClient,
 		otpCache:      otpCache,
 	}
 }
 
-func (mb messageBuilder) SendOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthInfo, error) {
-	if mb.cfg.OTP.MockingEnabled {
-		return mb.mockSendOTP(ctx, params)
+func (ob otpBuilder) SendOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthDetails, error) {
+	if ob.cfg.OTP.MockingEnabled {
+		return ob.mockSendOTP(ctx, params)
 	}
 
 	switch params.Channel {
 	case constants.OTPChannelEmail:
-		return mb.sendEmailOTP(ctx, params)
+		return ob.sendEmailOTP(ctx, params)
 	default:
-		return domain.AuthInfo{}, errors.ErrInvalidAuthChannel
+		return domain.AuthDetails{}, errors.ErrInvalidAuthChannel
 	}
 }
 
-func (mb messageBuilder) ResendOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthInfo, error) {
-	if mb.cfg.OTP.MockingEnabled {
-		return mb.mockSendOTP(ctx, params)
+func (ob otpBuilder) ResendOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthDetails, error) {
+	if ob.cfg.OTP.MockingEnabled {
+		return ob.mockSendOTP(ctx, params)
 	}
 
 	switch params.Channel {
 	case constants.OTPChannelEmail:
-		return mb.resendEmailOTP(ctx, params)
+		return ob.resendEmailOTP(ctx, params)
 	default:
-		return domain.AuthInfo{}, errors.ErrInvalidAuthChannel
+		return domain.AuthDetails{}, errors.ErrInvalidAuthChannel
 	}
 }
 
-func (mb messageBuilder) VerifyOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthInfo, error) {
-	if mb.cfg.OTP.MockingEnabled {
-		return mb.mockVerifyOTP(ctx, params)
+func (ob otpBuilder) VerifyOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthDetails, error) {
+	if ob.cfg.OTP.MockingEnabled {
+		return ob.mockVerifyOTP(ctx, params)
 	}
 
 	switch params.Channel {
 	case constants.OTPChannelEmail:
-		return mb.verifyEmailOTP(ctx, params)
+		return ob.verifyEmailOTP(ctx, params)
 	default:
-		return domain.AuthInfo{}, errors.ErrInvalidAuthChannel
+		return domain.AuthDetails{}, errors.ErrInvalidAuthChannel
 	}
 }
 
-func (mb messageBuilder) sendEmailOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthInfo, error) {
-	switch mb.cfg.OTP.EmailThirdPartyProvider {
+func (ob otpBuilder) Check(ctx context.Context, email string) bool {
+	if ob.cfg.OTP.MockingEnabled {
+		return true
+	}
+
+	val, err := ob.otpCache.Get(ctx, email)
+	if err != nil {
+		return false
+	}
+
+	return val.Verified
+}
+
+func (ob otpBuilder) sendEmailOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthDetails, error) {
+	switch ob.cfg.OTP.EmailThirdPartyProvider {
 	case constants.ThirdPartyGomail:
-		return mb.sendEmailOTPViaGomail(ctx, params)
+		return ob.sendEmailOTPViaGomail(ctx, params)
 	default:
-		return domain.AuthInfo{}, errors.ErrInvalidEmailProvider
+		return domain.AuthDetails{}, errors.ErrInvalidEmailProvider
 	}
 }
 
-func (mb messageBuilder) resendEmailOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthInfo, error) {
-	switch mb.cfg.OTP.EmailThirdPartyProvider {
+func (ob otpBuilder) resendEmailOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthDetails, error) {
+	switch ob.cfg.OTP.EmailThirdPartyProvider {
 	case constants.ThirdPartyGomail:
-		return mb.resendEmailOTPViaGomail(ctx, params)
+		return ob.resendEmailOTPViaGomail(ctx, params)
 	default:
-		return domain.AuthInfo{}, errors.ErrInvalidEmailProvider
+		return domain.AuthDetails{}, errors.ErrInvalidEmailProvider
 	}
 }
 
-func (mb messageBuilder) verifyEmailOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthInfo, error) {
-	switch mb.cfg.OTP.EmailThirdPartyProvider {
+func (ob otpBuilder) verifyEmailOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthDetails, error) {
+	switch ob.cfg.OTP.EmailThirdPartyProvider {
 	case constants.ThirdPartyGomail:
-		return mb.verifyEmailOTPViaGomail(ctx, params)
+		return ob.verifyEmailOTPViaGomail(ctx, params)
 	default:
-		return domain.AuthInfo{}, errors.ErrInvalidEmailProvider
+		return domain.AuthDetails{}, errors.ErrInvalidEmailProvider
 	}
 }
 
-func (mb messageBuilder) mockSendOTP(_ context.Context, _ domain.OTPRequest) (domain.AuthInfo, error) {
-	return domain.AuthInfo{Status: constants.OTPStatusPending}, nil
+func (ob otpBuilder) mockSendOTP(_ context.Context, _ domain.OTPRequest) (domain.AuthDetails, error) {
+	return domain.AuthDetails{Status: constants.OTPStatusPending}, nil
 }
 
-func (mb messageBuilder) mockVerifyOTP(_ context.Context, req domain.OTPRequest) (domain.AuthInfo, error) {
+func (ob otpBuilder) mockVerifyOTP(_ context.Context, req domain.OTPRequest) (domain.AuthDetails, error) {
 	if req.OTP == "123456" {
-		return domain.AuthInfo{Status: constants.OTPStatusVerified}, nil
+		return domain.AuthDetails{Status: constants.OTPStatusVerified}, nil
 	}
 
-	return domain.AuthInfo{Status: constants.OTPStatusPending}, nil
+	return domain.AuthDetails{Status: constants.OTPStatusPending}, nil
 }

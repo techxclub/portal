@@ -19,11 +19,13 @@ type RateLimit struct {
 	GoogleOAuthDebug    RateLimitConfig `yaml:"GOOGLE_OAUTH_DEBUG" env:",prefix=GOOGLE_OAUTH_DEBUG_"`
 	GoogleOAuthLogin    RateLimitConfig `yaml:"GOOGLE_OAUTH_LOGIN" env:",prefix=GOOGLE_OAUTH_LOGIN_"`
 	GoogleOAuthCallback RateLimitConfig `yaml:"GOOGLE_OAUTH_CALLBACK" env:",prefix=GOOGLE_OAUTH_CALLBACK_"`
+	GoogleOAuthExchange RateLimitConfig `yaml:"GOOGLE_OAUTH_EXCHANGE" env:",prefix=GOOGLE_OAUTH_EXCHANGE_"`
 	GenerateOTP         RateLimitConfig `yaml:"GENERATE_OTP" env:",prefix=GENERATE_OTP_"`
 	ResendOTP           RateLimitConfig `yaml:"RESEND_OTP" env:",prefix=RESEND_OTP_"`
 	VerifyOTP           RateLimitConfig `yaml:"VERIFY_OTP" env:",prefix=VERIFY_OTP_"`
+	UserFetchProfile    RateLimitConfig `yaml:"USER_FETCH_PROFILE" env:",prefix=USER_FETCH_PROFILE_"`
+	UserUpdateProfile   RateLimitConfig `yaml:"USER_UPDATE_PROFILE" env:",prefix=USER_UPDATE_PROFILE_"`
 	UserRegister        RateLimitConfig `yaml:"USER_REGISTER" env:",prefix=USER_REGISTER_"`
-	UserProfile         RateLimitConfig `yaml:"USER_PROFILE" env:",prefix=USER_PROFILE_"`
 	CompanyList         RateLimitConfig `yaml:"COMPANY_LIST" env:",prefix=COMPANY_LIST_"`
 	CompanyUserList     RateLimitConfig `yaml:"COMPANY_USER_LIST" env:",prefix=COMPANY_USER_LIST_"`
 	ReferralRequest     RateLimitConfig `yaml:"REFERRAL_REQUEST" env:",prefix=REFERRAL_REQUEST_"`
@@ -51,11 +53,13 @@ func defaultRateLimit() RateLimit {
 		GoogleOAuthDebug:    RateLimitConfig{Enabled: true, Attempts: 5, WindowSecs: 600},
 		GoogleOAuthLogin:    RateLimitConfig{Enabled: true, Attempts: 5, WindowSecs: 600},
 		GoogleOAuthCallback: RateLimitConfig{Enabled: true, Attempts: 5, WindowSecs: 600},
+		GoogleOAuthExchange: RateLimitConfig{Enabled: true, Attempts: 5, WindowSecs: 600},
 		GenerateOTP:         RateLimitConfig{Enabled: true, Attempts: 5, WindowSecs: 600},
 		ResendOTP:           RateLimitConfig{Enabled: true, Attempts: 5, WindowSecs: 600},
 		VerifyOTP:           RateLimitConfig{Enabled: true, Attempts: 10, WindowSecs: 600},
+		UserFetchProfile:    RateLimitConfig{Enabled: true, Attempts: 100, WindowSecs: 600},
+		UserUpdateProfile:   RateLimitConfig{Enabled: true, Attempts: 100, WindowSecs: 600},
 		UserRegister:        RateLimitConfig{Enabled: true, Attempts: 5, WindowSecs: 3600},
-		UserProfile:         RateLimitConfig{Enabled: true, Attempts: 100, WindowSecs: 600},
 		CompanyList:         RateLimitConfig{Enabled: true, Attempts: 100, WindowSecs: 600},
 		CompanyUserList:     RateLimitConfig{Enabled: true, Attempts: 100, WindowSecs: 600},
 		ReferralRequest:     RateLimitConfig{Enabled: true, Attempts: 10, WindowSecs: 600},
@@ -88,16 +92,20 @@ func (rl RateLimit) GetAPIRateLimitConfig(apiName string) RateLimitConfig {
 		return rl.GoogleOAuthLogin
 	case constants.APINameGoogleOAuthCallback:
 		return rl.GoogleOAuthCallback
+	case constants.APINameGoogleOAuthExchange:
+		return rl.GoogleOAuthExchange
 	case constants.APINameGenerateOTP:
 		return rl.GenerateOTP
 	case constants.APINameResendOTP:
 		return rl.ResendOTP
 	case constants.APINameVerifyOTP:
 		return rl.VerifyOTP
+	case constants.APINameUserFetchProfile:
+		return rl.UserFetchProfile
+	case constants.APINameUserUpdateProfile:
+		return rl.UserUpdateProfile
 	case constants.APINameUserRegister:
 		return rl.UserRegister
-	case constants.APINameUserProfile:
-		return rl.UserProfile
 	case constants.APINameCompanyList:
 		return rl.CompanyList
 	case constants.APINameCompanyUserList:

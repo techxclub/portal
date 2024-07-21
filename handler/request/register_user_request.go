@@ -63,13 +63,13 @@ func (r RegisterUserV1Request) Validate() error {
 func (r RegisterUserV1Request) ToUserDetails() domain.User {
 	return domain.User{
 		Status: constants.StatusPendingApproval,
-		PersonalDetails: domain.PersonalDetails{
+		PersonalInformation: domain.PersonalInformation{
 			Name:            r.Name,
 			RegisteredEmail: r.RegisteredEmail,
 			PhoneNumber:     r.PhoneNumber,
 			LinkedIn:        r.LinkedIn,
 		},
-		ProfessionalDetails: domain.ProfessionalDetails{
+		ProfessionalInformation: domain.ProfessionalInformation{
 			CompanyName:       r.CompanyName,
 			YearsOfExperience: r.YearsOfExperience,
 			WorkEmail:         r.WorkEmail,

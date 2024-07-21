@@ -2,11 +2,9 @@ package response
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
-	"github.com/techx/portal/handler/composers"
 )
 
 var authStatusToActionMap = map[string]string{
@@ -23,8 +21,7 @@ type GenerateOTPResponse struct {
 
 // swagger:model
 type VerifyOTPResponse struct {
-	Action  string                 `json:"action"`
-	Profile *composers.UserProfile `json:"profile,omitempty"`
+	Action string `json:"action"`
 }
 
 func NewGenerateOTPResponse(_ context.Context, _ domain.AuthDetails) (GenerateOTPResponse, HTTPMetadata) {
@@ -32,33 +29,10 @@ func NewGenerateOTPResponse(_ context.Context, _ domain.AuthDetails) (GenerateOT
 }
 
 func NewVerifyOTPResponse(_ context.Context, authDetails domain.AuthDetails) (VerifyOTPResponse, HTTPMetadata) {
-	action, ok := authStatusToActionMap[authDetails.AuthInfo.Status]
+	action, ok := authStatusToActionMap[authDetails.Status]
 	if !ok {
 		return VerifyOTPResponse{Action: constants.ActionRetryOTP}, HTTPMetadata{}
 	}
 
-	if authDetails.UserInfo == nil {
-		return VerifyOTPResponse{Action: action}, HTTPMetadata{}
-	}
-
-	profile := composers.NewUserProfile(*authDetails.UserInfo)
-	if !authDetails.UserInfo.IsApproved() {
-		return VerifyOTPResponse{
-			Action:  constants.ActionPendingApproval,
-			Profile: &profile,
-		}, HTTPMetadata{}
-	}
-
-	verifyOTPResponse := VerifyOTPResponse{
-		Action:  constants.ActionLogIn,
-		Profile: &profile,
-	}
-
-	httpMetadata := HTTPMetadata{
-		Headers: &http.Header{
-			constants.HeaderAuthToken: []string{authDetails.Token},
-		},
-	}
-
-	return verifyOTPResponse, httpMetadata
+	return VerifyOTPResponse{Action: action}, HTTPMetadata{}
 }

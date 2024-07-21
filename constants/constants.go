@@ -22,13 +22,14 @@ const (
 	MentorStatusApproved        = "APPROVED"
 
 	// User Params
-	ParamUserNumber       = "user_number"
-	ParamUserUUID         = "user_uuid"
-	ParamCreatedTime      = "created_time"
-	ParamStatus           = "status"
-	ParamGoogleOAuth      = "google_auth_details"
-	ParamTechnicalDetails = "technical_skills"
-	ParamMentorConfig     = "mentor_config"
+	ParamUserNumber           = "user_number"
+	ParamUserUUID             = "user_uuid"
+	ParamCreateTime           = "create_time"
+	ParamUpdateTime           = "update_time"
+	ParamStatus               = "status"
+	ParamGoogleOAuth          = "google_auth_details"
+	ParamTechnicalInformation = "technical_information"
+	ParamMentorConfig         = "mentor_config"
 
 	// personal details
 	ParamName            = "name"

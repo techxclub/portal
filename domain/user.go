@@ -11,18 +11,19 @@ type Users []User
 type User struct {
 	UserNumber int64      `db:"user_number"` // Only for internal use
 	UserUUID   string     `db:"user_uuid"`
-	CreatedAt  *time.Time `db:"created_time"`
+	CreatedAt  *time.Time `db:"create_time"`
+	UpdatedAt  *time.Time `db:"update_time"`
 	Status     string     `db:"status"`
 
-	PersonalDetails
-	ProfessionalDetails
+	PersonalInformation
+	ProfessionalInformation
 
-	GoogleAuthJSON      JSONWrapper[GoogleOAuthDetails] `db:"google_auth_details"`
-	TechnicalSkillsJSON JSONWrapper[TechnicalSkills]    `db:"technical_skills"`
-	MentorConfigJSON    JSONWrapper[MentorConfig]       `db:"mentor_config"`
+	GoogleAuthJSON           JSONWrapper[GoogleOAuthDetails]   `db:"google_auth_details"`
+	TechnicalInformationJSON JSONWrapper[TechnicalInformation] `db:"technical_information"`
+	MentorConfigJSON         JSONWrapper[MentorConfig]         `db:"mentor_config"`
 }
 
-type PersonalDetails struct {
+type PersonalInformation struct {
 	Name            string `db:"name"`
 	PhoneNumber     string `db:"phone_number"`
 	RegisteredEmail string `db:"registered_email"`
@@ -31,7 +32,7 @@ type PersonalDetails struct {
 	Gender          string `db:"gender"`
 }
 
-type ProfessionalDetails struct {
+type ProfessionalInformation struct {
 	CompanyID         int64   `db:"company_id"`
 	CompanyName       string  `db:"company_name"`
 	WorkEmail         string  `db:"work_email"`
@@ -48,7 +49,7 @@ type GoogleOAuthDetails struct {
 	Expiry       time.Time `json:"expiry"`
 }
 
-type TechnicalSkills struct {
+type TechnicalInformation struct {
 	Domain string   `json:"domain"`
 	Skills []string `json:"skills"`
 }
@@ -87,12 +88,12 @@ func (u *User) GoogleOAuthDetails() GoogleOAuthDetails {
 	return u.GoogleAuthJSON.GetData()
 }
 
-func (u *User) SetTechnicalSkills(data TechnicalSkills) {
-	u.TechnicalSkillsJSON.SetData(data)
+func (u *User) SetTechnicalInformation(data TechnicalInformation) {
+	u.TechnicalInformationJSON.SetData(data)
 }
 
-func (u *User) TechnicalSkills() TechnicalSkills {
-	return u.TechnicalSkillsJSON.GetData()
+func (u *User) TechnicalInformation() TechnicalInformation {
+	return u.TechnicalInformationJSON.GetData()
 }
 
 func (u *User) SetMentorConfig(data MentorConfig) {
@@ -105,4 +106,16 @@ func (u *User) MentorConfig() MentorConfig {
 
 func (u User) IsApproved() bool {
 	return u.Status == constants.StatusApproved || u.Status == constants.StatusAutoApproved
+}
+
+func (u User) IsProfileComplete() bool {
+	return u.requiredPersonalInfoPresent() && u.requiredProfessionalInfoPresent()
+}
+
+func (u User) requiredPersonalInfoPresent() bool {
+	return u.Name != "" && u.PhoneNumber != "" && u.RegisteredEmail != "" && u.ProfilePicture != "" && u.LinkedIn != ""
+}
+
+func (u User) requiredProfessionalInfoPresent() bool {
+	return u.CompanyName != "" && u.WorkEmail != "" && u.Designation != "" && u.YearsOfExperience != 0
 }

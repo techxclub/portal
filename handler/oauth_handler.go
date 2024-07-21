@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/techx/portal/config"
@@ -64,12 +65,12 @@ func GoogleOAuthCallbackHandler(cfg *config.Config, serviceRegistry *service.Reg
 	return func(w http.ResponseWriter, r *http.Request) {
 		state := r.FormValue("state")
 		code := r.FormValue("code")
-		req := domain.GoogleOAuthCallbackRequest{
+		req := domain.GoogleOAuthExchangeRequest{
 			State: state,
 			Code:  code,
 		}
 
-		userProfile, err := serviceRegistry.OAuthService.GoogleOAuthCallback(r.Context(), req)
+		userProfile, err := serviceRegistry.OAuthService.GoogleOAuthExchange(r.Context(), req)
 		if err != nil {
 			response.InstrumentErrorResponse(r, errors.AsServiceError(err))
 			http.Redirect(w, r, "/dashboard", http.StatusMovedPermanently)
@@ -87,5 +88,34 @@ func GoogleOAuthCallbackHandler(cfg *config.Config, serviceRegistry *service.Reg
 		w.Header().Set(constants.HeaderAuthToken, authToken)
 		w.WriteHeader(http.StatusOK)
 		http.Redirect(w, r, "/dashboard", http.StatusMovedPermanently)
+	}
+}
+
+func GoogleOAuthExchangeHandler(cfg *config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req domain.GoogleOAuthExchangeRequest
+
+		decoder := json.NewDecoder(r.Body)
+		if err := decoder.Decode(&req); err != nil {
+			response.InstrumentErrorResponse(r, errors.AsServiceError(err))
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		userProfile, err := serviceRegistry.OAuthService.GoogleOAuthExchange(r.Context(), req)
+		if err != nil {
+			response.InstrumentErrorResponse(r, errors.AsServiceError(err))
+			return
+		}
+
+		authToken, err := domain.GenerateToken(userProfile.UserUUID, cfg.Auth)
+		if err != nil {
+			response.InstrumentErrorResponse(r, errors.AsServiceError(errors.ErrGeneratingAuthToken))
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set(constants.HeaderAuthToken, authToken)
+		w.WriteHeader(http.StatusOK)
 	}
 }

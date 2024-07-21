@@ -15,13 +15,14 @@ import (
 const (
 	keyIDToken = "id_token"
 
+	userOpenIDScope  = "openid"
 	userEmailScope   = "https://www.googleapis.com/auth/userinfo.email"
 	userProfileScope = "https://www.googleapis.com/auth/userinfo.profile"
 )
 
 type GoogleOAuthBuilder interface {
 	BuildGoogleLoginURI() domain.GoogleLogin
-	BuildGoogleOAuthDetails(ctx context.Context, callbackReq domain.GoogleOAuthCallbackRequest) (*domain.GoogleOAuthDetails, error)
+	BuildGoogleOAuthDetails(ctx context.Context, exchangeReq domain.GoogleOAuthExchangeRequest) (*domain.GoogleOAuthDetails, error)
 	BuildUserProfile(ctx context.Context, googleOAuthDetails domain.GoogleOAuthDetails) (*domain.User, error)
 }
 
@@ -50,12 +51,8 @@ func (gb googleOAuthBuilder) BuildGoogleLoginURI() domain.GoogleLogin {
 	}
 }
 
-func (gb googleOAuthBuilder) BuildGoogleOAuthDetails(ctx context.Context, callbackReq domain.GoogleOAuthCallbackRequest) (*domain.GoogleOAuthDetails, error) {
-	if callbackReq.State != gb.clientConfig.ClientState {
-		return nil, errors.ErrInvalidAuthState
-	}
-
-	token, err := gb.getOAuthConfig().Exchange(ctx, callbackReq.Code)
+func (gb googleOAuthBuilder) BuildGoogleOAuthDetails(ctx context.Context, exchangeReq domain.GoogleOAuthExchangeRequest) (*domain.GoogleOAuthDetails, error) {
+	token, err := gb.getOAuthConfig().Exchange(ctx, exchangeReq.Code)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +78,7 @@ func (gb googleOAuthBuilder) BuildUserProfile(ctx context.Context, googleOAuthDe
 
 	userProfile := &domain.User{
 		Status: constants.StatusIncompleteProfile,
-		PersonalDetails: domain.PersonalDetails{
+		PersonalInformation: domain.PersonalInformation{
 			RegisteredEmail: googleUserInfo.Email,
 			ProfilePicture:  googleUserInfo.Picture,
 			Gender:          constants.GenderMale,
@@ -98,6 +95,7 @@ func (gb googleOAuthBuilder) getOAuthConfig() *oauth2.Config {
 		ClientID:     gb.clientConfig.ClientID,
 		ClientSecret: gb.clientConfig.ClientSecret,
 		Scopes: []string{
+			userOpenIDScope,
 			userEmailScope,
 			userProfileScope,
 		},

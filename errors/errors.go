@@ -12,7 +12,18 @@ var (
 var (
 	ErrZeroRowsAffected = errors.New("no rows affected")
 
-	ErrGeneratingAuthToken              = errors.New("error generating auth token")
+	ErrGeneratingAuthToken    = errors.New("error generating auth token")
+	ErrInvalidUserID          = NewServiceError("invalid_user_id", 400, nil)
+	ErrInvalidUserUpdate      = NewServiceError("invalid_user_update", 400, nil)
+	ErrWorkEmailNotVerified   = NewServiceError("work_email_not_verified", 400, nil)
+	ErrEmptyName              = NewServiceError("empty_name", 400, nil)
+	ErrEmptyPhoneNumber       = NewServiceError("empty_phone_number", 400, nil)
+	ErrEmptyLinkedIn          = NewServiceError("empty_linkedin", 400, nil)
+	ErrEmptyCompanyName       = NewServiceError("empty_company_name", 400, nil)
+	ErrEmptyWorkEmail         = NewServiceError("empty_work_email", 400, nil)
+	ErrEmptyDesignation       = NewServiceError("empty_designation", 400, nil)
+	ErrEmptyYearsOfExperience = NewServiceError("empty_years_of_experience", 400, nil)
+
 	ErrInvalidPhoneNumber               = NewServiceError("invalid_phone_number", 400, nil)
 	ErrInvalidYearsOfExperience         = NewServiceError("invalid_years_of_experience", 400, nil)
 	ErrInvalidWorkEmail                 = NewServiceError("invalid_work_email", 400, nil)

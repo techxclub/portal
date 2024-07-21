@@ -25,7 +25,7 @@ func addOAuthRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry
 		Path("/debug").
 		Handler(handler.GoogleOAuthDebugHandler(cfg))
 
-	//	swagger:route POST /public/google/oauth/login generateOTP
+	//	swagger:route GET /public/google/oauth/login generateOTP
 	//	Responses:
 	//		200: GoogleOAuthLoginResponse
 	//		401:
@@ -39,7 +39,7 @@ func addOAuthRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry
 		Path("/login").
 		Handler(handler.GoogleOAuthLoginHandler(cfg, sr))
 
-	//	swagger:route POST /public/google/oauth/callback generateOTP
+	//	swagger:route GET /public/google/oauth/callback generateOTP
 	//	Responses:
 	//		200: GoogleOAuthCallbackResponse
 	//		401:
@@ -52,4 +52,18 @@ func addOAuthRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry
 		Name(constants.APINameGoogleOAuthCallback).
 		Path("/callback").
 		Handler(handler.GoogleOAuthCallbackHandler(cfg, sr))
+
+	//	swagger:route POST /public/google/oauth/exchange oauthExchangeCode
+	//	Responses:
+	//		200: GoogleOAuthExchangeResponse
+	//		401:
+	// 		400: ErrorResponse
+	//		422: ErrorResponse
+	//		500: ErrorResponse
+	//		503: ErrorResponse
+	authRouter.
+		Methods(constants.MethodPost).
+		Name(constants.APINameGoogleOAuthExchange).
+		Path("/exchange").
+		Handler(handler.GoogleOAuthExchangeHandler(cfg, sr))
 }

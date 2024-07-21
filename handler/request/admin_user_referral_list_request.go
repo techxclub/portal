@@ -26,7 +26,7 @@ func NewAdminUserReferralListRequest(r *http.Request) (*AdminUserReferralListReq
 	providerUserUUID := r.URL.Query().Get(constants.ParamProviderID)
 	status := r.URL.Query().Get(constants.ParamStatus)
 	companyID := r.URL.Query().Get(constants.ParamCompanyID)
-	createdAtStr := r.URL.Query().Get(constants.ParamCreatedTime)
+	createdAtStr := r.URL.Query().Get(constants.ParamCreateTime)
 	createdAt, err := parseCreatedAt(createdAtStr)
 	if err != nil {
 		return nil, err
@@ -49,11 +49,13 @@ func (r AdminUserReferralListRequest) Validate() error {
 
 func (r AdminUserReferralListRequest) ToFetchReferralParams() domain.ReferralParams {
 	return domain.ReferralParams{
-		RequesterUserUUID: r.RequesterUserUUID,
-		ProviderUserUUID:  r.ProviderUserUUID,
-		CompanyID:         utils.ParseInt64WithDefault(r.CompanyID, 0),
-		Status:            r.Status,
-		CreatedAt:         r.CreatedAt,
+		Referral: domain.Referral{
+			RequesterUserUUID: r.RequesterUserUUID,
+			ProviderUserUUID:  r.ProviderUserUUID,
+			CompanyID:         utils.ParseInt64WithDefault(r.CompanyID, 0),
+			Status:            r.Status,
+			CreatedAt:         r.CreatedAt,
+		},
 	}
 }
 

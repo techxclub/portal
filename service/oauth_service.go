@@ -10,7 +10,7 @@ import (
 
 type OAuthService interface {
 	GoogleLoginURL() domain.GoogleLogin
-	GoogleOAuthCallback(ctx context.Context, callbackReq domain.GoogleOAuthCallbackRequest) (*domain.User, error)
+	GoogleOAuthExchange(ctx context.Context, exchangeReq domain.GoogleOAuthExchangeRequest) (*domain.User, error)
 }
 
 type oauthService struct {
@@ -29,8 +29,8 @@ func (as oauthService) GoogleLoginURL() domain.GoogleLogin {
 	return as.registry.GoogleOAuthBuilder.BuildGoogleLoginURI()
 }
 
-func (as oauthService) GoogleOAuthCallback(ctx context.Context, callbackReq domain.GoogleOAuthCallbackRequest) (*domain.User, error) {
-	googleAuthDetails, err := as.registry.GoogleOAuthBuilder.BuildGoogleOAuthDetails(ctx, callbackReq)
+func (as oauthService) GoogleOAuthExchange(ctx context.Context, exchangeReq domain.GoogleOAuthExchangeRequest) (*domain.User, error) {
+	googleAuthDetails, err := as.registry.GoogleOAuthBuilder.BuildGoogleOAuthDetails(ctx, exchangeReq)
 	if err != nil {
 		return nil, err
 	}

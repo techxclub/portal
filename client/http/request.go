@@ -18,16 +18,6 @@ import (
 const (
 	SchemeHTTP  = "http"
 	SchemeHTTPS = "https"
-
-	MethodGet     = "GET"
-	MethodHead    = "HEAD"
-	MethodPost    = "POST"
-	MethodPut     = "PUT"
-	MethodPatch   = "PATCH" // RFC 5789
-	MethodDelete  = "DELETE"
-	MethodConnect = "CONNECT"
-	MethodOptions = "OPTIONS"
-	MethodTrace   = "TRACE"
 )
 
 func NewRequest(ctx context.Context, cmdName string) *Request {

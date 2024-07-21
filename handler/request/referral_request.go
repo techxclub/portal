@@ -61,13 +61,15 @@ func (r ReferralRequest) Validate() error {
 
 func (r ReferralRequest) ToReferral() domain.ReferralParams {
 	return domain.ReferralParams{
-		RequesterUserUUID: r.RequesterUserUUID,
-		ProviderUserUUID:  r.ProviderUserUUID,
-		JobLink:           r.JobLink,
-		CompanyID:         r.CompanyID,
-		Message:           r.Message,
-		ResumeFile:        r.ResumeFile,
-		Status:            constants.ReferralStatusPending,
+		Referral: domain.Referral{
+			Status:            constants.ReferralStatusPending,
+			RequesterUserUUID: r.RequesterUserUUID,
+			ProviderUserUUID:  r.ProviderUserUUID,
+			JobLink:           r.JobLink,
+			CompanyID:         r.CompanyID,
+		},
+		Message:    r.Message,
+		ResumeFile: r.ResumeFile,
 	}
 }
 

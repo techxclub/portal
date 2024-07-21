@@ -4,9 +4,9 @@ type GoogleLogin struct {
 	RedirectURI string
 }
 
-type GoogleOAuthCallbackRequest struct {
-	State string
-	Code  string
+type GoogleOAuthExchangeRequest struct {
+	State string `json:"state"`
+	Code  string `json:"code"`
 }
 
 type OTPRequest struct {
@@ -16,11 +16,5 @@ type OTPRequest struct {
 }
 
 type AuthDetails struct {
-	Token    string
-	UserInfo *User
-	AuthInfo AuthInfo
-}
-
-type AuthInfo struct {
 	Status string
 }

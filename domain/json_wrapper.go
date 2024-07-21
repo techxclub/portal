@@ -11,7 +11,7 @@ import (
 
 var (
 	_ JSONWrapperInterface = new(JSONWrapper[GoogleOAuthDetails])
-	_ JSONWrapperInterface = new(JSONWrapper[TechnicalSkills])
+	_ JSONWrapperInterface = new(JSONWrapper[TechnicalInformation])
 	_ JSONWrapperInterface = new(JSONWrapper[MentorConfig])
 )
 

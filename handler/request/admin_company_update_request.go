@@ -32,8 +32,8 @@ func (r AdminCompanyUpdateRequest) Validate() error {
 	return nil
 }
 
-func (r AdminCompanyUpdateRequest) ToCompanyProfileParams() *domain.Company {
-	return &domain.Company{
+func (r AdminCompanyUpdateRequest) ToCompanyProfileParams() domain.Company {
+	return domain.Company{
 		ID:             r.ID,
 		NormalizedName: r.NormalizedName,
 		DisplayName:    r.DisplayName,

@@ -14,16 +14,16 @@ import (
 )
 
 const (
-	insertReferralQuery          = `INSERT INTO referrals (requester_user_id, provider_user_id, company_id, job_link, status, created_time) VALUES (:requester_user_id, :provider_user_id, :company_id, :job_link, :status, :created_time) RETURNING id, created_time`
-	fetchReferralSelectorFields  = `id, requester_user_id, provider_user_id, company_id, job_link, status, created_time`
+	insertReferralQuery          = `INSERT INTO referrals (create_time, requester_user_id, provider_user_id, company_id, job_link, status) VALUES (:create_time, :requester_user_id, :provider_user_id, :company_id, :job_link, :status) RETURNING id`
+	fetchReferralSelectorFields  = `id, requester_user_id, provider_user_id, company_id, job_link, status, create_time`
 	selectReferralBaseQuery      = `SELECT ` + fetchReferralSelectorFields + ` FROM referrals WHERE `
 	namedUpdateReferralBaseQuery = `UPDATE referrals SET %s WHERE id=:id`
 )
 
 type ReferralsRepository interface {
-	InsertReferral(ctx context.Context, referral domain.ReferralParams) (*domain.Referral, error)
-	FetchReferralsForParams(ctx context.Context, params domain.ReferralParams) (*domain.Referrals, error)
+	InsertReferral(ctx context.Context, referral domain.Referral) (*domain.Referral, error)
 	UpdateReferral(ctx context.Context, referral *domain.Referral) error
+	FetchReferralsForParams(ctx context.Context, params domain.ReferralParams) (*domain.Referrals, error)
 	ExpirePendingReferrals(ctx context.Context, referral *domain.Referral) error
 }
 
@@ -32,8 +32,7 @@ type referralsRepository struct {
 }
 
 type ReferralsReturning struct {
-	ID        int64     `db:"id"`
-	CreatedAt time.Time `db:"created_time"`
+	ID int64 `db:"id"`
 }
 
 func NewReferralsRepository(dbClient db.Client) ReferralsRepository {
@@ -42,59 +41,28 @@ func NewReferralsRepository(dbClient db.Client) ReferralsRepository {
 	}
 }
 
-func (r referralsRepository) InsertReferral(ctx context.Context, params domain.ReferralParams) (*domain.Referral, error) {
+func (r referralsRepository) InsertReferral(ctx context.Context, referral domain.Referral) (*domain.Referral, error) {
 	var returning ReferralsReturning
+	now := time.Now()
+	referral.CreatedAt = &now
+	referral.UpdatedAt = &now
+
 	err := r.dbClient.DBRunInTxContext(ctx, func(tx *sqlx.Tx) error {
-		now := time.Now()
 		return r.dbClient.DBNamedExecReturningInTx(ctx, tx, &returning, insertReferralQuery, map[string]interface{}{
-			constants.ParamRequesterID: params.RequesterUserUUID,
-			constants.ParamProviderID:  params.ProviderUserUUID,
-			constants.ParamCompanyID:   params.CompanyID,
-			constants.ParamJobLink:     params.JobLink,
-			constants.ParamStatus:      params.Status,
-			constants.ParamCreatedTime: now,
+			constants.ParamRequesterID: referral.RequesterUserUUID,
+			constants.ParamProviderID:  referral.ProviderUserUUID,
+			constants.ParamCompanyID:   referral.CompanyID,
+			constants.ParamJobLink:     referral.JobLink,
+			constants.ParamStatus:      referral.Status,
+			constants.ParamCreateTime:  referral.CreatedAt,
+			constants.ParamUpdateTime:  referral.UpdatedAt,
 		})
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	referral := domain.Referral{
-		ID:                returning.ID,
-		RequesterUserUUID: params.RequesterUserUUID,
-		ProviderUserUUID:  params.ProviderUserUUID,
-		CompanyID:         params.CompanyID,
-		JobLink:           params.JobLink,
-		Status:            params.Status,
-		CreatedAt:         &returning.CreatedAt,
-	}
-
 	return &referral, nil
-}
-
-func (r referralsRepository) FetchReferralsForParams(ctx context.Context, params domain.ReferralParams) (*domain.Referrals, error) {
-	qb := domain.NewGetQueryBuilder()
-	qb.AddEqualCondition(constants.ParamID, params.ID)
-	qb.AddEqualCondition(constants.ParamRequesterID, params.RequesterUserUUID)
-	qb.AddEqualCondition(constants.ParamProviderID, params.ProviderUserUUID)
-	qb.AddEqualCondition(constants.ParamCompanyID, params.CompanyID)
-	qb.AddEqualCondition(constants.ParamStatus, params.Status)
-	qb.AddGreaterEqualCondition(constants.ParamCreatedTime, params.CreatedAt)
-
-	conditions, args := qb.Build()
-	if conditions == "" {
-		return nil, errors.ErrInvalidQueryParams
-	}
-
-	var referrals []domain.Referral
-	getReferralsByParamsQuery := selectReferralBaseQuery + conditions
-	err := r.dbClient.DBSelect(ctx, &referrals, getReferralsByParamsQuery, args...)
-	if errors.Is(err, sql.ErrNoRows) {
-		return nil, errors.ErrReferralNotFound
-	}
-
-	result := domain.Referrals(referrals)
-	return &result, err
 }
 
 func (r referralsRepository) UpdateReferral(ctx context.Context, referral *domain.Referral) error {
@@ -115,8 +83,33 @@ func (r referralsRepository) UpdateReferral(ctx context.Context, referral *domai
 	})
 }
 
+func (r referralsRepository) FetchReferralsForParams(ctx context.Context, params domain.ReferralParams) (*domain.Referrals, error) {
+	qb := domain.NewGetQueryBuilder()
+	qb.AddEqualCondition(constants.ParamID, params.ID)
+	qb.AddEqualCondition(constants.ParamRequesterID, params.RequesterUserUUID)
+	qb.AddEqualCondition(constants.ParamProviderID, params.ProviderUserUUID)
+	qb.AddEqualCondition(constants.ParamCompanyID, params.CompanyID)
+	qb.AddEqualCondition(constants.ParamStatus, params.Status)
+	qb.AddGreaterEqualCondition(constants.ParamCreateTime, params.CreatedAt)
+
+	conditions, args := qb.Build()
+	if conditions == "" {
+		return nil, errors.ErrInvalidQueryParams
+	}
+
+	var referrals []domain.Referral
+	getReferralsByParamsQuery := selectReferralBaseQuery + conditions
+	err := r.dbClient.DBSelect(ctx, &referrals, getReferralsByParamsQuery, args...)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, errors.ErrReferralNotFound
+	}
+
+	result := domain.Referrals(referrals)
+	return &result, err
+}
+
 func (r referralsRepository) ExpirePendingReferrals(ctx context.Context, _ *domain.Referral) error {
-	expirePendingReferralsQuery := `UPDATE referrals SET status='EXPIRED' WHERE status='PENDING' AND created_time <= NOW() - INTERVAL '7 days'`
+	expirePendingReferralsQuery := `UPDATE referrals SET status='EXPIRED' WHERE status='PENDING' AND create_time <= NOW() - INTERVAL '7 days'`
 	return r.dbClient.DBRunInTxContext(ctx, func(tx *sqlx.Tx) error {
 		return r.dbClient.DBExecInTx(ctx, tx, expirePendingReferralsQuery)
 	})

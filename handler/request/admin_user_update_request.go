@@ -43,7 +43,7 @@ func (r AdminUserUpdateParams) ToUserProfile() domain.User {
 		UserNumber: r.UserNumber,
 		UserUUID:   r.UserUUID,
 		Status:     r.Status,
-		ProfessionalDetails: domain.ProfessionalDetails{
+		ProfessionalInformation: domain.ProfessionalInformation{
 			CompanyName: r.CompanyName,
 			Designation: r.Designation,
 		},

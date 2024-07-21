@@ -5,6 +5,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/techx/portal/config"
+	"github.com/techx/portal/middleware"
 	"github.com/techx/portal/service"
 )
 
@@ -14,6 +15,7 @@ func NewRouter(cfg *config.Config, sr *service.Registry) *mux.Router {
 	// Enable Swagger if enabled
 	router.PathPrefix("/swagger/").Handler(http.StripPrefix("/swagger/", http.FileServer(
 		http.Dir(cfg.Swagger.Path))))
+	router.Use(middleware.RecoverMiddleware())
 
 	addOAuthRoutes(router, cfg, sr)
 	addOTPRoutes(router, cfg, sr)

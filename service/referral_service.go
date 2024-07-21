@@ -53,9 +53,11 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 
 	referralMaxLookupTime := time.Now().Add(-r.cfg.Referral.ReferralMaxLookupDuration)
 	requesterReferrals, err := r.registry.ReferralsRepository.FetchReferralsForParams(ctx, domain.ReferralParams{
-		RequesterUserUUID: requester.UserUUID,
-		CreatedAt:         &referralMaxLookupTime,
-		Status:            constants.ReferralStatusPending,
+		Referral: domain.Referral{
+			RequesterUserUUID: requester.UserUUID,
+			CreatedAt:         &referralMaxLookupTime,
+			Status:            constants.ReferralStatusPending,
+		},
 	})
 	if err != nil {
 		return nil, err
@@ -66,9 +68,11 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 	}
 
 	providerReferrals, err := r.registry.ReferralsRepository.FetchReferralsForParams(ctx, domain.ReferralParams{
-		ProviderUserUUID: provider.UserUUID,
-		CreatedAt:        &referralMaxLookupTime,
-		Status:           constants.ReferralStatusPending,
+		Referral: domain.Referral{
+			ProviderUserUUID: provider.UserUUID,
+			CreatedAt:        &referralMaxLookupTime,
+			Status:           constants.ReferralStatusPending,
+		},
 	})
 	if err != nil {
 		return nil, err
@@ -87,7 +91,7 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 		return nil, err
 	}
 
-	referral, err := r.registry.ReferralsRepository.InsertReferral(ctx, referralDetails)
+	referral, err := r.registry.ReferralsRepository.InsertReferral(ctx, referralDetails.ToReferral())
 	if err != nil {
 		return nil, err
 	}
