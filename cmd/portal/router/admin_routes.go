@@ -4,7 +4,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/constants"
-	"github.com/techx/portal/handler"
+	"github.com/techx/portal/handler/admin"
 	"github.com/techx/portal/middleware"
 	"github.com/techx/portal/service"
 )
@@ -22,7 +22,7 @@ func addAdminRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry
 		Methods(constants.MethodGet).
 		Name(constants.APINameAdminUserList).
 		Path("/user/list").
-		Handler(handler.AdminUserListHandler(cfg, sr))
+		Handler(admin.UserListHandler(cfg, sr))
 
 	//	swagger:route PUT /admin/user/Update admin updateUserDetails
 	//	Responses:
@@ -33,7 +33,7 @@ func addAdminRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry
 		Methods(constants.MethodPut).
 		Name(constants.APINameAdminUserUpdate).
 		Path("/user/update").
-		Handler(handler.AdminUserUpdateHandler(cfg, sr))
+		Handler(admin.UserUpdateHandler(cfg, sr))
 
 	//	swagger:route GET /admin/company/list admin getCompanyListDetails
 	//	Responses:
@@ -44,7 +44,7 @@ func addAdminRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry
 		Methods(constants.MethodGet).
 		Name(constants.APINameAdminCompanyList).
 		Path("/company/list").
-		Handler(handler.AdminCompanyListHandler(cfg, sr))
+		Handler(admin.CompanyListHandler(cfg, sr))
 
 	//	swagger:route GET /admin/referral/list admin getAdminReferralList
 	//	Responses:
@@ -55,7 +55,7 @@ func addAdminRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry
 		Methods(constants.MethodGet).
 		Name(constants.APINameAdminReferralList).
 		Path("/referral/list").
-		Handler(handler.AdminUserReferralListHandler(cfg, sr))
+		Handler(admin.UserReferralListHandler(cfg, sr))
 
 	//	swagger:route PUT /admin/company/Update admin updateCompanyDetails
 	//	Responses:
@@ -66,7 +66,7 @@ func addAdminRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry
 		Methods(constants.MethodPut).
 		Name(constants.APINameAdminCompanyUpdate).
 		Path("/company/update").
-		Handler(handler.AdminCompanyUpdateHandler(cfg, sr))
+		Handler(admin.CompanyUpdateHandler(cfg, sr))
 
 	//	swagger:route PUT /admin/referral/Update admin updateReferralDetails
 	//	Responses:
@@ -77,7 +77,7 @@ func addAdminRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry
 		Methods(constants.MethodPut).
 		Name(constants.APINameAdminReferralUpdate).
 		Path("/referral/update").
-		Handler(handler.AdminReferralUpdateHandler(cfg, sr))
+		Handler(admin.ReferralUpdateHandler(cfg, sr))
 
 	// swagger:route PUT /admin/referral/expire admin expireReferral
 	// Responses:
@@ -88,5 +88,16 @@ func addAdminRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry
 		Methods(constants.MethodPut).
 		Name(constants.APINameAdminReferralExpire).
 		Path("/referral/expire").
-		Handler(handler.AdminExpireReferralHandler(cfg, sr))
+		Handler(admin.ExpireReferralHandler(cfg, sr))
+
+	// swagger:route GET /admin/fetch/auth/token admin adminFetchAuthToken
+	// Responses:
+	// 	200: SuccessResponse
+	// 	400: ErrorResponse
+	// 	500: ErrorResponse
+	adminRouter.
+		Methods(constants.MethodGet).
+		Name(constants.APINameAdminFetchAuthToken).
+		Path("/fetch/auth/token").
+		Handler(admin.FetchAuthTokenHandler(cfg))
 }

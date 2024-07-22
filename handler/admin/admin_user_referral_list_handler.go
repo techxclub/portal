@@ -1,4 +1,4 @@
-package handler
+package admin
 
 import (
 	"context"
@@ -6,13 +6,14 @@ import (
 
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/domain"
+	"github.com/techx/portal/handler"
 	"github.com/techx/portal/handler/request"
 	"github.com/techx/portal/handler/response"
 	"github.com/techx/portal/service"
 )
 
-func AdminUserReferralListHandler(_ *config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
-	return Handler(
+func UserReferralListHandler(_ *config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
+	return handler.Handler(
 		request.NewAdminUserReferralListRequest,
 		func(ctx context.Context, req request.AdminUserReferralListRequest) (*domain.Referrals, error) {
 			return serviceRegistry.ReferralService.FetchReferrals(ctx, req.ToFetchReferralParams())

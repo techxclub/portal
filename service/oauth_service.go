@@ -9,7 +9,6 @@ import (
 )
 
 type OAuthService interface {
-	GoogleLoginURL() domain.GoogleLogin
 	GoogleOAuthExchange(ctx context.Context, exchangeReq domain.GoogleOAuthExchangeRequest) (*domain.User, error)
 }
 
@@ -23,10 +22,6 @@ func NewOAuthService(cfg *config.Config, registry *builder.Registry) OAuthServic
 		cfg:      cfg,
 		registry: registry,
 	}
-}
-
-func (as oauthService) GoogleLoginURL() domain.GoogleLogin {
-	return as.registry.GoogleOAuthBuilder.BuildGoogleLoginURI()
 }
 
 func (as oauthService) GoogleOAuthExchange(ctx context.Context, exchangeReq domain.GoogleOAuthExchangeRequest) (*domain.User, error) {

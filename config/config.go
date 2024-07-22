@@ -17,11 +17,13 @@ type Config struct {
 	Swagger     Swagger       `yaml:"SWAGGER" env:",prefix=SWAGGER_"`
 	Translation Translation   `yaml:"TRANSLATION" env:",prefix=TRANSLATION_"`
 
-	DB        DB        `yaml:"DB" env:",prefix=DB_"`
-	Redis     Redis     `yaml:"REDIS" env:",prefix=REDIS_"`
-	Log       Log       `yaml:"LOG" env:",prefix=LOG_"`
-	RateLimit RateLimit `yaml:"RATE_LIMIT" env:",prefix=RATE_LIMIT_"`
-	OTP       OTP       `yaml:"OTP" env:",prefix=OTP_"`
+	DB    DB    `yaml:"DB" env:",prefix=DB_"`
+	Redis Redis `yaml:"REDIS" env:",prefix=REDIS_"`
+	Log   Log   `yaml:"LOG" env:",prefix=LOG_"`
+	OTP   OTP   `yaml:"OTP" env:",prefix=OTP_"`
+
+	RateLimitEnabled bool      `yaml:"RATE_LIMIT_ENABLED" env:"RATE_LIMIT_ENABLED"`
+	RateLimit        RateLimit `yaml:"RATE_LIMIT" env:",prefix=RATE_LIMIT_"`
 
 	GoogleClient HTTPConfig `yaml:"GOOGLE_CLIENT" env:",prefix=GOOGLE_CLIENT_"`
 
@@ -152,6 +154,8 @@ func (cfg *Config) SetDefaults() {
 
 	cfg.DB = defaultDBConfig()
 	cfg.Redis = defaultRedisConfig()
+
+	cfg.RateLimitEnabled = true
 	cfg.RateLimit = defaultRateLimit()
 
 	cfg.Log = Log{

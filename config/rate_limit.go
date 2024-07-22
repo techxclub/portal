@@ -2,13 +2,8 @@ package config
 
 import "github.com/techx/portal/constants"
 
-var defaultRateLimitConfig = RateLimitConfig{
-	Enabled:    true,
-	Attempts:   10,
-	WindowSecs: 3600,
-}
-
 type RateLimit struct {
+	DefaultConfig       RateLimitConfig `yaml:"DEFAULT_CONFIG" env:"DEFAULT_CONFIG"`
 	AdminUserList       RateLimitConfig `yaml:"ADMIN_USER_LIST" env:",prefix=ADMIN_USER_LIST_"`
 	AdminUserUpdate     RateLimitConfig `yaml:"ADMIN_USER_UPDATE" env:",prefix=ADMIN_USER_UPDATE_"`
 	AdminCompanyList    RateLimitConfig `yaml:"ADMIN_COMPANY_LIST" env:",prefix=ADMIN_COMPANY_LIST_"`
@@ -16,9 +11,7 @@ type RateLimit struct {
 	AdminReferralList   RateLimitConfig `yaml:"ADMIN_REFERRAL_LIST" env:",prefix=ADMIN_REFERRAL_LIST_"`
 	AdminReferralUpdate RateLimitConfig `yaml:"ADMIN_REFERRAL_UPDATE" env:",prefix=ADMIN_REFERRAL_UPDATE_"`
 	AdminReferralExpire RateLimitConfig `yaml:"ADMIN_REFERRAL_EXPIRE" env:",prefix=ADMIN_REFERRAL_EXPIRE_"`
-	GoogleOAuthDebug    RateLimitConfig `yaml:"GOOGLE_OAUTH_DEBUG" env:",prefix=GOOGLE_OAUTH_DEBUG_"`
-	GoogleOAuthLogin    RateLimitConfig `yaml:"GOOGLE_OAUTH_LOGIN" env:",prefix=GOOGLE_OAUTH_LOGIN_"`
-	GoogleOAuthCallback RateLimitConfig `yaml:"GOOGLE_OAUTH_CALLBACK" env:",prefix=GOOGLE_OAUTH_CALLBACK_"`
+	AdminFetchAuthToken RateLimitConfig `yaml:"ADMIN_FETCH_AUTH_TOKEN" env:",prefix=ADMIN_FETCH_AUTH_TOKEN_"`
 	GoogleOAuthExchange RateLimitConfig `yaml:"GOOGLE_OAUTH_EXCHANGE" env:",prefix=GOOGLE_OAUTH_EXCHANGE_"`
 	GenerateOTP         RateLimitConfig `yaml:"GENERATE_OTP" env:",prefix=GENERATE_OTP_"`
 	ResendOTP           RateLimitConfig `yaml:"RESEND_OTP" env:",prefix=RESEND_OTP_"`
@@ -43,16 +36,14 @@ type RateLimitConfig struct {
 
 func defaultRateLimit() RateLimit {
 	return RateLimit{
-		AdminUserList:       RateLimitConfig{Enabled: true, Attempts: 100},
-		AdminUserUpdate:     RateLimitConfig{Enabled: true, Attempts: 100},
-		AdminCompanyList:    RateLimitConfig{Enabled: true, Attempts: 100},
-		AdminCompanyUpdate:  RateLimitConfig{Enabled: true, Attempts: 100},
-		AdminReferralList:   RateLimitConfig{Enabled: true, Attempts: 100},
-		AdminReferralUpdate: RateLimitConfig{Enabled: true, Attempts: 100},
-		AdminReferralExpire: RateLimitConfig{Enabled: true, Attempts: 100},
-		GoogleOAuthDebug:    RateLimitConfig{Enabled: true, Attempts: 5, WindowSecs: 600},
-		GoogleOAuthLogin:    RateLimitConfig{Enabled: true, Attempts: 5, WindowSecs: 600},
-		GoogleOAuthCallback: RateLimitConfig{Enabled: true, Attempts: 5, WindowSecs: 600},
+		DefaultConfig:       RateLimitConfig{Enabled: true, Attempts: 10, WindowSecs: 3600},
+		AdminUserList:       RateLimitConfig{Enabled: true, Attempts: 100, WindowSecs: 600},
+		AdminUserUpdate:     RateLimitConfig{Enabled: true, Attempts: 100, WindowSecs: 600},
+		AdminCompanyList:    RateLimitConfig{Enabled: true, Attempts: 100, WindowSecs: 600},
+		AdminCompanyUpdate:  RateLimitConfig{Enabled: true, Attempts: 100, WindowSecs: 600},
+		AdminReferralList:   RateLimitConfig{Enabled: true, Attempts: 100, WindowSecs: 600},
+		AdminReferralUpdate: RateLimitConfig{Enabled: true, Attempts: 100, WindowSecs: 600},
+		AdminReferralExpire: RateLimitConfig{Enabled: true, Attempts: 100, WindowSecs: 600},
 		GoogleOAuthExchange: RateLimitConfig{Enabled: true, Attempts: 5, WindowSecs: 600},
 		GenerateOTP:         RateLimitConfig{Enabled: true, Attempts: 5, WindowSecs: 600},
 		ResendOTP:           RateLimitConfig{Enabled: true, Attempts: 5, WindowSecs: 600},
@@ -86,12 +77,8 @@ func (rl RateLimit) GetAPIRateLimitConfig(apiName string) RateLimitConfig {
 		return rl.AdminReferralUpdate
 	case constants.APINameAdminReferralExpire:
 		return rl.AdminReferralExpire
-	case constants.APINameGoogleOAuthDebug:
-		return rl.GoogleOAuthDebug
-	case constants.APINameGoogleOAuthLogin:
-		return rl.GoogleOAuthLogin
-	case constants.APINameGoogleOAuthCallback:
-		return rl.GoogleOAuthCallback
+	case constants.APINameAdminFetchAuthToken:
+		return rl.AdminFetchAuthToken
 	case constants.APINameGoogleOAuthExchange:
 		return rl.GoogleOAuthExchange
 	case constants.APINameGenerateOTP:
@@ -121,6 +108,6 @@ func (rl RateLimit) GetAPIRateLimitConfig(apiName string) RateLimitConfig {
 	case constants.APINameMentorList:
 		return rl.MentorList
 	default:
-		return defaultRateLimitConfig
+		return rl.DefaultConfig
 	}
 }

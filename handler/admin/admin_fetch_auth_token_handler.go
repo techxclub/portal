@@ -1,20 +1,20 @@
-package handler
+package admin
 
 import (
 	"encoding/json"
 	"net/http"
 
 	"github.com/techx/portal/config"
-	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
 	"github.com/techx/portal/errors"
 	"github.com/techx/portal/handler/response"
-	"github.com/techx/portal/service"
 )
 
-func GoogleOAuthExchangeHandler(cfg *config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
+func FetchAuthTokenHandler(cfg *config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req domain.GoogleOAuthExchangeRequest
+		var req struct {
+			UserUUID string `json:"user_id"`
+		}
 
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&req); err != nil {
@@ -23,20 +23,20 @@ func GoogleOAuthExchangeHandler(cfg *config.Config, serviceRegistry *service.Reg
 			return
 		}
 
-		userProfile, err := serviceRegistry.OAuthService.GoogleOAuthExchange(r.Context(), req)
-		if err != nil {
-			response.InstrumentErrorResponse(r, errors.AsServiceError(err))
-			return
-		}
-
-		authToken, err := domain.GenerateToken(userProfile.UserUUID, cfg.Auth)
+		authToken, err := domain.GenerateToken(req.UserUUID, cfg.Auth)
 		if err != nil {
 			response.InstrumentErrorResponse(r, errors.AsServiceError(errors.ErrGeneratingAuthToken))
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		w.Header().Set(constants.HeaderAuthToken, authToken)
+		resp := struct {
+			Authorization string `json:"authorization"`
+		}{
+			Authorization: authToken,
+		}
+
 		w.WriteHeader(http.StatusOK)
+		_ = json.NewEncoder(w).Encode(resp)
 	}
 }

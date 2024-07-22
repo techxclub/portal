@@ -15,6 +15,11 @@ import (
 func RateLimiter(cfg *config.Config, rateLimiterClient ratelimiter.RateLimiter) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if !cfg.RateLimitEnabled {
+				next.ServeHTTP(w, r)
+				return
+			}
+
 			apiName := mux.CurrentRoute(r).GetName()
 			rateLimitConfig := cfg.RateLimit.GetAPIRateLimitConfig(apiName)
 			if !rateLimitConfig.Enabled {

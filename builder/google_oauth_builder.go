@@ -21,7 +21,6 @@ const (
 )
 
 type GoogleOAuthBuilder interface {
-	BuildGoogleLoginURI() domain.GoogleLogin
 	BuildGoogleOAuthDetails(ctx context.Context, exchangeReq domain.GoogleOAuthExchangeRequest) (*domain.GoogleOAuthDetails, error)
 	BuildUserProfile(ctx context.Context, googleOAuthDetails domain.GoogleOAuthDetails) (*domain.User, error)
 }
@@ -35,19 +34,6 @@ func NewGoogleOAuthBuilder(oauthConfig config.GoogleAuth, client googleClient.Cl
 	return &googleOAuthBuilder{
 		clientConfig: oauthConfig,
 		googleClient: client,
-	}
-}
-
-func (gb googleOAuthBuilder) BuildGoogleLoginURI() domain.GoogleLogin {
-	oauthStateString := gb.clientConfig.ClientState
-	authConfig := gb.getOAuthConfig()
-	oauthOptions := []oauth2.AuthCodeOption{oauth2.AccessTypeOffline}
-	if gb.clientConfig.ForceApproval {
-		oauthOptions = append(oauthOptions, oauth2.ApprovalForce)
-	}
-
-	return domain.GoogleLogin{
-		RedirectURI: authConfig.AuthCodeURL(oauthStateString, oauthOptions...),
 	}
 }
 
