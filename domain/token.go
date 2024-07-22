@@ -35,7 +35,7 @@ func GenerateToken(subject string, authConfig *config.Auth) (string, error) {
 }
 
 // VerifyToken verifies a JWT token and returns the user's phone number
-func VerifyToken(authConfig *config.Auth, tokenStr, subject string) (string, error) {
+func VerifyToken(authConfig *config.Auth, tokenStr, _ string) (string, error) {
 	claims := &jwt.StandardClaims{}
 	token, err := jwt.ParseWithClaims(tokenStr, claims, func(_ *jwt.Token) (interface{}, error) {
 		return []byte(authConfig.AccessTokenSecret), nil
@@ -67,10 +67,6 @@ func VerifyToken(authConfig *config.Auth, tokenStr, subject string) (string, err
 	decryptedSubject, err := decrypt(claims.Subject, authConfig.CipherKey)
 	if err != nil {
 		return "", err
-	}
-
-	if decryptedSubject != subject {
-		return "", jwt.NewValidationError("user id mismatch", jwt.ValidationErrorClaimsInvalid)
 	}
 
 	return decryptedSubject, nil

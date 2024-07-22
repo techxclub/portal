@@ -8,7 +8,6 @@ import (
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
-	"github.com/techx/portal/utils"
 )
 
 // Authorization is a middleware that checks if the request is authorized
@@ -17,12 +16,6 @@ func Authorization(authConfig *config.Auth) mux.MiddlewareFunc {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if !authConfig.Enabled {
 				next.ServeHTTP(w, r)
-				return
-			}
-
-			subject := utils.GetAuthSubject(r)
-			if subject == "" {
-				http.Error(w, "Missing user id header", http.StatusBadRequest)
 				return
 			}
 
@@ -39,7 +32,7 @@ func Authorization(authConfig *config.Auth) mux.MiddlewareFunc {
 			}
 
 			authToken := tokens[1]
-			userUUID, err := domain.VerifyToken(authConfig, authToken, subject)
+			userUUID, err := domain.VerifyToken(authConfig, authToken, "")
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusUnauthorized)
 				return
