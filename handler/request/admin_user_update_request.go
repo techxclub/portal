@@ -14,11 +14,12 @@ type AdminUserUpdateRequest struct {
 }
 
 type AdminUserUpdateParams struct {
-	UserNumber  int64  `json:"user_number"`
-	UserUUID    string `json:"user_uuid"`
-	Status      string `json:"status"`
-	CompanyName string `json:"company_name"`
-	Designation string `json:"designation"`
+	UserNumber      int64  `json:"user_number"`
+	UserUUID        string `json:"user_uuid"`
+	RegisteredEmail string `json:"registered_email"`
+	Status          string `json:"status"`
+	CompanyName     string `json:"company_name"`
+	Designation     string `json:"designation"`
 }
 
 func NewAdminUserUpdateRequest(r *http.Request) (*AdminUserUpdateRequest, error) {
@@ -43,6 +44,9 @@ func (r AdminUserUpdateParams) ToUserProfile() domain.User {
 		UserNumber: r.UserNumber,
 		UserUUID:   r.UserUUID,
 		Status:     r.Status,
+		PersonalInformation: domain.PersonalInformation{
+			RegisteredEmail: r.RegisteredEmail,
+		},
 		ProfessionalInformation: domain.ProfessionalInformation{
 			CompanyName: r.CompanyName,
 			Designation: r.Designation,

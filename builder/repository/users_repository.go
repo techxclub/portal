@@ -136,6 +136,7 @@ func (r usersRepository) BulkUpdate(ctx context.Context, from, to domain.User) e
 	whereConditionBuilder := domain.NewWhereQueryBuilder()
 	whereConditionBuilder.AddEqualCondition(constants.ParamUserNumber, from.UserNumber)
 	whereConditionBuilder.AddEqualCondition(constants.ParamUserUUID, from.UserUUID)
+	whereConditionBuilder.AddEqualCondition(constants.ParamRegisteredEmail, from.RegisteredEmail)
 	whereConditionBuilder.AddEqualCondition(constants.ParamCompanyID, from.CompanyID)
 	whereConditionBuilder.AddEqualCondition(constants.ParamCompanyName, from.CompanyName)
 	whereCondition, whereNamedArgs := whereConditionBuilder.BuildNamed()
@@ -194,7 +195,7 @@ func (r usersRepository) FetchUserForParams(ctx context.Context, params domain.F
 
 func (r usersRepository) FetchUsersForParams(ctx context.Context, params domain.FetchUserParams) (*domain.Users, error) {
 	qb := domain.NewGetQueryBuilder()
-	qb.AddEqualCondition(constants.ParamUserNumber, params.UserUUID)
+	qb.AddEqualCondition(constants.ParamUserNumber, params.UserNumber)
 	qb.AddEqualCondition(constants.ParamUserUUID, params.UserUUID)
 	qb.AddEqualCondition(constants.ParamStatus, params.Status)
 	qb.AddEqualCondition(constants.ParamName, params.Name)

@@ -11,7 +11,7 @@ import (
 )
 
 // Authorization is a middleware that checks if the request is authorized
-func Authorization(authConfig *config.Auth) mux.MiddlewareFunc {
+func Authorization(authConfig config.Auth) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if !authConfig.Enabled {

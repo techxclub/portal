@@ -2,6 +2,9 @@ APP_NAME: portal
 API:
   LISTEN_ADDR: :3000
   DEBUG_MODE: false
+ADMIN:
+  CLIENT_ID: admin
+  PASS_KEY: admin
 AUTH:
   ENABLED: false
   CIPHER_KEY: 6c13b7338aa24366181369dbc6540f28
@@ -12,16 +15,13 @@ AUTH:
   REFRESH_TOKEN_SECRET: 1b2a01e0-b6cc-4258-8965-d41b4bb2544d
   AUTH_SOFT_EXPIRY_DURATION: 168h0m0s
   AUTH_HARD_EXPIRY_DURATION: 720h0m0s
-ADMIN_AUTH:
-  CLIENT_ID: admin
-  PASS_KEY: admin
 GOOGLE_AUTH:
   DEBUG: true
-  FORCE_APPROVAL: false
   CLIENT_STATE: google
   CLIENT_ID: google-client-id
   CLIENT_SECRET: google-client-secret
-  REDIRECT_URL: https://secure.localhost.com/public/google/oauth/callback
+  REDIRECT_HOST: https://localhost:3000
+  REDIRECT_ENDPOINT: /oauth2/callback
 SWAGGER:
   ENABLED: true
   PATH: ./swagger
@@ -106,7 +106,7 @@ RATE_LIMIT:
     ENABLED: false
     ATTEMPTS: 0
     WINDOW_SECS: 0
-  GOOGLE_OAUTH_EXCHANGE:
+  GOOGLE_SIGN_IN:
     ENABLED: true
     ATTEMPTS: 5
     WINDOW_SECS: 600

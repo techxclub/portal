@@ -13,7 +13,7 @@ import (
 )
 
 // GenerateToken generates a JWT token for a user
-func GenerateToken(subject string, authConfig *config.Auth) (string, error) {
+func GenerateToken(subject string, authConfig config.Auth) (string, error) {
 	now := time.Now()
 	expirationTime := now.Add(authConfig.AuthSoftExpiryDuration)
 	encryptedSubject, err := encrypt(subject, authConfig.CipherKey)
@@ -35,7 +35,7 @@ func GenerateToken(subject string, authConfig *config.Auth) (string, error) {
 }
 
 // VerifyToken verifies a JWT token and returns the user's phone number
-func VerifyToken(authConfig *config.Auth, tokenStr, _ string) (string, error) {
+func VerifyToken(authConfig config.Auth, tokenStr, _ string) (string, error) {
 	claims := &jwt.StandardClaims{}
 	token, err := jwt.ParseWithClaims(tokenStr, claims, func(_ *jwt.Token) (interface{}, error) {
 		return []byte(authConfig.AccessTokenSecret), nil

@@ -21,7 +21,7 @@ func addOAuthRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry
 	//		503: ErrorResponse
 	authRouter.
 		Methods(constants.MethodPost).
-		Name(constants.APINameGoogleOAuthExchange).
+		Name(constants.APINameGoogleSignIn).
 		Path("/exchange").
-		Handler(handler.GoogleOAuthExchangeHandler(cfg, sr))
+		Handler(handler.GoogleSignInHandler(cfg, sr))
 }

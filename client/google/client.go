@@ -58,3 +58,7 @@ func (gc *googleClient) FetchUserInfo(ctx context.Context, oauthDetails domain.G
 
 	return &userInfo, err
 }
+
+func (u UserInfo) FullName() string {
+	return u.GivenName + " " + u.FamilyName
+}

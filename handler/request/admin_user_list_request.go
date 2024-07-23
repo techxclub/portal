@@ -9,6 +9,7 @@ import (
 )
 
 type BaseUserListRequest struct {
+	UserNumber  string
 	UserUUID    string
 	Status      string
 	Name        string
@@ -23,6 +24,7 @@ type AdminUserListRequest struct {
 }
 
 func NewAdminUserListRequest(r *http.Request) (*AdminUserListRequest, error) {
+	userNumber := r.URL.Query().Get(constants.ParamUserNumber)
 	userID := r.URL.Query().Get(constants.ParamUserUUID)
 	status := r.URL.Query().Get(constants.ParamStatus)
 	name := r.URL.Query().Get(constants.ParamName)
@@ -33,6 +35,7 @@ func NewAdminUserListRequest(r *http.Request) (*AdminUserListRequest, error) {
 
 	return &AdminUserListRequest{
 		BaseUserListRequest{
+			UserNumber:  userNumber,
 			UserUUID:    userID,
 			Status:      status,
 			Name:        name,
@@ -50,6 +53,7 @@ func (r AdminUserListRequest) Validate() error {
 
 func (r AdminUserListRequest) ToFetchUserParams() domain.FetchUserParams {
 	return domain.FetchUserParams{
+		UserNumber:  utils.ParseInt64WithDefault(r.UserNumber, 0),
 		UserUUID:    r.UserUUID,
 		Status:      r.Status,
 		PhoneNumber: r.PhoneNumber,

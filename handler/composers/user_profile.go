@@ -8,6 +8,7 @@ import (
 
 // swagger:model
 type UserProfile struct {
+	UserNumber              int64                   `json:"user_number"`
 	UserUUID                string                  `json:"user_uuid"`
 	CreatedAt               *time.Time              `json:"created_at"`
 	Status                  string                  `json:"status"`
@@ -42,15 +43,17 @@ func NewUserProfile(user domain.User) UserProfile {
 	technicalInformation := user.TechnicalInformation()
 
 	return UserProfile{
-		UserUUID:  user.UserUUID,
-		CreatedAt: user.CreatedAt,
-		Status:    user.Status,
+		UserNumber: user.UserNumber,
+		UserUUID:   user.UserUUID,
+		CreatedAt:  user.CreatedAt,
+		Status:     user.Status,
 		PersonalInformation: PersonalInformation{
 			Name:            user.Name,
 			PhoneNumber:     user.PhoneNumber,
 			RegisteredEmail: user.RegisteredEmail,
 			ProfilePicture:  user.ProfilePicture,
 			LinkedIn:        user.LinkedIn,
+			Gender:          user.Gender,
 		},
 		ProfessionalInformation: ProfessionalInformation{
 			CompanyID:         user.CompanyID,

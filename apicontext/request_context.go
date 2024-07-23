@@ -14,6 +14,7 @@ const (
 )
 
 type RequestContext struct {
+	Origin   string
 	Language string
 	TraceID  string
 	UserUUID string
@@ -21,6 +22,7 @@ type RequestContext struct {
 
 func NewRequestContextFromHTTP(r *http.Request) RequestContext {
 	return RequestContext{
+		Origin:   r.Header.Get(constants.HeaderOrigin),
 		Language: constants.DefaultLanguage,
 		TraceID:  getRequestTraceID(r.Header),
 		UserUUID: r.Header.Get(constants.HeaderXUserUUID),
@@ -37,6 +39,10 @@ func RequestContextFromContext(ctx context.Context) RequestContext {
 		return RequestContext{}
 	}
 	return c
+}
+
+func GetOrigin(ctx context.Context) string {
+	return RequestContextFromContext(ctx).Origin
 }
 
 func (r RequestContext) GetLocale() string {

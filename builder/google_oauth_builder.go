@@ -3,6 +3,7 @@ package builder
 import (
 	"context"
 
+	"github.com/techx/portal/apicontext"
 	googleClient "github.com/techx/portal/client/google"
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/constants"
@@ -38,7 +39,7 @@ func NewGoogleOAuthBuilder(oauthConfig config.GoogleAuth, client googleClient.Cl
 }
 
 func (gb googleOAuthBuilder) BuildGoogleOAuthDetails(ctx context.Context, exchangeReq domain.GoogleOAuthExchangeRequest) (*domain.GoogleOAuthDetails, error) {
-	token, err := gb.getOAuthConfig().Exchange(ctx, exchangeReq.Code)
+	token, err := gb.getOAuthConfig(ctx).Exchange(ctx, exchangeReq.Code)
 	if err != nil {
 		return nil, err
 	}
@@ -65,9 +66,9 @@ func (gb googleOAuthBuilder) BuildUserProfile(ctx context.Context, googleOAuthDe
 	userProfile := &domain.User{
 		Status: constants.StatusIncompleteProfile,
 		PersonalInformation: domain.PersonalInformation{
+			Name:            googleUserInfo.FullName(),
 			RegisteredEmail: googleUserInfo.Email,
 			ProfilePicture:  googleUserInfo.Picture,
-			Gender:          constants.GenderMale,
 		},
 	}
 	googleOAuthDetails.Email = googleUserInfo.Email
@@ -75,9 +76,15 @@ func (gb googleOAuthBuilder) BuildUserProfile(ctx context.Context, googleOAuthDe
 	return userProfile, nil
 }
 
-func (gb googleOAuthBuilder) getOAuthConfig() *oauth2.Config {
+func (gb googleOAuthBuilder) getOAuthConfig(ctx context.Context) *oauth2.Config {
+	redirectHost := gb.clientConfig.RedirectHost
+	if origin := apicontext.GetOrigin(ctx); origin != "" {
+		redirectHost = origin
+	}
+
+	redirectURL := redirectHost + gb.clientConfig.RedirectEndpoint
 	return &oauth2.Config{
-		RedirectURL:  gb.clientConfig.RedirectURL,
+		RedirectURL:  redirectURL,
 		ClientID:     gb.clientConfig.ClientID,
 		ClientSecret: gb.clientConfig.ClientSecret,
 		Scopes: []string{

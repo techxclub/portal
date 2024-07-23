@@ -11,8 +11,8 @@ var cfg *Config
 type Config struct {
 	AppName     string        `yaml:"APP_NAME" env:"APP_NAME"`
 	API         HTTPAPIConfig `yaml:"API" env:",prefix=API_"`
-	Auth        *Auth         `yaml:"AUTH" env:",prefix=AUTH_"`
-	AdminAuth   *AdminAuth    `yaml:"ADMIN_AUTH" env:",prefix=ADMIN_AUTH_"`
+	Admin       Admin         `yaml:"ADMIN" env:",prefix=ADMIN_"`
+	Auth        Auth          `yaml:"AUTH" env:",prefix=AUTH_"`
 	GoogleAuth  GoogleAuth    `yaml:"GOOGLE_AUTH" env:",prefix=GOOGLE_AUTH_"`
 	Swagger     Swagger       `yaml:"SWAGGER" env:",prefix=SWAGGER_"`
 	Translation Translation   `yaml:"TRANSLATION" env:",prefix=TRANSLATION_"`
@@ -48,18 +48,18 @@ type Auth struct {
 	AuthHardExpiryDuration time.Duration `yaml:"AUTH_HARD_EXPIRY_DURATION" env:"AUTH_HARD_EXPIRY_DURATION"`
 }
 
-type AdminAuth struct {
+type Admin struct {
 	ClientID string `yaml:"CLIENT_ID" env:"CLIENT_ID"`
 	PassKey  string `yaml:"PASS_KEY" env:"PASS_KEY"`
 }
 
 type GoogleAuth struct {
-	Debug         bool   `yaml:"DEBUG" env:"DEBUG"`
-	ForceApproval bool   `yaml:"FORCE_APPROVAL" env:"FORCE_APPROVAL"`
-	ClientState   string `yaml:"CLIENT_STATE" env:"CLIENT_STATE"`
-	ClientID      string `yaml:"CLIENT_ID" env:"CLIENT_ID"`
-	ClientSecret  string `yaml:"CLIENT_SECRET" env:"CLIENT_SECRET"`
-	RedirectURL   string `yaml:"REDIRECT_URL" env:"REDIRECT_URL"`
+	Debug            bool   `yaml:"DEBUG" env:"DEBUG"`
+	ClientState      string `yaml:"CLIENT_STATE" env:"CLIENT_STATE"`
+	ClientID         string `yaml:"CLIENT_ID" env:"CLIENT_ID"`
+	ClientSecret     string `yaml:"CLIENT_SECRET" env:"CLIENT_SECRET"`
+	RedirectHost     string `yaml:"REDIRECT_HOST" env:"REDIRECT_HOST"`
+	RedirectEndpoint string `yaml:"REDIRECT_ENDPOINT" env:"REDIRECT_ENDPOINT"`
 }
 
 type HTTPAPIConfig struct {
@@ -117,8 +117,13 @@ func (cfg *Config) SetDefaults() {
 		DebugMode:  false,
 	}
 
-	cfg.Auth = &Auth{
-		Enabled:                false,
+	cfg.Admin = Admin{
+		ClientID: "admin",
+		PassKey:  "admin",
+	}
+
+	cfg.Auth = Auth{
+		Enabled:                true,
 		CipherKey:              "6c13b7338aa24366181369dbc6540f28",
 		AuthIssuer:             "portal",
 		AuthIssuerUUID:         "portal-uuid",
@@ -129,17 +134,13 @@ func (cfg *Config) SetDefaults() {
 		AuthHardExpiryDuration: 30 * 24 * time.Hour,
 	}
 
-	cfg.AdminAuth = &AdminAuth{
-		ClientID: "admin",
-		PassKey:  "admin",
-	}
-
 	cfg.GoogleAuth = GoogleAuth{
-		Debug:        true,
-		ClientState:  "google",
-		ClientID:     "google-client-id",
-		ClientSecret: "google-client-secret",
-		RedirectURL:  "https://secure.localhost.com/public/google/oauth/callback",
+		Debug:            true,
+		ClientState:      "google",
+		ClientID:         "google-client-id",
+		ClientSecret:     "google-client-secret",
+		RedirectHost:     "https://localhost:5173",
+		RedirectEndpoint: "/oauth2/callback",
 	}
 
 	cfg.Swagger = Swagger{

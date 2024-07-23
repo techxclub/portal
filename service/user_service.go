@@ -138,9 +138,10 @@ func (us userService) UpdateUser(ctx context.Context, updatedUser domain.User) (
 		updatedUser.CompanyID = storedUser.CompanyID
 	}
 
-	if updatedUser.IsProfileComplete() {
+	if updatedUser.Status == constants.StatusIncompleteProfile && updatedUser.IsProfileComplete() {
 		updatedUser.Status = constants.StatusPendingApproval
 	}
+
 	err = us.registry.UsersRepository.Update(ctx, &updatedUser)
 	if err != nil {
 		return nil, err

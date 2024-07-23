@@ -9,7 +9,7 @@ import (
 )
 
 type OAuthService interface {
-	GoogleOAuthExchange(ctx context.Context, exchangeReq domain.GoogleOAuthExchangeRequest) (*domain.User, error)
+	GoogleSignIn(ctx context.Context, exchangeReq domain.GoogleOAuthExchangeRequest) (*domain.User, error)
 }
 
 type oauthService struct {
@@ -24,7 +24,7 @@ func NewOAuthService(cfg *config.Config, registry *builder.Registry) OAuthServic
 	}
 }
 
-func (as oauthService) GoogleOAuthExchange(ctx context.Context, exchangeReq domain.GoogleOAuthExchangeRequest) (*domain.User, error) {
+func (as oauthService) GoogleSignIn(ctx context.Context, exchangeReq domain.GoogleOAuthExchangeRequest) (*domain.User, error) {
 	googleAuthDetails, err := as.registry.GoogleOAuthBuilder.BuildGoogleOAuthDetails(ctx, exchangeReq)
 	if err != nil {
 		return nil, err

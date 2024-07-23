@@ -1,11 +1,12 @@
 package constants
 
 const (
-	HeaderXUserUUID       = "X-User-Id"
+	HeaderOrigin          = "Origin"
 	HeaderXForwardedFor   = "X-FORWARDED-FOR"
 	HeaderXRequestTraceID = "X-Request-Trace-Id"
 	HeaderContentType     = "Content-Type"
 	HeaderAuthorization   = "Authorization"
+	HeaderXUserUUID       = "X-User-Id"
 	HeaderClientID        = "Client-ID"
 	HeaderPasskey         = "Passkey"
 	HeaderAuthToken       = "Auth-Token"

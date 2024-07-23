@@ -12,7 +12,7 @@ import (
 	"github.com/techx/portal/service"
 )
 
-func GoogleOAuthExchangeHandler(cfg *config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
+func GoogleSignInHandler(cfg *config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req domain.GoogleOAuthExchangeRequest
 
@@ -23,7 +23,7 @@ func GoogleOAuthExchangeHandler(cfg *config.Config, serviceRegistry *service.Reg
 			return
 		}
 
-		userProfile, err := serviceRegistry.OAuthService.GoogleOAuthExchange(r.Context(), req)
+		userProfile, err := serviceRegistry.OAuthService.GoogleSignIn(r.Context(), req)
 		if err != nil {
 			response.InstrumentErrorResponse(r, errors.AsServiceError(err))
 			return
