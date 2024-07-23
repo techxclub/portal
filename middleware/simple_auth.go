@@ -10,8 +10,8 @@ import (
 
 func AdminAuth(cfg *config.Config) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
-		allowedClientID := cfg.AdminAuth.ClientID
-		allowedPassKey := cfg.AdminAuth.PassKey
+		allowedClientID := cfg.Admin.ClientID
+		allowedPassKey := cfg.Admin.PassKey
 
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			reqClientID := r.Header.Get(constants.HeaderClientID)

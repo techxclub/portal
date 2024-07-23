@@ -13,9 +13,9 @@ import (
 
 func GenerateOTPHandler(_ *config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
 	return Handler(
-		request.NewGenerateOTPRequest,
+		request.NewOTPRequest,
 		func(ctx context.Context, req request.OTPRequest) (*domain.AuthDetails, error) {
-			return serviceRegistry.AuthService.GenerateOTP(ctx, req.ToAuthRequest())
+			return serviceRegistry.OTPService.GenerateOTP(ctx, req.ToAuthRequest())
 		},
 		response.NewGenerateOTPResponse,
 	)
@@ -23,9 +23,9 @@ func GenerateOTPHandler(_ *config.Config, serviceRegistry *service.Registry) htt
 
 func VerifyOTPHandler(_ *config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
 	return Handler(
-		request.NewVerifyOTPRequest,
+		request.NewOTPRequest,
 		func(ctx context.Context, req request.OTPRequest) (*domain.AuthDetails, error) {
-			return serviceRegistry.AuthService.VerifyOTP(ctx, req.ToAuthRequest())
+			return serviceRegistry.OTPService.VerifyOTP(ctx, req.ToAuthRequest())
 		},
 		response.NewVerifyOTPResponse,
 	)
@@ -33,9 +33,9 @@ func VerifyOTPHandler(_ *config.Config, serviceRegistry *service.Registry) http.
 
 func ResendOTPHandler(_ *config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
 	return Handler(
-		request.NewGenerateOTPRequest,
+		request.NewOTPRequest,
 		func(ctx context.Context, req request.OTPRequest) (*domain.AuthDetails, error) {
-			return serviceRegistry.AuthService.ResendOTP(ctx, req.ToAuthRequest())
+			return serviceRegistry.OTPService.ResendOTP(ctx, req.ToAuthRequest())
 		},
 		response.NewGenerateOTPResponse,
 	)

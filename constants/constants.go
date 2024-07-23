@@ -7,64 +7,77 @@ const (
 	// Actors
 	ActorUser = "USER"
 
+	// Genders
+	GenderMale = "MALE"
+
 	// User status
-	StatusPendingApproval = "PENDING_APPROVAL"
-	StatusAutoApproved    = "AUTO_APPROVED"
-	StatusApproved        = "APPROVED"
+	StatusIncompleteProfile = "INCOMPLETE_PROFILE"
+	StatusPendingApproval   = "PENDING_APPROVAL"
+	StatusAutoApproved      = "AUTO_APPROVED"
+	StatusApproved          = "APPROVED"
 
 	// Mentor config
 	MentorStatusNotApproved     = "NOT_APPROVED"
 	MentorStatusPendingApproval = "PENDING_APPROVAL"
 	MentorStatusApproved        = "APPROVED"
-	ParamMentorConfig           = "mentor_config"
-	ParamMentorConfigStatus     = "status"
 
-	// DB Fetch Params
-	ParamID                = "id"
-	ParamActor             = "actor"
-	ParamUserIDNum         = "user_id_num"
-	ParamUserID            = "user_id"
-	ParamStatus            = "status"
-	ParamName              = "name"
-	ParamNormalizedName    = "normalized_name"
-	ParamDisplayName       = "display_name"
-	ParamPhoneNumber       = "phone_number"
-	ParamPersonalEmail     = "personal_email"
-	ParamWorkEmail         = "work_email"
+	// User Params
+	ParamUserNumber           = "user_number"
+	ParamUserUUID             = "user_uuid"
+	ParamCreateTime           = "create_time"
+	ParamUpdateTime           = "update_time"
+	ParamStatus               = "status"
+	ParamGoogleOAuth          = "google_auth_details"
+	ParamTechnicalInformation = "technical_information"
+	ParamMentorConfig         = "mentor_config"
+
+	// personal details
+	ParamName            = "name"
+	ParamPhoneNumber     = "phone_number"
+	ParamRegisteredEmail = "registered_email"
+	ParamProfilePicture  = "profile_picture"
+	ParamLinkedIn        = "linkedin"
+	ParamGender          = "gender"
+
+	// professional details
 	ParamCompanyID         = "company_id"
 	ParamCompanyName       = "company_name"
-	ParamRole              = "role"
+	ParamWorkEmail         = "work_email"
+	ParamDesignation       = "designation"
 	ParamYearsOfExperience = "years_of_experience"
-	ParamLinkedIn          = "linkedin"
-	ParamCreatedTime       = "created_time"
-	ParamRequesterID       = "requester_user_id"
-	ParamProviderID        = "provider_user_id"
-	ParamJobLink           = "job_link"
-	ParamSmallLogo         = "small_logo"
-	ParamBigLogo           = "big_logo"
-	ParamOfficialWebsite   = "official_website"
-	ParamCareersPage       = "careers_page"
-	ParamPriority          = "priority"
-	ParamVerified          = "verified"
-	ParamPopular           = "popular"
-	ParamResumeFile        = "resume_file"
-	ParamMessage           = "message"
+
+	// Company Params
+	ParamID              = "id"
+	ParamActor           = "actor"
+	ParamNormalizedName  = "normalized_name"
+	ParamDisplayName     = "display_name"
+	ParamSmallLogo       = "small_logo"
+	ParamBigLogo         = "big_logo"
+	ParamOfficialWebsite = "official_website"
+	ParamCareersPage     = "careers_page"
+	ParamPriority        = "priority"
+	ParamVerified        = "verified"
+	ParamPopular         = "popular"
+
+	// Referral Params
+	ParamRequesterID = "requester_user_id"
+	ParamProviderID  = "provider_user_id"
+	ParamJobLink     = "job_link"
+	ParamResumeFile  = "resume_file"
+	ParamMessage     = "message"
 
 	// Third party sms service provider
 	ThirdPartyMsg91  = "msg91"
 	ThirdPartyGomail = "gomail"
 
-	// User authorization
-	AuthActionGenerate = "GENERATE"
-	AuthActionVerify   = "VERIFY"
+	// OTP authorization
+	OTPChannelSMS   = "sms"
+	OTPChannelEmail = "email"
 
-	AuthChannelSMS   = "sms"
-	AuthChannelEmail = "email"
-
-	AuthStatusGenerated = "generated"
-	AuthStatusPending   = "pending"
-	AuthStatusVerified  = "verified"
-	AuthStatusFailed    = "failed"
+	OTPStatusGenerated = "generated"
+	OTPStatusPending   = "pending"
+	OTPStatusVerified  = "verified"
+	OTPStatusFailed    = "failed"
 
 	// Actions
 	ActionRetryOTP        = "RETRY_OTP"
@@ -72,6 +85,7 @@ const (
 	ActionSignUp          = "SIGN_UP"
 	ActionPendingApproval = "PENDING_APPROVAL"
 	ActionLogIn           = "LOG_IN"
+	ActionLogInWithGoogle = "LOG_IN_WITH_GOOGLE"
 
 	//	Referral status
 	ReferralStatusPending = "PENDING"

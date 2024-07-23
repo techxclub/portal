@@ -14,9 +14,9 @@ import (
 type RegisterUserV1Request struct {
 	Name              string  `json:"name"`
 	PhoneNumber       string  `json:"phone_number"`
-	PersonalEmail     string  `json:"personal_email"`
+	RegisteredEmail   string  `json:"registered_email"`
 	CompanyName       string  `json:"company_name"`
-	Role              string  `json:"role"`
+	Designation       string  `json:"designation"`
 	YearsOfExperience float32 `json:"years_of_experience"`
 	WorkEmail         string  `json:"work_email"`
 	LinkedIn          string  `json:"linkedin"`
@@ -41,8 +41,8 @@ func (r RegisterUserV1Request) Validate() error {
 		return errors.ErrInvalidYearsOfExperience
 	}
 
-	if _, err := mail.ParseAddress(r.PersonalEmail); err != nil {
-		return errors.ErrInvalidPersonalEmail
+	if _, err := mail.ParseAddress(r.RegisteredEmail); err != nil {
+		return errors.ErrInvalidRegisteredEmail
 	}
 
 	if _, err := mail.ParseAddress(r.WorkEmail); err != nil {
@@ -60,16 +60,20 @@ func (r RegisterUserV1Request) Validate() error {
 	return nil
 }
 
-func (r RegisterUserV1Request) ToUserDetails() domain.UserProfile {
-	return domain.UserProfile{
-		Name:              r.Name,
-		CompanyName:       r.CompanyName,
-		YearsOfExperience: r.YearsOfExperience,
-		PersonalEmail:     r.PersonalEmail,
-		WorkEmail:         r.WorkEmail,
-		PhoneNumber:       utils.SanitizePhoneNumber(r.PhoneNumber),
-		LinkedIn:          r.LinkedIn,
-		Role:              r.Role,
-		Status:            constants.StatusPendingApproval,
+func (r RegisterUserV1Request) ToUserDetails() domain.User {
+	return domain.User{
+		Status: constants.StatusPendingApproval,
+		PersonalInformation: domain.PersonalInformation{
+			Name:            r.Name,
+			RegisteredEmail: r.RegisteredEmail,
+			PhoneNumber:     r.PhoneNumber,
+			LinkedIn:        r.LinkedIn,
+		},
+		ProfessionalInformation: domain.ProfessionalInformation{
+			CompanyName:       r.CompanyName,
+			YearsOfExperience: r.YearsOfExperience,
+			WorkEmail:         r.WorkEmail,
+			Designation:       r.Designation,
+		},
 	}
 }

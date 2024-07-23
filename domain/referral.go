@@ -8,24 +8,29 @@ import (
 type Referrals []Referral
 
 type Referral struct {
-	ID              int64      `db:"id"`
-	CompanyID       int64      `db:"company_id"`
-	RequesterUserID string     `db:"requester_user_id"`
-	ProviderUserID  string     `db:"provider_user_id"`
-	JobLink         string     `db:"job_link"`
-	Status          string     `db:"status"`
-	CreatedAt       *time.Time `db:"created_time"`
+	ID                int64      `db:"id"`
+	CompanyID         int64      `db:"company_id"`
+	RequesterUserUUID string     `db:"requester_user_id"`
+	ProviderUserUUID  string     `db:"provider_user_id"`
+	JobLink           string     `db:"job_link"`
+	Status            string     `db:"status"`
+	CreatedAt         *time.Time `db:"create_time"`
+	UpdatedAt         *time.Time `db:"update_time"`
 }
 
 type ReferralParams struct {
-	ID              int64
-	CompanyID       int64
-	RequesterUserID string
-	ProviderUserID  string
-	CompanyName     string
-	Message         string
-	JobLink         string
-	Status          string
-	CreatedAt       *time.Time
-	ResumeFile      multipart.File
+	Referral
+	CompanyName string
+	Message     string
+	ResumeFile  multipart.File
+}
+
+func (param ReferralParams) ToReferral() Referral {
+	return Referral{
+		CompanyID:         param.CompanyID,
+		RequesterUserUUID: param.RequesterUserUUID,
+		ProviderUserUUID:  param.ProviderUserUUID,
+		JobLink:           param.JobLink,
+		Status:            param.Status,
+	}
 }

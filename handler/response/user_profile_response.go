@@ -8,12 +8,12 @@ import (
 )
 
 type UserProfileResponse struct {
-	Profile composers.UserProfile `json:"profile"`
+	composers.UserProfile
 }
 
-func NewUserProfileResponse(_ context.Context, user domain.UserProfile) (UserProfileResponse, HTTPMetadata) {
+func NewUserProfileResponse(_ context.Context, user domain.User) (UserProfileResponse, HTTPMetadata) {
 	profile := composers.NewUserProfile(user)
 	return UserProfileResponse{
-		Profile: profile,
+		UserProfile: profile,
 	}, HTTPMetadata{}
 }

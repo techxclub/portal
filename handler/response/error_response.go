@@ -21,7 +21,7 @@ type ErrorResponse struct {
 }
 
 func RenderErrorResponse(r *http.Request, w http.ResponseWriter, serviceError errors.ServiceError) {
-	instrumentErrorResponse(r, serviceError)
+	InstrumentErrorResponse(r, serviceError)
 
 	errResponse := customErrorResponse(r.Context(), serviceError)
 	if traceID := apicontext.RequestContextFromContext(r.Context()).TraceID; traceID != "" {
@@ -39,7 +39,7 @@ func customErrorResponse(ctx context.Context, serviceError errors.ServiceError) 
 	}
 }
 
-func instrumentErrorResponse(r *http.Request, serviceError errors.ServiceError) {
+func InstrumentErrorResponse(r *http.Request, serviceError errors.ServiceError) {
 	fields := map[string]interface{}{
 		logger.ResponseStatusField: serviceError.GetResponseStatus(),
 		"code":                     serviceError.GetCode(),

@@ -24,11 +24,11 @@ func GetAuthSubject(r *http.Request) string {
 		return req.WorkEmail
 	}
 
-	return r.Header.Get(constants.HeaderXUserID)
+	return r.Header.Get(constants.HeaderXUserUUID)
 }
 
 func GetUniqueRequestID(r *http.Request) string {
-	uniqueID := r.Header.Get(constants.HeaderXUserID)
+	uniqueID := r.Header.Get(constants.HeaderXUserUUID)
 	apiName := mux.CurrentRoute(r).GetName()
 	if slices.Contains(constants.AuthRoutes, apiName) {
 		var req struct {

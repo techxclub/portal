@@ -1,22 +1,30 @@
+CREATE SEQUENCE IF NOT EXISTS users_user_number_seq START with 1;
+
 CREATE TABLE IF NOT EXISTS users
 (
-    user_id             uuid PRIMARY KEY                  DEFAULT uuid_generate_v4(),
-    created_time        TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    status              VARCHAR(100)             NOT NULL,
-    name                VARCHAR(100),
-    phone_number        VARCHAR(20) UNIQUE,
-    personal_email      VARCHAR(255)             NOT NULL UNIQUE,
-    company_id          INTEGER                  NOT NULL,
-    company_name        VARCHAR(100)             NOT NULL,
-    role                VARCHAR(255),
-    years_of_experience FLOAT,
-    work_email          VARCHAR(255)             NOT NULL UNIQUE,
-    mentor_config       JSONB                    NOT NULL,
-    linkedIn            VARCHAR(255) UNIQUE
+    user_number           BIGINT                   NOT NULL DEFAULT NEXTVAL('users_user_number_seq'),
+    user_uuid             uuid PRIMARY KEY                  DEFAULT uuid_generate_v4(),
+    create_time           TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time           TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    status                VARCHAR(100)             NOT NULL,
+    registered_email      VARCHAR(255)             NOT NULL UNIQUE,
+    name                  VARCHAR(100),
+    phone_number          VARCHAR(20),
+    profile_picture       VARCHAR(1000),
+    linkedin              VARCHAR(255),
+    gender                VARCHAR(10),
+    company_id            INTEGER,
+    company_name          VARCHAR(100),
+    work_email            VARCHAR(255),
+    designation           VARCHAR(100),
+    years_of_experience   FLOAT,
+    google_auth_details   JSONB,
+    technical_information JSONB,
+    mentor_config         JSONB
 );
 
-CREATE INDEX IF NOT EXISTS users_userid_idx ON users (user_id);
-CREATE INDEX IF NOT EXISTS users_phone_idx ON users (phone_number);
-CREATE INDEX IF NOT EXISTS users_personalemail_idx ON users (personal_email);
-CREATE INDEX IF NOT EXISTS users_workemail_idx ON users (work_email);
-CREATE INDEX IF NOT EXISTS users_createdtime_idx ON users (created_time);
+CREATE INDEX IF NOT EXISTS users_user_number_idx ON users (user_number);
+CREATE INDEX IF NOT EXISTS users_user_uuid_idx ON users (user_uuid);
+CREATE INDEX IF NOT EXISTS users_create_time_idx ON users (create_time);
+CREATE INDEX IF NOT EXISTS users_update_time_idx ON users (update_time);
+CREATE INDEX IF NOT EXISTS users_registered_email_idx ON users (registered_email);

@@ -11,17 +11,22 @@ var cfg *Config
 type Config struct {
 	AppName     string        `yaml:"APP_NAME" env:"APP_NAME"`
 	API         HTTPAPIConfig `yaml:"API" env:",prefix=API_"`
-	Auth        *Auth         `yaml:"AUTH" env:",prefix=AUTH_"`
-	AdminAuth   *AdminAuth    `yaml:"ADMIN_AUTH" env:",prefix=ADMIN_AUTH_"`
+	Admin       Admin         `yaml:"ADMIN" env:",prefix=ADMIN_"`
+	Auth        Auth          `yaml:"AUTH" env:",prefix=AUTH_"`
+	GoogleAuth  GoogleAuth    `yaml:"GOOGLE_AUTH" env:",prefix=GOOGLE_AUTH_"`
 	Swagger     Swagger       `yaml:"SWAGGER" env:",prefix=SWAGGER_"`
 	Translation Translation   `yaml:"TRANSLATION" env:",prefix=TRANSLATION_"`
 
-	DB        DB        `yaml:"DB" env:",prefix=DB_"`
-	Redis     Redis     `yaml:"REDIS" env:",prefix=REDIS_"`
-	Log       Log       `yaml:"LOG" env:",prefix=LOG_"`
-	RateLimit RateLimit `yaml:"RATE_LIMIT" env:",prefix=RATE_LIMIT_"`
+	DB    DB    `yaml:"DB" env:",prefix=DB_"`
+	Redis Redis `yaml:"REDIS" env:",prefix=REDIS_"`
+	Log   Log   `yaml:"LOG" env:",prefix=LOG_"`
+	OTP   OTP   `yaml:"OTP" env:",prefix=OTP_"`
 
-	OTP          OTP      `yaml:"OTP" env:",prefix=OTP_"`
+	RateLimitEnabled bool      `yaml:"RATE_LIMIT_ENABLED" env:"RATE_LIMIT_ENABLED"`
+	RateLimit        RateLimit `yaml:"RATE_LIMIT" env:",prefix=RATE_LIMIT_"`
+
+	GoogleClient HTTPConfig `yaml:"GOOGLE_CLIENT" env:",prefix=GOOGLE_CLIENT_"`
+
 	ReferralMail MailSMTP `yaml:"REFERRAL_MAIL" env:",prefix=REFERRAL_MAIL_"`
 	OTPMail      MailSMTP `yaml:"OTP_MAIL" env:",prefix=OTP_MAIL_"`
 	Referral     Referral `yaml:"REFERRAL" env:",prefix=REFERRAL_"`
@@ -43,9 +48,18 @@ type Auth struct {
 	AuthHardExpiryDuration time.Duration `yaml:"AUTH_HARD_EXPIRY_DURATION" env:"AUTH_HARD_EXPIRY_DURATION"`
 }
 
-type AdminAuth struct {
+type Admin struct {
 	ClientID string `yaml:"CLIENT_ID" env:"CLIENT_ID"`
 	PassKey  string `yaml:"PASS_KEY" env:"PASS_KEY"`
+}
+
+type GoogleAuth struct {
+	Debug            bool   `yaml:"DEBUG" env:"DEBUG"`
+	ClientState      string `yaml:"CLIENT_STATE" env:"CLIENT_STATE"`
+	ClientID         string `yaml:"CLIENT_ID" env:"CLIENT_ID"`
+	ClientSecret     string `yaml:"CLIENT_SECRET" env:"CLIENT_SECRET"`
+	RedirectHost     string `yaml:"REDIRECT_HOST" env:"REDIRECT_HOST"`
+	RedirectEndpoint string `yaml:"REDIRECT_ENDPOINT" env:"REDIRECT_ENDPOINT"`
 }
 
 type HTTPAPIConfig struct {
@@ -103,8 +117,13 @@ func (cfg *Config) SetDefaults() {
 		DebugMode:  false,
 	}
 
-	cfg.Auth = &Auth{
-		Enabled:                false,
+	cfg.Admin = Admin{
+		ClientID: "admin",
+		PassKey:  "admin",
+	}
+
+	cfg.Auth = Auth{
+		Enabled:                true,
 		CipherKey:              "6c13b7338aa24366181369dbc6540f28",
 		AuthIssuer:             "portal",
 		AuthIssuerUUID:         "portal-uuid",
@@ -115,9 +134,13 @@ func (cfg *Config) SetDefaults() {
 		AuthHardExpiryDuration: 30 * 24 * time.Hour,
 	}
 
-	cfg.AdminAuth = &AdminAuth{
-		ClientID: "admin",
-		PassKey:  "admin",
+	cfg.GoogleAuth = GoogleAuth{
+		Debug:            true,
+		ClientState:      "google",
+		ClientID:         "google-client-id",
+		ClientSecret:     "google-client-secret",
+		RedirectHost:     "https://localhost:5173",
+		RedirectEndpoint: "/oauth2/callback",
 	}
 
 	cfg.Swagger = Swagger{
@@ -132,6 +155,8 @@ func (cfg *Config) SetDefaults() {
 
 	cfg.DB = defaultDBConfig()
 	cfg.Redis = defaultRedisConfig()
+
+	cfg.RateLimitEnabled = true
 	cfg.RateLimit = defaultRateLimit()
 
 	cfg.Log = Log{
@@ -146,6 +171,16 @@ func (cfg *Config) SetDefaults() {
 		MockingEnabled:          false,
 		EmailThirdPartyProvider: constants.ThirdPartyGomail,
 		SMSThirdPartyProvider:   constants.ThirdPartyMsg91,
+	}
+
+	cfg.GoogleClient = HTTPConfig{
+		Host:                   "www.googleapis.com",
+		HTTPTimeout:            1000,
+		HystrixTimeout:         1000,
+		MaxConcurrentRequests:  100,
+		RequestVolumeThreshold: 100,
+		SleepWindow:            100,
+		ErrorPercentThreshold:  10,
 	}
 
 	cfg.ReferralMail = MailSMTP{

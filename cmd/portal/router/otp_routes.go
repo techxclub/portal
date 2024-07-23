@@ -5,11 +5,13 @@ import (
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/constants"
 	"github.com/techx/portal/handler"
+	"github.com/techx/portal/middleware"
 	"github.com/techx/portal/service"
 )
 
-func addAuthRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry) {
-	authRouter := router.PathPrefix("/public/auth").Subrouter()
+func addOTPRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry) {
+	otpRouter := router.PathPrefix("/public/auth").Subrouter()
+	otpRouter.Use(middleware.Authorization(cfg.Auth))
 
 	//	swagger:route POST /public/auth/otp/generate public generateOTP
 	//	Responses:
@@ -19,7 +21,7 @@ func addAuthRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry)
 	//		422: ErrorResponse
 	//		500: ErrorResponse
 	//		503: ErrorResponse
-	authRouter.
+	otpRouter.
 		Methods(constants.MethodPost).
 		Name(constants.APINameGenerateOTP).
 		Path("/otp/generate").
@@ -33,7 +35,7 @@ func addAuthRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry)
 	//		422: ErrorResponse
 	//		500: ErrorResponse
 	//		503: ErrorResponse
-	authRouter.
+	otpRouter.
 		Methods(constants.MethodPost).
 		Name(constants.APINameVerifyOTP).
 		Path("/otp/verify").
@@ -47,7 +49,7 @@ func addAuthRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry)
 	//		422: ErrorResponse
 	//		500: ErrorResponse
 	//		503: ErrorResponse
-	authRouter.
+	otpRouter.
 		Methods(constants.MethodPost).
 		Name(constants.APINameResendOTP).
 		Path("/otp/resend").

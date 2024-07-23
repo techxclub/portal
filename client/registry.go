@@ -7,6 +7,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/techx/portal/client/cache"
 	"github.com/techx/portal/client/db"
+	"github.com/techx/portal/client/google"
 	"github.com/techx/portal/client/ratelimiter"
 	"github.com/techx/portal/config"
 	"gopkg.in/gomail.v2"
@@ -15,6 +16,7 @@ import (
 type Registry struct {
 	DB                 db.Client
 	RateLimiter        ratelimiter.RateLimiter
+	GoogleClient       google.Client
 	ReferralMailClient *gomail.Dialer
 	OTPMailClient      *gomail.Dialer
 	OTPCache           cache.Cache[cache.OTPCache]
@@ -25,12 +27,14 @@ func NewRegistry(cfg *config.Config) *Registry {
 	dbClient := db.NewPostgresDBClient(cfg)
 	rateLimiter := ratelimiter.NewRateLimiter(redisClient)
 	otpCache := cache.NewOTPCache(redisClient, cfg.Redis)
+	googleClient := google.NewGoogleClient(cfg.GoogleClient)
 	referralMailClient := newGmailClient(cfg.ReferralMail)
 	otpMailClient := newGmailClient(cfg.OTPMail)
 
 	return &Registry{
 		DB:                 dbClient,
 		RateLimiter:        rateLimiter,
+		GoogleClient:       googleClient,
 		ReferralMailClient: referralMailClient,
 		OTPMailClient:      otpMailClient,
 		OTPCache:           otpCache,

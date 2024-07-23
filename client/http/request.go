@@ -15,12 +15,18 @@ import (
 	"github.com/techx/portal/logger"
 )
 
+const (
+	SchemeHTTP  = "http"
+	SchemeHTTPS = "https"
+)
+
 func NewRequest(ctx context.Context, cmdName string) *Request {
 	return &Request{
 		header:     make(http.Header),
 		queryParam: make(url.Values),
 		ctx:        ctx,
 		cmdName:    cmdName,
+		scheme:     "http",
 	}
 }
 
@@ -30,6 +36,7 @@ type Request struct {
 	path       string
 	body       interface{}
 	host       string
+	scheme     string
 	header     http.Header
 	queryParam url.Values
 	cmdName    string
@@ -79,9 +86,14 @@ func (r *Request) SetQueryParams(params map[string]string) *Request {
 	return r
 }
 
+func (r *Request) SetScheme(scheme string) *Request {
+	r.scheme = scheme
+	return r
+}
+
 func (r *Request) Build() (*http.Request, error) {
 	uri := &url.URL{
-		Scheme: "http",
+		Scheme: r.scheme,
 		Host:   r.host,
 		Path:   r.path,
 	}

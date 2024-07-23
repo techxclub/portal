@@ -1,4 +1,4 @@
-package handler
+package admin
 
 import (
 	"context"
@@ -6,13 +6,14 @@ import (
 
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/domain"
+	"github.com/techx/portal/handler"
 	"github.com/techx/portal/handler/request"
 	"github.com/techx/portal/handler/response"
 	"github.com/techx/portal/service"
 )
 
-func AdminUserListHandler(_ *config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
-	return Handler(
+func UserListHandler(_ *config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
+	return handler.Handler(
 		request.NewAdminUserListRequest,
 		func(ctx context.Context, req request.AdminUserListRequest) (*domain.Users, error) {
 			return serviceRegistry.UserService.GetUsers(ctx, req.ToFetchUserParams())

@@ -13,6 +13,34 @@ func addPublicRoutes(router *mux.Router, cfg *config.Config, sr *service.Registr
 	publicRouter := router.PathPrefix("/public").Subrouter()
 	publicRouter.Use(middleware.Authorization(cfg.Auth))
 
+	//	swagger:route GET /public/user/fetch/profile public userFetchProfile
+	//	Responses:
+	//		200: UserProfileResponse
+	//		401:
+	// 		400: ErrorResponse
+	//		422: ErrorResponse
+	//		500: ErrorResponse
+	//		503: ErrorResponse
+	publicRouter.
+		Methods(constants.MethodGet).
+		Name(constants.APINameUserFetchProfile).
+		Path("/user/fetch/profile").
+		Handler(handler.UserFetchProfileHandler(cfg, sr))
+
+	//	swagger:route PUT /public/user/update/profile public userUpdateProfile
+	//	Responses:
+	//		200: RegisterUserV1Response
+	//		401:
+	// 		400: ErrorResponse
+	//		422: ErrorResponse
+	//		500: ErrorResponse
+	//		503: ErrorResponse
+	publicRouter.
+		Methods(constants.MethodPut).
+		Name(constants.APINameUserUpdateProfile).
+		Path("/user/update/profile").
+		Handler(handler.UserUpdateProfileHandler(cfg, sr))
+
 	//	swagger:route POST /public/user/register public registerUserV1
 	//	Responses:
 	//		200: RegisterUserV1Response
@@ -40,20 +68,6 @@ func addPublicRoutes(router *mux.Router, cfg *config.Config, sr *service.Registr
 		Name(constants.APINameMentorRegister).
 		Path("/mentor/register").
 		Handler(handler.RegisterMentorHandler(cfg, sr))
-
-	//	swagger:route GET /public/user/profile public userProfile
-	//	Responses:
-	//		200: UserProfileResponse
-	//		401:
-	// 		400: ErrorResponse
-	//		422: ErrorResponse
-	//		500: ErrorResponse
-	//		503: ErrorResponse
-	publicRouter.
-		Methods(constants.MethodGet).
-		Name(constants.APINameUserProfile).
-		Path("/user/profile").
-		Handler(handler.UserProfileHandler(cfg, sr))
 
 	//	swagger:route GET /public/company/list public companyList
 	//	Responses:

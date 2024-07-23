@@ -9,12 +9,15 @@ const (
 	APINameAdminReferralList   = "AdminReferralList"
 	APINameAdminReferralUpdate = "AdminReferralUpdate"
 	APINameAdminReferralExpire = "AdminReferralExpire"
+	APINameAdminFetchAuthToken = "AdminFetchAuthToken"
+	APINameGoogleSignIn        = "GoogleSignIn"
 	APINameGenerateOTP         = "GenerateOTP"
 	APINameVerifyOTP           = "VerifyOTP"
 	APINameResendOTP           = "ResendOTP"
+	APINameUserFetchProfile    = "UserFetchProfile"
+	APINameUserUpdateProfile   = "UserUpdateProfile"
 	APINameUserRegister        = "UserRegister"
 	APINameMentorRegister      = "MentorRegister"
-	APINameUserProfile         = "UserProfile"
 	APINameCompanyList         = "CompanyList"
 	APINameCompanyUserList     = "CompanyUserList"
 	APINameMentorList          = "MentorList"
@@ -24,6 +27,6 @@ const (
 )
 
 var (
-	AuthRoutes  = []string{APINameGenerateOTP, APINameVerifyOTP, APINameResendOTP}
+	AuthRoutes  = []string{APINameGoogleSignIn, APINameGenerateOTP, APINameVerifyOTP, APINameResendOTP}
 	AdminRoutes = []string{APINameAdminUserList, APINameAdminUserUpdate, APINameAdminCompanyList, APINameAdminCompanyUpdate}
 )

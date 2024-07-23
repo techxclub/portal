@@ -18,3 +18,12 @@ func ParseInt64WithDefault(str string, def int64) int64 {
 func GetRandomUUID() string {
 	return uuid.NewV4().String()
 }
+
+func UpdatedToZeroValue[T comparable](oldValue, newValue T) bool {
+	var zero T
+	if oldValue != zero && newValue == zero {
+		return true
+	}
+
+	return false
+}

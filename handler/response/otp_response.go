@@ -2,18 +2,16 @@ package response
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
-	"github.com/techx/portal/handler/composers"
 )
 
 var authStatusToActionMap = map[string]string{
-	constants.AuthStatusGenerated: constants.ActionVerifyOTP,
-	constants.AuthStatusPending:   constants.ActionVerifyOTP,
-	constants.AuthStatusFailed:    constants.ActionRetryOTP,
-	constants.AuthStatusVerified:  constants.ActionSignUp,
+	constants.OTPStatusGenerated: constants.ActionVerifyOTP,
+	constants.OTPStatusPending:   constants.ActionVerifyOTP,
+	constants.OTPStatusFailed:    constants.ActionRetryOTP,
+	constants.OTPStatusVerified:  constants.ActionSignUp,
 }
 
 // swagger:model
@@ -23,8 +21,7 @@ type GenerateOTPResponse struct {
 
 // swagger:model
 type VerifyOTPResponse struct {
-	Action  string                 `json:"action"`
-	Profile *composers.UserProfile `json:"profile,omitempty"`
+	Action string `json:"action"`
 }
 
 func NewGenerateOTPResponse(_ context.Context, _ domain.AuthDetails) (GenerateOTPResponse, HTTPMetadata) {
@@ -32,33 +29,10 @@ func NewGenerateOTPResponse(_ context.Context, _ domain.AuthDetails) (GenerateOT
 }
 
 func NewVerifyOTPResponse(_ context.Context, authDetails domain.AuthDetails) (VerifyOTPResponse, HTTPMetadata) {
-	action, ok := authStatusToActionMap[authDetails.AuthInfo.Status]
+	action, ok := authStatusToActionMap[authDetails.Status]
 	if !ok {
 		return VerifyOTPResponse{Action: constants.ActionRetryOTP}, HTTPMetadata{}
 	}
 
-	if authDetails.UserInfo == nil {
-		return VerifyOTPResponse{Action: action}, HTTPMetadata{}
-	}
-
-	profile := composers.NewUserProfile(*authDetails.UserInfo)
-	if !authDetails.UserInfo.IsApproved() {
-		return VerifyOTPResponse{
-			Action:  constants.ActionPendingApproval,
-			Profile: &profile,
-		}, HTTPMetadata{}
-	}
-
-	verifyOTPResponse := VerifyOTPResponse{
-		Action:  constants.ActionLogIn,
-		Profile: &profile,
-	}
-
-	httpMetadata := HTTPMetadata{
-		Headers: &http.Header{
-			constants.HeaderAuthToken: []string{authDetails.AuthToken},
-		},
-	}
-
-	return verifyOTPResponse, httpMetadata
+	return VerifyOTPResponse{Action: action}, HTTPMetadata{}
 }

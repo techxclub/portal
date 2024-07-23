@@ -5,8 +5,8 @@ import (
 	"crypto/rand"
 	"math/big"
 	"strconv"
-	"time"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/rs/zerolog/log"
 	"github.com/techx/portal/client/cache"
 	"github.com/techx/portal/constants"
@@ -23,94 +23,80 @@ const (
 	i18nKeyEmailOTPMailBody    = "email_otp_mail_body"
 )
 
-func (mb messageBuilder) sendEmailOTPViaGomail(ctx context.Context, params domain.AuthRequest) (domain.AuthInfo, error) {
+func (ob otpBuilder) sendEmailOTPViaGomail(ctx context.Context, params domain.OTPRequest) (domain.AuthDetails, error) {
 	otp := generateOTP()
 
-	err := mb.sendMail(ctx, otp, params.Value)
+	err := ob.sendMail(ctx, otp, params.Value)
 	if err != nil {
 		log.Error().Err(err).Msgf("Failed to send opt")
-		return domain.AuthInfo{}, err
+		return domain.AuthDetails{}, err
 	}
 
-	ttl := mb.cfg.OTP.TTL
-	expiry := time.Now().Add(ttl)
+	ttl := ob.cfg.OTP.TTL
 	otpCacheValue := &cache.OTPCache{
-		OTP:        otp,
-		ExpiryTime: expiry,
-		Attempts:   0,
+		OTP:      otp,
+		Attempts: 0,
 	}
-	err = mb.otpCache.Set(ctx, params.Value, otpCacheValue, ttl)
+	err = ob.otpCache.Set(ctx, params.Value, otpCacheValue, ttl)
 	if err != nil {
 		log.Error().Err(err).Msgf("Failed to set opt in cache")
-		return domain.AuthInfo{}, err
+		return domain.AuthDetails{}, err
 	}
 
-	return domain.AuthInfo{
-		OTP:    &otp,
-		Status: constants.AuthStatusPending,
+	return domain.AuthDetails{
+		Status: constants.OTPStatusPending,
 	}, nil
 }
 
-func (mb messageBuilder) verifyEmailOTPViaGomail(ctx context.Context, params domain.AuthRequest) (domain.AuthInfo, error) {
+func (ob otpBuilder) verifyEmailOTPViaGomail(ctx context.Context, params domain.OTPRequest) (domain.AuthDetails, error) {
 	if params.OTP == "" {
-		return domain.AuthInfo{
-			Status: constants.AuthStatusFailed,
-		}, errors.ErrOtpNotProvided
+		return domain.AuthDetails{}, errors.ErrMissingOTP
 	}
 
-	otpCacheValue, err := mb.otpCache.Get(ctx, params.Value)
+	otpCacheValue, err := ob.otpCache.Get(ctx, params.Value)
 	if err != nil {
 		log.Error().Err(err).Msgf("Failed to get otpCacheValue from cache")
-		return domain.AuthInfo{}, err
+		return domain.AuthDetails{}, err
 	}
 
 	if otpCacheValue.OTP != params.OTP {
-		go func() {
-			mb.updateOTPAttempts(ctx, params.Value, otpCacheValue)
-		}()
-
-		return domain.AuthInfo{
-			Status: constants.AuthStatusFailed,
-		}, nil
+		ob.updateOTPAttempts(ctx, params.Value, otpCacheValue)
+		return domain.AuthDetails{Status: constants.OTPStatusFailed}, nil
 	}
 
-	err = mb.otpCache.Del(ctx, params.Value)
-	if err != nil {
-		log.Error().Err(err).Msgf("Failed to delete otpCacheValue from cache")
+	if err := ob.updateVerifiedOTP(ctx, params.Value, otpCacheValue); err != nil {
+		return domain.AuthDetails{}, err
 	}
 
-	return domain.AuthInfo{
-		Status: constants.AuthStatusVerified,
-	}, nil
+	return domain.AuthDetails{Status: constants.OTPStatusVerified}, nil
 }
 
-func (mb messageBuilder) resendEmailOTPViaGomail(ctx context.Context, params domain.AuthRequest) (domain.AuthInfo, error) {
-	otpCacheValue, err := mb.otpCache.Get(ctx, params.Value)
+func (ob otpBuilder) resendEmailOTPViaGomail(ctx context.Context, params domain.OTPRequest) (domain.AuthDetails, error) {
+	otpCacheValue, err := ob.otpCache.Get(ctx, params.Value)
 	if err != nil {
 		log.Error().Err(err).Msgf("Existing OTP not found in cache, sending new otp")
-		return mb.sendEmailOTPViaGomail(ctx, params)
+		return ob.sendEmailOTPViaGomail(ctx, params)
 	}
 
-	err = mb.sendMail(ctx, otpCacheValue.OTP, params.Value)
+	err = ob.sendMail(ctx, otpCacheValue.OTP, params.Value)
 	if err != nil {
 		log.Error().Err(err).Msgf("Failed to send opt")
-		return domain.AuthInfo{}, err
+		return domain.AuthDetails{}, err
 	}
 
-	return domain.AuthInfo{
-		OTP:    &otpCacheValue.OTP,
-		Status: constants.AuthStatusPending,
+	return domain.AuthDetails{
+		Status: constants.OTPStatusPending,
 	}, nil
 }
 
-func (mb messageBuilder) sendMail(ctx context.Context, otp, email string) error {
+func (ob otpBuilder) sendMail(ctx context.Context, otp, email string) error {
 	i18nValues := map[string]interface{}{
 		"OTP": otp,
 	}
 
 	subject := i18n.Translate(ctx, i18nKeyEmailOTPMailSubject)
 	bodyHTML := i18n.Translate(ctx, i18nKeyEmailOTPMailBody, i18nValues)
-	mailCfg := mb.cfg.OTPMail
+	mailCfg := ob.cfg.OTPMail
 	messageID := mailCfg.GetMessageID()
 
 	m := gomail.NewMessage()
@@ -122,7 +108,7 @@ func (mb messageBuilder) sendMail(ctx context.Context, otp, email string) error 
 	m.SetHeader(constants.GomailHeaderReferences, messageID)
 	m.SetBody(constants.GomailContentTypeHTML, bodyHTML)
 
-	err := mb.otpMailClient.DialAndSend(m)
+	err := ob.otpMailClient.DialAndSend(m)
 	if err != nil {
 		return err
 	}
@@ -130,12 +116,22 @@ func (mb messageBuilder) sendMail(ctx context.Context, otp, email string) error 
 	return nil
 }
 
-func (mb messageBuilder) updateOTPAttempts(ctx context.Context, email string, otpCacheValue *cache.OTPCache) {
+func (ob otpBuilder) updateOTPAttempts(ctx context.Context, email string, otpCacheValue *cache.OTPCache) {
 	otpCacheValue.Attempts++
-	err := mb.otpCache.Set(ctx, email, otpCacheValue, mb.cfg.OTP.TTL)
+	err := ob.otpCache.Set(ctx, email, otpCacheValue, redis.KeepTTL)
 	if err != nil {
 		log.Error().Err(err).Msgf("Failed to update attempts in cache")
 	}
+}
+
+func (ob otpBuilder) updateVerifiedOTP(ctx context.Context, email string, otpCacheValue *cache.OTPCache) error {
+	otpCacheValue.Verified = true
+	err := ob.otpCache.Set(ctx, email, otpCacheValue, ob.cfg.OTP.TTL)
+	if err != nil {
+		log.Error().Err(err).Msgf("Failed to store verified status in otp cache")
+	}
+
+	return err
 }
 
 func generateOTP() string {

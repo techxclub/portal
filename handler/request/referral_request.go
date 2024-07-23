@@ -13,13 +13,13 @@ import (
 )
 
 type ReferralRequest struct {
-	RequesterUserID string
-	ProviderUserID  string
-	CompanyID       int64
-	JobLink         string
-	Message         string
-	ResumeFilePath  string
-	ResumeFile      multipart.File
+	RequesterUserUUID string
+	ProviderUserUUID  string
+	CompanyID         int64
+	JobLink           string
+	Message           string
+	ResumeFilePath    string
+	ResumeFile        multipart.File
 }
 
 func NewReferralRequest(r *http.Request) (*ReferralRequest, error) {
@@ -33,21 +33,21 @@ func NewReferralRequest(r *http.Request) (*ReferralRequest, error) {
 	}
 
 	return &ReferralRequest{
-		RequesterUserID: r.FormValue(constants.ParamRequesterID),
-		ProviderUserID:  r.FormValue(constants.ParamProviderID),
-		CompanyID:       utils.ParseInt64WithDefault(r.FormValue(constants.ParamCompanyID), 0),
-		JobLink:         r.FormValue(constants.ParamJobLink),
-		Message:         r.FormValue(constants.ParamMessage),
-		ResumeFile:      resumeFile,
+		RequesterUserUUID: r.FormValue(constants.ParamRequesterID),
+		ProviderUserUUID:  r.FormValue(constants.ParamProviderID),
+		CompanyID:         utils.ParseInt64WithDefault(r.FormValue(constants.ParamCompanyID), 0),
+		JobLink:           r.FormValue(constants.ParamJobLink),
+		Message:           r.FormValue(constants.ParamMessage),
+		ResumeFile:        resumeFile,
 	}, nil
 }
 
 func (r ReferralRequest) Validate() error {
-	if r.RequesterUserID == "" {
+	if r.RequesterUserUUID == "" {
 		return errors.ErrRequesterFieldIsEmpty
 	}
 
-	if r.ProviderUserID == "" {
+	if r.ProviderUserUUID == "" {
 		return errors.ErrProviderFieldIsEmpty
 	}
 
@@ -61,13 +61,15 @@ func (r ReferralRequest) Validate() error {
 
 func (r ReferralRequest) ToReferral() domain.ReferralParams {
 	return domain.ReferralParams{
-		RequesterUserID: r.RequesterUserID,
-		ProviderUserID:  r.ProviderUserID,
-		JobLink:         r.JobLink,
-		CompanyID:       r.CompanyID,
-		Message:         r.Message,
-		ResumeFile:      r.ResumeFile,
-		Status:          constants.ReferralStatusPending,
+		Referral: domain.Referral{
+			Status:            constants.ReferralStatusPending,
+			RequesterUserUUID: r.RequesterUserUUID,
+			ProviderUserUUID:  r.ProviderUserUUID,
+			JobLink:           r.JobLink,
+			CompanyID:         r.CompanyID,
+		},
+		Message:    r.Message,
+		ResumeFile: r.ResumeFile,
 	}
 }
 

@@ -1,46 +1,76 @@
 definitions:
-    BulkUserDetailsResponse:
-        properties:
-            users:
-                items:
-                    $ref: '#/definitions/UserProfile'
-                type: array
-                x-go-name: Users
-        type: object
-        x-go-package: github.com/techx/portal/handler/response
     Company:
         properties:
+            big_logo:
+                type: string
+                x-go-name: BigLogo
+            careers_page:
+                type: string
+                x-go-name: CareersPage
+            display_name:
+                type: string
+                x-go-name: DisplayName
             id:
                 format: int64
                 type: integer
                 x-go-name: ID
-            name:
+            normalized_name:
                 type: string
-                x-go-name: Name
+                x-go-name: NormalizedName
+            official_website:
+                type: string
+                x-go-name: OfficialWebsite
+            popular:
+                type: boolean
+                x-go-name: Popular
+            priority:
+                format: int64
+                type: integer
+                x-go-name: Priority
+            small_logo:
+                type: string
+                x-go-name: SmallLogo
+            verified:
+                type: boolean
+                x-go-name: Verified
         type: object
-        x-go-package: github.com/techx/portal/handler/response
+        x-go-package: github.com/techx/portal/handler/composers
     CompanyListResponse:
         properties:
-            companies:
+            all_companies:
                 items:
                     $ref: '#/definitions/Company'
                 type: array
-                x-go-name: Companies
+                x-go-name: AllCompanies
+            popular_companies:
+                items:
+                    $ref: '#/definitions/Company'
+                type: array
+                x-go-name: PopularCompanies
         type: object
         x-go-package: github.com/techx/portal/handler/response
     CompanyUser:
         properties:
-            company:
+            company_name:
                 type: string
-                x-go-name: Company
+                x-go-name: CompanyName
+            designation:
+                type: string
+                x-go-name: Designation
             name:
                 type: string
                 x-go-name: Name
-            user_id:
+            referral_cta:
+                $ref: '#/definitions/ReferralCTA'
+            user_uuid:
                 type: string
-                x-go-name: UserID
+                x-go-name: UserUUID
+            years_of_experience:
+                format: float
+                type: number
+                x-go-name: YearsOfExperience
         type: object
-        x-go-package: github.com/techx/portal/handler/response
+        x-go-package: github.com/techx/portal/handler/composers
     CompanyUsersListResponse:
         properties:
             users:
@@ -66,6 +96,21 @@ definitions:
                 x-go-name: Title
         type: object
         x-go-package: github.com/techx/portal/handler/response
+    File:
+        allOf:
+            - type: object
+            - type: object
+            - type: object
+            - properties:
+                Close:
+                    type: string
+              type: object
+        description: |-
+            Its contents may be either stored in memory or on disk.
+            If stored on disk, the File's underlying concrete type will be an *os.File.
+        title: File is an interface to access the file part of a multipart message.
+        type: object
+        x-go-package: mime/multipart
     GenerateOTPResponse:
         properties:
             action:
@@ -73,6 +118,28 @@ definitions:
                 x-go-name: Action
         type: object
         x-go-package: github.com/techx/portal/handler/response
+    GoogleOAuthLoginResponse:
+        properties:
+            profile:
+                $ref: '#/definitions/UserProfile'
+        type: object
+        x-go-package: github.com/techx/portal/handler/response
+    MentorConfig:
+        properties:
+            calendaly_link:
+                type: string
+                x-go-name: CalendalyLink
+            is_mentor:
+                type: boolean
+                x-go-name: IsMentor
+            is_pre_approved:
+                type: boolean
+                x-go-name: IsPreApproved
+            status:
+                type: string
+                x-go-name: Status
+        type: object
+        x-go-package: github.com/techx/portal/handler/composers
     OTPRequest:
         properties:
             channel:
@@ -86,52 +153,58 @@ definitions:
                 x-go-name: Value
         type: object
         x-go-package: github.com/techx/portal/handler/request
+    ReferralCTA:
+        properties:
+            enabled:
+                type: boolean
+                x-go-name: Enabled
+            template:
+                type: string
+                x-go-name: Template
+            text:
+                type: string
+                x-go-name: Text
+        type: object
+        x-go-package: github.com/techx/portal/handler/composers
     ReferralRequest:
         properties:
-            company:
+            CompanyID:
+                format: int64
+                type: integer
+            JobLink:
                 type: string
-                x-go-name: Company
-            job_link:
+            Message:
                 type: string
-                x-go-name: JobLink
-            message:
+            ProviderUserUUID:
                 type: string
-                x-go-name: Message
-            provider_user_id:
+            RequesterUserUUID:
                 type: string
-                x-go-name: ProviderUserID
-            requester_user_id:
+            ResumeFile:
+                $ref: '#/definitions/File'
+            ResumeFilePath:
                 type: string
-                x-go-name: RequesterUserID
         type: object
         x-go-package: github.com/techx/portal/handler/request
-    ReferralResponse:
-        properties:
-            success:
-                type: boolean
-                x-go-name: Success
-        type: object
-        x-go-package: github.com/techx/portal/handler/response
     RegisterUserV1Request:
         properties:
-            company:
+            company_name:
                 type: string
-                x-go-name: Company
+                x-go-name: CompanyName
+            designation:
+                type: string
+                x-go-name: Designation
             linkedin:
                 type: string
                 x-go-name: LinkedIn
             name:
                 type: string
                 x-go-name: Name
-            personal_email:
-                type: string
-                x-go-name: PersonalEmail
             phone_number:
                 type: string
                 x-go-name: PhoneNumber
-            role:
+            registered_email:
                 type: string
-                x-go-name: Role
+                x-go-name: RegisteredEmail
             work_email:
                 type: string
                 x-go-name: WorkEmail
@@ -150,36 +223,62 @@ definitions:
                 $ref: '#/definitions/UserProfile'
         type: object
         x-go-package: github.com/techx/portal/handler/response
+    SuccessResponse:
+        properties:
+            success:
+                type: boolean
+                x-go-name: Success
+        type: object
+        x-go-package: github.com/techx/portal/handler/response
+    UserListResponse:
+        properties:
+            users:
+                items:
+                    $ref: '#/definitions/UserProfile'
+                type: array
+                x-go-name: Users
+        type: object
+        x-go-package: github.com/techx/portal/handler/response
     UserProfile:
         properties:
-            company:
+            company_id:
+                format: int64
+                type: integer
+                x-go-name: CompanyID
+            company_name:
                 type: string
-                x-go-name: Company
+                x-go-name: CompanyName
             created_at:
                 format: date-time
                 type: string
                 x-go-name: CreatedAt
+            designation:
+                type: string
+                x-go-name: Designation
             linkedin:
                 type: string
                 x-go-name: LinkedIn
+            mentor_config:
+                $ref: '#/definitions/MentorConfig'
             name:
                 type: string
                 x-go-name: Name
-            personal_email:
-                type: string
-                x-go-name: PersonalEmail
             phone_number:
                 type: string
                 x-go-name: PhoneNumber
-            role:
+            registered_email:
                 type: string
-                x-go-name: Role
+                x-go-name: RegisteredEmail
             status:
                 type: string
                 x-go-name: Status
-            user_id:
+            user_number:
+                format: int64
+                type: integer
+                x-go-name: UserNumber
+            user_uuid:
                 type: string
-                x-go-name: UserID
+                x-go-name: UserUUID
             work_email:
                 type: string
                 x-go-name: WorkEmail
@@ -199,18 +298,122 @@ definitions:
         type: object
         x-go-package: github.com/techx/portal/handler/response
 paths:
-    /admin/user/details:
+    /admin/company/Update:
+        put:
+            operationId: updateCompanyDetails
+            responses:
+                "200":
+                    description: SuccessResponse
+                    schema:
+                        $ref: '#/definitions/SuccessResponse'
+                "400":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            tags:
+                - admin
+    /admin/company/list:
         get:
-            operationId: bulkGetUsers
+            operationId: getCompanyListDetails
+            responses:
+                "200":
+                    $ref: '#/responses/AdminCompanyListResponse'
+                "400":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            tags:
+                - admin
+    /admin/referral/Update:
+        put:
+            operationId: updateReferralDetails
+            responses:
+                "200":
+                    description: SuccessResponse
+                    schema:
+                        $ref: '#/definitions/SuccessResponse'
+                "400":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            tags:
+                - admin
+    /admin/referral/expire:
+        put:
+            operationId: expireReferral
+            responses:
+                "200":
+                    description: SuccessResponse
+                    schema:
+                        $ref: '#/definitions/SuccessResponse'
+                "400":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            tags:
+                - admin
+    /admin/referral/list:
+        get:
+            operationId: getAdminReferralList
+            responses:
+                "200":
+                    $ref: '#/responses/AdminReferralListResponse'
+                "400":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            tags:
+                - admin
+    /admin/user/Update:
+        put:
+            operationId: updateUserDetails
+            responses:
+                "200":
+                    description: SuccessResponse
+                    schema:
+                        $ref: '#/definitions/SuccessResponse'
+                "400":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            tags:
+                - admin
+    /admin/user/list:
+        get:
+            operationId: getUserList
             parameters:
                 - in: query
                   name: status
                   type: string
                   x-go-name: Status
                 - in: query
-                  name: user_id
+                  name: user_uuid
                   type: string
-                  x-go-name: UserID
+                  x-go-name: UserUUID
                 - in: query
                   name: phone_number
                   type: string
@@ -224,29 +427,19 @@ paths:
                   type: string
                   x-go-name: Company
                 - in: query
-                  name: role
+                  name: designation
                   type: string
-                  x-go-name: Role
+                  x-go-name: Designation
             responses:
                 "200":
-                    description: BulkUserDetailsResponse
+                    description: UserListResponse
                     schema:
-                        $ref: '#/definitions/BulkUserDetailsResponse'
+                        $ref: '#/definitions/UserListResponse'
                 "400":
                     description: ErrorResponse
                     schema:
                         $ref: '#/definitions/ErrorResponse'
-                "401":
-                    description: ""
-                "422":
-                    description: ErrorResponse
-                    schema:
-                        $ref: '#/definitions/ErrorResponse'
                 "500":
-                    description: ErrorResponse
-                    schema:
-                        $ref: '#/definitions/ErrorResponse'
-                "503":
                     description: ErrorResponse
                     schema:
                         $ref: '#/definitions/ErrorResponse'
@@ -266,6 +459,34 @@ paths:
                     description: GenerateOTPResponse
                     schema:
                         $ref: '#/definitions/GenerateOTPResponse'
+                "400":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "401":
+                    description: ""
+                "422":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "503":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            tags:
+                - public
+    /public/auth/otp/resend:
+        post:
+            operationId: ResendOTP
+            responses:
+                "200":
+                    description: VerifyOTPResponse
+                    schema:
+                        $ref: '#/definitions/VerifyOTPResponse'
                 "400":
                     description: ErrorResponse
                     schema:
@@ -356,12 +577,218 @@ paths:
                   name: X-User-Id
                   required: true
                   type: string
-                  x-go-name: UserID
+                  x-go-name: UserUUID
             responses:
                 "200":
                     description: CompanyUsersListResponse
                     schema:
                         $ref: '#/definitions/CompanyUsersListResponse'
+                "400":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "401":
+                    description: ""
+                "422":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "503":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            tags:
+                - public
+    /public/google/oauth/callback:
+        post:
+            operationId: generateOTP
+            parameters:
+                - in: body
+                  name: OTPRequest
+                  required: true
+                  schema:
+                    $ref: '#/definitions/OTPRequest'
+            responses:
+                "200":
+                    description: GenerateOTPResponse
+                    schema:
+                        $ref: '#/definitions/GenerateOTPResponse'
+                "400":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "401":
+                    description: ""
+                "422":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "503":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            tags:
+                - public
+    /public/google/oauth/debug:
+        get:
+            operationId: generateOTP
+            parameters:
+                - in: body
+                  name: OTPRequest
+                  required: true
+                  schema:
+                    $ref: '#/definitions/OTPRequest'
+            responses:
+                "200":
+                    description: GenerateOTPResponse
+                    schema:
+                        $ref: '#/definitions/GenerateOTPResponse'
+                "400":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "401":
+                    description: ""
+                "422":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "503":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            tags:
+                - public
+    /public/google/oauth/login:
+        post:
+            operationId: generateOTP
+            parameters:
+                - in: body
+                  name: OTPRequest
+                  required: true
+                  schema:
+                    $ref: '#/definitions/OTPRequest'
+            responses:
+                "200":
+                    description: GenerateOTPResponse
+                    schema:
+                        $ref: '#/definitions/GenerateOTPResponse'
+                "400":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "401":
+                    description: ""
+                "422":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "503":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            tags:
+                - public
+    /public/mentor/register:
+        post:
+            operationId: registerMentor
+            responses:
+                "200":
+                    $ref: '#/responses/RegisterMentorResponse'
+                "400":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "401":
+                    description: ""
+                "422":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "503":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            tags:
+                - public
+    /public/mentors/list:
+        get:
+            operationId: mentorsList
+            responses:
+                "200":
+                    $ref: '#/responses/mentorsListResponse'
+                "400":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "401":
+                    description: ""
+                "422":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "503":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            tags:
+                - public
+    /public/referral/list:
+        get:
+            operationId: referralList
+            responses:
+                "200":
+                    $ref: '#/responses/referralListResponse'
+                "400":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "401":
+                    description: ""
+                "422":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "503":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            tags:
+                - public
+    /public/referral/update:
+        put:
+            operationId: referralUpdateRequest
+            responses:
+                "200":
+                    $ref: '#/responses/ReferralUpdateResponse'
                 "400":
                     description: ErrorResponse
                     schema:
@@ -390,12 +817,10 @@ paths:
                   name: X-User-Id
                   required: true
                   type: string
-                  x-go-name: UserID
+                  x-go-name: UserUUID
             responses:
                 "200":
-                    description: UserProfile
-                    schema:
-                        $ref: '#/definitions/UserProfile'
+                    $ref: '#/responses/UserProfileResponse'
                 "400":
                     description: ErrorResponse
                     schema:
@@ -424,7 +849,7 @@ paths:
                   name: X-User-Id
                   required: true
                   type: string
-                  x-go-name: UserID
+                  x-go-name: UserUUID
                 - in: body
                   name: Body
                   required: true
@@ -432,9 +857,7 @@ paths:
                     $ref: '#/definitions/ReferralRequest'
             responses:
                 "200":
-                    description: ReferralResponse
-                    schema:
-                        $ref: '#/definitions/ReferralResponse'
+                    $ref: '#/responses/ReferralResponse'
                 "400":
                     description: ErrorResponse
                     schema:
@@ -455,7 +878,7 @@ paths:
                         $ref: '#/definitions/ErrorResponse'
             tags:
                 - public
-    /public/user/register/v1:
+    /public/user/register:
         post:
             operationId: registerUserV1
             parameters:

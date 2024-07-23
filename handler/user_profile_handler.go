@@ -11,11 +11,21 @@ import (
 	"github.com/techx/portal/service"
 )
 
-func UserProfileHandler(_ *config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
+func UserFetchProfileHandler(_ *config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
 	return Handler(
-		request.NewUserProfileRequest,
-		func(ctx context.Context, req request.UserProfileRequest) (*domain.UserProfile, error) {
-			return serviceRegistry.UserService.GetProfile(ctx, req.ToFetchUserParams())
+		request.NewUserFetchProfileRequest,
+		func(ctx context.Context, req request.UserFetchProfileRequest) (*domain.User, error) {
+			return serviceRegistry.UserService.GetUser(ctx, req.ToFetchUserParams())
+		},
+		response.NewUserProfileResponse,
+	)
+}
+
+func UserUpdateProfileHandler(_ *config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
+	return Handler(
+		request.NewUserUpdateProfileRequest,
+		func(ctx context.Context, req request.UserUpdateProfileRequest) (*domain.User, error) {
+			return serviceRegistry.UserService.UpdateUser(ctx, req.ToUserDomainObject())
 		},
 		response.NewUserProfileResponse,
 	)

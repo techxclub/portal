@@ -14,11 +14,12 @@ type AdminUserUpdateRequest struct {
 }
 
 type AdminUserUpdateParams struct {
-	UserNumber  int64  `json:"user_number"`
-	UserID      string `json:"user_id"`
-	Status      string `json:"status"`
-	CompanyName string `json:"company_name"`
-	Role        string `json:"role"`
+	UserNumber      int64  `json:"user_number"`
+	UserUUID        string `json:"user_uuid"`
+	RegisteredEmail string `json:"registered_email"`
+	Status          string `json:"status"`
+	CompanyName     string `json:"company_name"`
+	Designation     string `json:"designation"`
 }
 
 func NewAdminUserUpdateRequest(r *http.Request) (*AdminUserUpdateRequest, error) {
@@ -32,18 +33,23 @@ func NewAdminUserUpdateRequest(r *http.Request) (*AdminUserUpdateRequest, error)
 }
 
 func (r AdminUserUpdateRequest) Validate() error {
-	if r.To.UserNumber != 0 && r.To.UserID != "" {
+	if r.To.UserNumber != 0 && r.To.UserUUID != "" {
 		return errors.ErrInvalidUpdateRequest
 	}
 	return nil
 }
 
-func (r AdminUserUpdateParams) ToUserProfile() domain.UserProfile {
-	return domain.UserProfile{
-		UserIDNum:   r.UserNumber,
-		UserID:      r.UserID,
-		Status:      r.Status,
-		CompanyName: r.CompanyName,
-		Role:        r.Role,
+func (r AdminUserUpdateParams) ToUserProfile() domain.User {
+	return domain.User{
+		UserNumber: r.UserNumber,
+		UserUUID:   r.UserUUID,
+		Status:     r.Status,
+		PersonalInformation: domain.PersonalInformation{
+			RegisteredEmail: r.RegisteredEmail,
+		},
+		ProfessionalInformation: domain.ProfessionalInformation{
+			CompanyName: r.CompanyName,
+			Designation: r.Designation,
+		},
 	}
 }
