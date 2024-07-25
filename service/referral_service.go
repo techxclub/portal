@@ -13,10 +13,12 @@ import (
 	"github.com/techx/portal/domain"
 	"github.com/techx/portal/errors"
 	"github.com/techx/portal/utils"
+	"golang.org/x/sync/errgroup"
 )
 
 type ReferralService interface {
 	CreateReferral(ctx context.Context, referral domain.ReferralParams) (*domain.Referral, error)
+	FetchReferralsForUser(ctx context.Context, userUUID string) (*domain.UserReferrals, error)
 	FetchReferrals(ctx context.Context, referral domain.ReferralParams) (*domain.Referrals, error)
 	ExpireReferrals(ctx context.Context, referral *domain.Referral) (*domain.EmptyDomain, error)
 }
@@ -110,6 +112,40 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 
 	err = r.registry.MailBuilder.SendReferralMail(ctx, true, referral.Status, referralMailParams)
 	return referral, err
+}
+
+func (r referralService) FetchReferralsForUser(ctx context.Context, userUUID string) (*domain.UserReferrals, error) {
+	var eg errgroup.Group
+	var requestReferrals, providedReferrals *domain.Referrals
+
+	eg.Go(func() error {
+		var err error
+		requestReferrals, err = r.registry.ReferralsRepository.FetchReferralsForParams(ctx, domain.ReferralParams{
+			Referral: domain.Referral{
+				RequesterUserUUID: userUUID,
+			},
+		})
+		return err
+	})
+
+	eg.Go(func() error {
+		var err error
+		providedReferrals, err = r.registry.ReferralsRepository.FetchReferralsForParams(ctx, domain.ReferralParams{
+			Referral: domain.Referral{
+				ProviderUserUUID: userUUID,
+			},
+		})
+		return err
+	})
+
+	if err := eg.Wait(); err != nil {
+		return nil, err
+	}
+
+	return &domain.UserReferrals{
+		RequestedReferrals: requestReferrals,
+		ProvidedReferrals:  providedReferrals,
+	}, nil
 }
 
 func (r referralService) FetchReferrals(ctx context.Context, referral domain.ReferralParams) (*domain.Referrals, error) {
