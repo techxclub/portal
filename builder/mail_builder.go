@@ -17,8 +17,8 @@ const (
 	senderNameTechXSupport  = "TechX Support"
 	senderNameTechXService  = "TechX Service"
 
-	i18nKeyEmailOTPMailSubject = "email_otp_mail_subject"
-	i18nFileEmailOTPMailBody   = "email_otp_mail_body"
+	i18nKeyEmailOTPMailSubject = "otp_mail_subject"
+	i18nFileEmailOTPMailBody   = "otp_mail_body"
 
 	i18nKeyApprovalMailSubject = "user_approval_mail_subject"
 	i18nFileApprovalMailBody   = "user_approval_mail_body"

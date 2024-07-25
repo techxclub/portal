@@ -74,7 +74,7 @@ const (
 	// Actions
 	ActionRetryOTP        = "RETRY_OTP"
 	ActionVerifyOTP       = "VERIFY_OTP"
-	ActionSuccess         = "SUCCESS"
+	ActionSuccess         = "SIGN_UP"
 	ActionPendingApproval = "PENDING_APPROVAL"
 	ActionLogIn           = "LOG_IN"
 

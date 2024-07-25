@@ -209,7 +209,7 @@
   "err_requester_id_required_message": {
     "other": "Please provide a requester ID."
   },
-  "email_otp_mail_subject": {
+  "otp_mail_subject": {
     "other": "TechX: OTP Verification"
   },
   "user_approval_mail_subject": {
