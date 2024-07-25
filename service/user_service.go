@@ -274,7 +274,7 @@ func (us userService) validateUserUpdateDetails(ctx context.Context, storedUser,
 	}
 
 	if storedUser.WorkEmail != updatedUser.WorkEmail {
-		isUpdatedWorkEmailVerified := us.registry.OTPBuilder.Check(ctx, updatedUser.WorkEmail)
+		isUpdatedWorkEmailVerified := us.registry.OTPBuilder.IsOTPVerified(ctx, updatedUser.WorkEmail)
 		if !isUpdatedWorkEmailVerified {
 			return errors.ErrWorkEmailNotVerified
 		}

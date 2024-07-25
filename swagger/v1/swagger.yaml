@@ -57,9 +57,15 @@ definitions:
             designation:
                 type: string
                 x-go-name: Designation
+            gender:
+                type: string
+                x-go-name: Gender
             name:
                 type: string
                 x-go-name: Name
+            profile_picture:
+                type: string
+                x-go-name: ProfilePicture
             referral_cta:
                 $ref: '#/definitions/ReferralCTA'
             user_uuid:
@@ -118,28 +124,6 @@ definitions:
                 x-go-name: Action
         type: object
         x-go-package: github.com/techx/portal/handler/response
-    GoogleOAuthLoginResponse:
-        properties:
-            profile:
-                $ref: '#/definitions/UserProfile'
-        type: object
-        x-go-package: github.com/techx/portal/handler/response
-    MentorConfig:
-        properties:
-            calendaly_link:
-                type: string
-                x-go-name: CalendalyLink
-            is_mentor:
-                type: boolean
-                x-go-name: IsMentor
-            is_pre_approved:
-                type: boolean
-                x-go-name: IsPreApproved
-            status:
-                type: string
-                x-go-name: Status
-        type: object
-        x-go-package: github.com/techx/portal/handler/composers
     OTPRequest:
         properties:
             channel:
@@ -153,6 +137,49 @@ definitions:
                 x-go-name: Value
         type: object
         x-go-package: github.com/techx/portal/handler/request
+    PersonalInformation:
+        properties:
+            gender:
+                type: string
+                x-go-name: Gender
+            linkedin:
+                type: string
+                x-go-name: LinkedIn
+            name:
+                type: string
+                x-go-name: Name
+            phone_number:
+                type: string
+                x-go-name: PhoneNumber
+            profile_picture:
+                type: string
+                x-go-name: ProfilePicture
+            registered_email:
+                type: string
+                x-go-name: RegisteredEmail
+        type: object
+        x-go-package: github.com/techx/portal/handler/composers
+    ProfessionalInformation:
+        properties:
+            company_id:
+                format: int64
+                type: integer
+                x-go-name: CompanyID
+            company_name:
+                type: string
+                x-go-name: CompanyName
+            designation:
+                type: string
+                x-go-name: Designation
+            work_email:
+                type: string
+                x-go-name: WorkEmail
+            years_of_experience:
+                format: float
+                type: number
+                x-go-name: YearsOfExperience
+        type: object
+        x-go-package: github.com/techx/portal/handler/composers
     ReferralCTA:
         properties:
             enabled:
@@ -229,7 +256,19 @@ definitions:
                 type: boolean
                 x-go-name: Success
         type: object
-        x-go-package: github.com/techx/portal/handler/response
+        x-go-package: github.com/techx/portal/handler/composers
+    TechnicalInformation:
+        properties:
+            domain:
+                type: string
+                x-go-name: Domain
+            skills:
+                items:
+                    type: string
+                type: array
+                x-go-name: Skills
+        type: object
+        x-go-package: github.com/techx/portal/handler/composers
     UserListResponse:
         properties:
             users:
@@ -238,40 +277,22 @@ definitions:
                 type: array
                 x-go-name: Users
         type: object
-        x-go-package: github.com/techx/portal/handler/response
+        x-go-package: github.com/techx/portal/handler/admin/response
     UserProfile:
         properties:
-            company_id:
-                format: int64
-                type: integer
-                x-go-name: CompanyID
-            company_name:
-                type: string
-                x-go-name: CompanyName
             created_at:
                 format: date-time
                 type: string
                 x-go-name: CreatedAt
-            designation:
-                type: string
-                x-go-name: Designation
-            linkedin:
-                type: string
-                x-go-name: LinkedIn
-            mentor_config:
-                $ref: '#/definitions/MentorConfig'
-            name:
-                type: string
-                x-go-name: Name
-            phone_number:
-                type: string
-                x-go-name: PhoneNumber
-            registered_email:
-                type: string
-                x-go-name: RegisteredEmail
+            personal_information:
+                $ref: '#/definitions/PersonalInformation'
+            professional_information:
+                $ref: '#/definitions/ProfessionalInformation'
             status:
                 type: string
                 x-go-name: Status
+            technical_information:
+                $ref: '#/definitions/TechnicalInformation'
             user_number:
                 format: int64
                 type: integer
@@ -279,13 +300,6 @@ definitions:
             user_uuid:
                 type: string
                 x-go-name: UserUUID
-            work_email:
-                type: string
-                x-go-name: WorkEmail
-            years_of_experience:
-                format: float
-                type: number
-                x-go-name: YearsOfExperience
         type: object
         x-go-package: github.com/techx/portal/handler/composers
     VerifyOTPResponse:
@@ -293,8 +307,6 @@ definitions:
             action:
                 type: string
                 x-go-name: Action
-            profile:
-                $ref: '#/definitions/UserProfile'
         type: object
         x-go-package: github.com/techx/portal/handler/response
 paths:
@@ -322,6 +334,24 @@ paths:
             responses:
                 "200":
                     $ref: '#/responses/AdminCompanyListResponse'
+                "400":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            tags:
+                - admin
+    /admin/fetch/auth/token:
+        get:
+            operationId: adminFetchAuthToken
+            responses:
+                "200":
+                    description: SuccessResponse
+                    schema:
+                        $ref: '#/definitions/SuccessResponse'
                 "400":
                     description: ErrorResponse
                     schema:
@@ -603,20 +633,12 @@ paths:
                         $ref: '#/definitions/ErrorResponse'
             tags:
                 - public
-    /public/google/oauth/callback:
+    /public/google/oauth/exchange:
         post:
-            operationId: generateOTP
-            parameters:
-                - in: body
-                  name: OTPRequest
-                  required: true
-                  schema:
-                    $ref: '#/definitions/OTPRequest'
+            operationId: oauthExchangeCode
             responses:
                 "200":
-                    description: GenerateOTPResponse
-                    schema:
-                        $ref: '#/definitions/GenerateOTPResponse'
+                    $ref: '#/responses/GoogleOAuthExchangeResponse'
                 "400":
                     description: ErrorResponse
                     schema:
@@ -635,76 +657,6 @@ paths:
                     description: ErrorResponse
                     schema:
                         $ref: '#/definitions/ErrorResponse'
-            tags:
-                - public
-    /public/google/oauth/debug:
-        get:
-            operationId: generateOTP
-            parameters:
-                - in: body
-                  name: OTPRequest
-                  required: true
-                  schema:
-                    $ref: '#/definitions/OTPRequest'
-            responses:
-                "200":
-                    description: GenerateOTPResponse
-                    schema:
-                        $ref: '#/definitions/GenerateOTPResponse'
-                "400":
-                    description: ErrorResponse
-                    schema:
-                        $ref: '#/definitions/ErrorResponse'
-                "401":
-                    description: ""
-                "422":
-                    description: ErrorResponse
-                    schema:
-                        $ref: '#/definitions/ErrorResponse'
-                "500":
-                    description: ErrorResponse
-                    schema:
-                        $ref: '#/definitions/ErrorResponse'
-                "503":
-                    description: ErrorResponse
-                    schema:
-                        $ref: '#/definitions/ErrorResponse'
-            tags:
-                - public
-    /public/google/oauth/login:
-        post:
-            operationId: generateOTP
-            parameters:
-                - in: body
-                  name: OTPRequest
-                  required: true
-                  schema:
-                    $ref: '#/definitions/OTPRequest'
-            responses:
-                "200":
-                    description: GenerateOTPResponse
-                    schema:
-                        $ref: '#/definitions/GenerateOTPResponse'
-                "400":
-                    description: ErrorResponse
-                    schema:
-                        $ref: '#/definitions/ErrorResponse'
-                "401":
-                    description: ""
-                "422":
-                    description: ErrorResponse
-                    schema:
-                        $ref: '#/definitions/ErrorResponse'
-                "500":
-                    description: ErrorResponse
-                    schema:
-                        $ref: '#/definitions/ErrorResponse'
-                "503":
-                    description: ErrorResponse
-                    schema:
-                        $ref: '#/definitions/ErrorResponse'
-            tags:
-                - public
     /public/mentor/register:
         post:
             operationId: registerMentor
@@ -809,15 +761,9 @@ paths:
                         $ref: '#/definitions/ErrorResponse'
             tags:
                 - public
-    /public/user/profile:
+    /public/user/fetch/profile:
         get:
-            operationId: userProfile
-            parameters:
-                - in: header
-                  name: X-User-Id
-                  required: true
-                  type: string
-                  x-go-name: UserUUID
+            operationId: userFetchProfile
             responses:
                 "200":
                     $ref: '#/responses/UserProfileResponse'
@@ -887,6 +833,34 @@ paths:
                   required: true
                   schema:
                     $ref: '#/definitions/RegisterUserV1Request'
+            responses:
+                "200":
+                    description: RegisterUserV1Response
+                    schema:
+                        $ref: '#/definitions/RegisterUserV1Response'
+                "400":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "401":
+                    description: ""
+                "422":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "503":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            tags:
+                - public
+    /public/user/update/profile:
+        put:
+            operationId: userUpdateProfile
             responses:
                 "200":
                     description: RegisterUserV1Response

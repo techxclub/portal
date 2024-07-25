@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/techx/portal/domain"
+	"github.com/techx/portal/handler/composers"
 )
 
 type MentorsListResponse struct {
@@ -21,7 +22,7 @@ type Mentor struct {
 	CalendalyLink     string   `json:"calandly_link"`
 }
 
-func NewMentorsListResponse(_ context.Context, users domain.Users) (MentorsListResponse, HTTPMetadata) {
+func NewMentorsListResponse(_ context.Context, users domain.Users) (MentorsListResponse, composers.HTTPMetadata) {
 	result := make([]Mentor, 0)
 	for _, u := range users {
 		mentorConfig := u.MentorConfig()
@@ -39,5 +40,5 @@ func NewMentorsListResponse(_ context.Context, users domain.Users) (MentorsListR
 
 	return MentorsListResponse{
 		Mentors: result,
-	}, HTTPMetadata{}
+	}, composers.HTTPMetadata{}
 }

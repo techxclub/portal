@@ -1,6 +1,8 @@
-package response
+package composers
 
-import "context"
+import (
+	"context"
+)
 
 // swagger:model
 type SuccessResponse struct {

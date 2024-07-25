@@ -22,6 +22,24 @@ type AdminUserUpdateParams struct {
 	Designation     string `json:"designation"`
 }
 
+func NewAdminUserApproveRequest(r *http.Request) (*AdminUserUpdateParams, error) {
+	var req AdminUserUpdateParams
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&req); err != nil {
+		return nil, err
+	}
+
+	return &req, nil
+}
+
+func (r AdminUserUpdateParams) Validate() error {
+	if r.UserNumber != 0 && r.UserUUID != "" && r.RegisteredEmail != "" {
+		return errors.ErrInvalidUpdateRequest
+	}
+
+	return nil
+}
+
 func NewAdminUserUpdateRequest(r *http.Request) (*AdminUserUpdateRequest, error) {
 	var req AdminUserUpdateRequest
 	decoder := json.NewDecoder(r.Body)
@@ -33,9 +51,14 @@ func NewAdminUserUpdateRequest(r *http.Request) (*AdminUserUpdateRequest, error)
 }
 
 func (r AdminUserUpdateRequest) Validate() error {
-	if r.To.UserNumber != 0 && r.To.UserUUID != "" {
-		return errors.ErrInvalidUpdateRequest
+	if err := r.From.Validate(); err != nil {
+		return err
 	}
+
+	if err := r.To.Validate(); err != nil {
+		return err
+	}
+
 	return nil
 }
 

@@ -1,6 +1,9 @@
 package logger
 
 const (
+	ErrorField           = "Error"
+	JobNameField         = "JobName"
+	MessageField         = "Message"
 	ExternalServiceField = "ExternalService"
 	ResponseStatusField  = "ResponseStatus"
 	ResponseField        = "Response"

@@ -41,8 +41,8 @@ func RequestContextFromContext(ctx context.Context) RequestContext {
 	return c
 }
 
-func GetOrigin(ctx context.Context) string {
-	return RequestContextFromContext(ctx).Origin
+func (r RequestContext) GetOrigin() string {
+	return r.Origin
 }
 
 func (r RequestContext) GetLocale() string {
@@ -57,6 +57,10 @@ func (r RequestContext) GetLocale() string {
 
 func (r RequestContext) GetUserUUID() string {
 	return r.UserUUID
+}
+
+func (r RequestContext) GetTraceID() string {
+	return r.TraceID
 }
 
 func getRequestTraceID(header http.Header) string {

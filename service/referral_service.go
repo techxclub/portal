@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"mime/multipart"
+	"strings"
 	"time"
 
 	"github.com/techx/portal/builder"
@@ -102,9 +103,11 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 		JobLink:        referralDetails.JobLink,
 		Message:        referralDetails.Message,
 		ResumeFilePath: storeResumeFilePath,
+		AttachmentName: getResumeFileName(requester.Name),
 	}
-	r.registry.ReferralMailBuilder.SendReferralMailAsync(ctx, referralMailParams)
-	return referral, nil
+
+	err = r.registry.MailBuilder.SendReferralMail(ctx, true, referral.Status, referralMailParams)
+	return referral, err
 }
 
 func (r referralService) FetchReferrals(ctx context.Context, referral domain.ReferralParams) (*domain.Referrals, error) {
@@ -138,4 +141,10 @@ func storeResumeFile(file multipart.File, resumeDirectory string, userNumber int
 
 	resumeFileName := fmt.Sprintf("resume_user_number_%d_%d.pdf", userNumber, time.Now().Unix())
 	return utils.StoreMultipartFile(file, resumeDirectory, resumeFileName)
+}
+
+func getResumeFileName(name string) string {
+	temp := strings.Split(name, " ")
+	sanitizedName := strings.Join(temp, "_")
+	return fmt.Sprintf("Resume_%s.pdf", sanitizedName)
 }

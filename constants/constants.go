@@ -66,14 +66,6 @@ const (
 	ParamResumeFile  = "resume_file"
 	ParamMessage     = "message"
 
-	// Third party sms service provider
-	ThirdPartyMsg91  = "msg91"
-	ThirdPartyGomail = "gomail"
-
-	// OTP authorization
-	OTPChannelSMS   = "sms"
-	OTPChannelEmail = "email"
-
 	OTPStatusGenerated = "generated"
 	OTPStatusPending   = "pending"
 	OTPStatusVerified  = "verified"
@@ -82,10 +74,9 @@ const (
 	// Actions
 	ActionRetryOTP        = "RETRY_OTP"
 	ActionVerifyOTP       = "VERIFY_OTP"
-	ActionSignUp          = "SIGN_UP"
+	ActionSuccess         = "SUCCESS"
 	ActionPendingApproval = "PENDING_APPROVAL"
 	ActionLogIn           = "LOG_IN"
-	ActionLogInWithGoogle = "LOG_IN_WITH_GOOGLE"
 
 	//	Referral status
 	ReferralStatusPending = "PENDING"

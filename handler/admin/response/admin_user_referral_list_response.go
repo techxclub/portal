@@ -11,8 +11,8 @@ type AdminUserReferralListResponse struct {
 	Referrals []composers.Referral `json:"referrals"`
 }
 
-func NewAdminUserReferralListResponse(ctx context.Context, referrals domain.Referrals) (AdminUserReferralListResponse, HTTPMetadata) {
+func NewAdminUserReferralListResponse(ctx context.Context, referrals domain.Referrals) (AdminUserReferralListResponse, composers.HTTPMetadata) {
 	return AdminUserReferralListResponse{
 		Referrals: composers.ReferralListResponse(ctx, referrals),
-	}, HTTPMetadata{}
+	}, composers.HTTPMetadata{}
 }

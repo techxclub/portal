@@ -14,9 +14,9 @@ type CompanyListResponse struct {
 	AllCompanies     []composers.Company `json:"all_companies"`
 }
 
-func NewCompanyListResponse(_ context.Context, cfg *config.Config, companies domain.Companies) (CompanyListResponse, HTTPMetadata) {
+func NewCompanyListResponse(_ context.Context, cfg *config.Config, companies domain.Companies) (CompanyListResponse, composers.HTTPMetadata) {
 	return CompanyListResponse{
 		PopularCompanies: composers.GetPopularCompanies(companies, cfg.PopularCompanyListLimit),
 		AllCompanies:     composers.GetAllCompanies(companies, cfg.CompanyListLimit),
-	}, HTTPMetadata{}
+	}, composers.HTTPMetadata{}
 }

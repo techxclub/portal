@@ -78,7 +78,7 @@ func (gb googleOAuthBuilder) BuildUserProfile(ctx context.Context, googleOAuthDe
 
 func (gb googleOAuthBuilder) getOAuthConfig(ctx context.Context) *oauth2.Config {
 	redirectHost := gb.clientConfig.RedirectHost
-	if origin := apicontext.GetOrigin(ctx); origin != "" {
+	if origin := apicontext.RequestContextFromContext(ctx).GetOrigin(); origin != "" {
 		redirectHost = origin
 	}
 

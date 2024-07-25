@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/techx/portal/errors"
+	"github.com/techx/portal/handler/composers"
 	"github.com/techx/portal/handler/response"
 	"github.com/techx/portal/utils"
 )
@@ -16,7 +17,7 @@ type validator interface {
 func Handler[RequestType validator, DomainType, ResponseType any](
 	requestProcessor func(*http.Request) (*RequestType, error),
 	processor func(context.Context, RequestType) (*DomainType, error),
-	respProcessor func(context.Context, DomainType) (ResponseType, response.HTTPMetadata),
+	respProcessor func(context.Context, DomainType) (ResponseType, composers.HTTPMetadata),
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		respBody, httpMetadata, err := process(r, requestProcessor, processor, respProcessor)
@@ -40,20 +41,20 @@ func process[RequestType validator, DomainType, ResponseType any](
 	r *http.Request,
 	requestProcessor func(*http.Request) (*RequestType, error),
 	processor func(context.Context, RequestType) (*DomainType, error),
-	respProcessor func(context.Context, DomainType) (ResponseType, response.HTTPMetadata),
-) (*ResponseType, response.HTTPMetadata, errors.ServiceError) {
+	respProcessor func(context.Context, DomainType) (ResponseType, composers.HTTPMetadata),
+) (*ResponseType, composers.HTTPMetadata, errors.ServiceError) {
 	req, err := requestProcessor(r)
 	if err != nil {
-		return nil, response.HTTPMetadata{}, errors.BadRequestError(err)
+		return nil, composers.HTTPMetadata{}, errors.BadRequestError(err)
 	}
 
 	if err := (*req).Validate(); err != nil {
-		return nil, response.HTTPMetadata{}, errors.AsServiceError(err)
+		return nil, composers.HTTPMetadata{}, errors.AsServiceError(err)
 	}
 
 	domainObj, err := processor(r.Context(), *req)
 	if err != nil {
-		return nil, response.HTTPMetadata{}, errors.AsServiceError(err)
+		return nil, composers.HTTPMetadata{}, errors.AsServiceError(err)
 	}
 
 	respBody, metadata := respProcessor(r.Context(), *domainObj)

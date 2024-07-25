@@ -8,7 +8,7 @@ import (
 	"github.com/techx/portal/utils"
 )
 
-type BaseUserListRequest struct {
+type AdminUserListRequest struct {
 	UserNumber  string
 	UserUUID    string
 	Status      string
@@ -17,10 +17,6 @@ type BaseUserListRequest struct {
 	CompanyID   string
 	CompanyName string
 	Designation string
-}
-
-type AdminUserListRequest struct {
-	BaseUserListRequest
 }
 
 func NewAdminUserListRequest(r *http.Request) (*AdminUserListRequest, error) {
@@ -34,16 +30,14 @@ func NewAdminUserListRequest(r *http.Request) (*AdminUserListRequest, error) {
 	designation := r.URL.Query().Get(constants.ParamDesignation)
 
 	return &AdminUserListRequest{
-		BaseUserListRequest{
-			UserNumber:  userNumber,
-			UserUUID:    userID,
-			Status:      status,
-			Name:        name,
-			PhoneNumber: utils.SanitizePhoneNumber(phoneNumber),
-			CompanyID:   companyID,
-			CompanyName: companyName,
-			Designation: designation,
-		},
+		UserNumber:  userNumber,
+		UserUUID:    userID,
+		Status:      status,
+		Name:        name,
+		PhoneNumber: utils.SanitizePhoneNumber(phoneNumber),
+		CompanyID:   companyID,
+		CompanyName: companyName,
+		Designation: designation,
 	}, nil
 }
 
