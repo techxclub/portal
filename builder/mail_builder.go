@@ -13,9 +13,9 @@ import (
 const (
 	jobNameRequestReferral  = "referral_mail"
 	jobNameSendOTP          = "send_otp"
-	senderNameTechXReferral = "TechX Referrals Team"
-	senderNameTechXSupport  = "TechX Support"
-	senderNameTechXService  = "TechX Service"
+	senderNameTechXReferral = "TechX"
+	senderNameTechXSupport  = "TechX"
+	senderNameTechXService  = "TechX"
 
 	i18nKeyEmailOTPMailSubject = "otp_mail_subject"
 	i18nFileEmailOTPMailBody   = "otp_mail_body"
@@ -34,12 +34,14 @@ type OTPMailParams struct {
 }
 
 type ReferralMailParams struct {
-	Requester      domain.User `json:"requester"`
-	Provider       domain.User `json:"provider"`
-	JobLink        string      `json:"job_link"`
-	Message        string      `json:"message"`
-	ResumeFilePath string      `json:"resume_file_path"`
-	AttachmentName string      `json:"attachment_name"`
+	Requester         domain.User `json:"requester"`
+	Provider          domain.User `json:"provider"`
+	NoticePeriod      string      `json:"notice_period"`
+	PreferredLocation string      `json:"preferred_location"`
+	JobLink           string      `json:"job_link"`
+	Message           string      `json:"message"`
+	ResumeFilePath    string      `json:"resume_file_path"`
+	AttachmentName    string      `json:"attachment_name"`
 }
 
 type ApprovalMailParams struct {
@@ -105,13 +107,16 @@ func (mb *mailBuilder) SendUserApprovalMail(ctx context.Context, async bool, ref
 
 func (mb *mailBuilder) SendReferralMail(ctx context.Context, async bool, refID string, referralMailParams ReferralMailParams) error {
 	i18nValues := map[string]interface{}{
-		"ProviderName":     referralMailParams.Provider.Name,
-		"RequesterName":    referralMailParams.Requester.Name,
-		"RequesterCompany": referralMailParams.Requester.CompanyName,
-		"RequesterYOE":     referralMailParams.Requester.YearsOfExperience,
-		"RequesterEmail":   referralMailParams.Requester.RegisteredEmail,
-		"JobLink":          referralMailParams.JobLink,
-		"RequesterMessage": referralMailParams.Message,
+		"ProviderName":         referralMailParams.Provider.Name,
+		"RequesterName":        referralMailParams.Requester.Name,
+		"RequesterCompany":     referralMailParams.Requester.CompanyName,
+		"RequesterDesignation": referralMailParams.Requester.Designation,
+		"RequesterYOE":         referralMailParams.Requester.YearsOfExperience,
+		"RequesterEmail":       referralMailParams.Requester.RegisteredEmail,
+		"NoticePeriod":         referralMailParams.NoticePeriod,
+		"PreferredLocation":    referralMailParams.PreferredLocation,
+		"JobLink":              referralMailParams.JobLink,
+		"RequesterMessage":     referralMailParams.Message,
 	}
 
 	subject := i18n.Translate(ctx, i18nKeyReferralMailSubject, i18nValues)

@@ -98,12 +98,14 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 	}
 
 	referralMailParams := builder.ReferralMailParams{
-		Requester:      *requester,
-		Provider:       *provider,
-		JobLink:        referralDetails.JobLink,
-		Message:        referralDetails.Message,
-		ResumeFilePath: storeResumeFilePath,
-		AttachmentName: getResumeFileName(requester.Name),
+		Requester:         *requester,
+		Provider:          *provider,
+		JobLink:           referralDetails.JobLink,
+		NoticePeriod:      referralDetails.NoticePeriod,
+		PreferredLocation: referralDetails.PreferredLocation,
+		Message:           referralDetails.Message,
+		ResumeFilePath:    storeResumeFilePath,
+		AttachmentName:    getResumeFileName(requester.Name),
 	}
 
 	err = r.registry.MailBuilder.SendReferralMail(ctx, true, referral.Status, referralMailParams)

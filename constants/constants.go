@@ -60,11 +60,13 @@ const (
 	ParamPopular         = "popular"
 
 	// Referral Params
-	ParamRequesterID = "requester_user_id"
-	ParamProviderID  = "provider_user_id"
-	ParamJobLink     = "job_link"
-	ParamResumeFile  = "resume_file"
-	ParamMessage     = "message"
+	ParamRequesterID       = "requester_user_id"
+	ParamProviderID        = "provider_user_id"
+	ParamJobLink           = "job_link"
+	ParamNoticePeriod      = "notice_period"
+	ParamPreferredLocation = "preferred_location"
+	ParamResumeFile        = "resume_file"
+	ParamMessage           = "message"
 
 	OTPStatusGenerated = "generated"
 	OTPStatusPending   = "pending"

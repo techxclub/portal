@@ -17,6 +17,8 @@ type ReferralRequest struct {
 	ProviderUserUUID  string
 	CompanyID         int64
 	JobLink           string
+	NoticePeriod      string
+	PreferredLocation string
 	Message           string
 	ResumeFilePath    string
 	ResumeFile        multipart.File
@@ -37,6 +39,8 @@ func NewReferralRequest(r *http.Request) (*ReferralRequest, error) {
 		ProviderUserUUID:  r.FormValue(constants.ParamProviderID),
 		CompanyID:         utils.ParseInt64WithDefault(r.FormValue(constants.ParamCompanyID), 0),
 		JobLink:           r.FormValue(constants.ParamJobLink),
+		NoticePeriod:      r.FormValue(constants.ParamNoticePeriod),
+		PreferredLocation: r.FormValue(constants.ParamPreferredLocation),
 		Message:           r.FormValue(constants.ParamMessage),
 		ResumeFile:        resumeFile,
 	}, nil
@@ -49,6 +53,10 @@ func (r ReferralRequest) Validate() error {
 
 	if r.ProviderUserUUID == "" {
 		return errors.ErrProviderFieldIsEmpty
+	}
+
+	if r.NoticePeriod == "" {
+		return errors.ErrNoticePeriodFieldIsEmpty
 	}
 
 	jobURL := addSchemeIfMissing(r.JobLink)
@@ -68,8 +76,10 @@ func (r ReferralRequest) ToReferral() domain.ReferralParams {
 			JobLink:           r.JobLink,
 			CompanyID:         r.CompanyID,
 		},
-		Message:    r.Message,
-		ResumeFile: r.ResumeFile,
+		NoticePeriod:      r.NoticePeriod,
+		PreferredLocation: r.PreferredLocation,
+		Message:           r.Message,
+		ResumeFile:        r.ResumeFile,
 	}
 }
 

@@ -125,6 +125,12 @@
   "err_provider_field_is_empty_message": {
     "other": "Provider field is empty."
   },
+  "err_notice_period_field_is_empty_title": {
+    "other": "Empty Notice Period"
+  },
+  "err_notice_period_field_is_empty_message": {
+    "other": "Notice period field can't be empty."
+  },
   "err_referral_limit_reached_for_requester_title": {
     "other": "Referral Limit Reached"
   },

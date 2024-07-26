@@ -44,6 +44,7 @@ var (
 	ErrInvalidCompanyID                 = NewServiceError("invalid_company_id", 400, nil)
 	ErrRequesterFieldIsEmpty            = NewServiceError("requester_field_is_empty", 400, nil)
 	ErrProviderFieldIsEmpty             = NewServiceError("provider_field_is_empty", 400, nil)
+	ErrNoticePeriodFieldIsEmpty         = NewServiceError("notice_period_field_is_empty", 400, nil)
 	ErrReferralLimitReachedForRequester = NewServiceError("referral_limit_reached_for_requester", 400, nil)
 	ErrReferralLimitReachedForProvider  = NewServiceError("referral_limit_reached_for_provider", 400, nil)
 	ErrReferralAlreadyExists            = NewServiceError("referral_already_exists", 400, nil)
