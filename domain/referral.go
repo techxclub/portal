@@ -5,6 +5,11 @@ import (
 	"time"
 )
 
+type UserReferrals struct {
+	RequestedReferrals *Referrals
+	ProvidedReferrals  *Referrals
+}
+
 type Referrals []Referral
 
 type Referral struct {

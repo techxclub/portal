@@ -69,6 +69,20 @@ func addPublicRoutes(router *mux.Router, cfg *config.Config, sr *service.Registr
 		Path("/mentor/register").
 		Handler(handler.RegisterMentorHandler(cfg, sr))
 
+	// swagger: route GET /public/user/dashboard public userDashboard
+	// Responses:
+	// 	200: UserDashboardResponse
+	// 	401:
+	// 	400: ErrorResponse
+	// 	422: ErrorResponse
+	// 	500: ErrorResponse
+	// 	503: ErrorResponse
+	publicRouter.
+		Methods(constants.MethodGet).
+		Name(constants.APINameUserDashboard).
+		Path("/user/dashboard").
+		Handler(handler.UserDashboardHandler(cfg, sr))
+
 	//	swagger:route GET /public/company/list public companyList
 	//	Responses:
 	//		200: CompanyListResponse
@@ -122,7 +136,7 @@ func addPublicRoutes(router *mux.Router, cfg *config.Config, sr *service.Registr
 	publicRouter.
 		Methods(constants.MethodGet).
 		Name(constants.APINameReferralList).
-		Path("/referral/list").
+		Path("/user/referral/list").
 		Handler(handler.ReferralListHandler(cfg, sr))
 
 	//	swagger:route Post /public/user/referral/request public referralRequest
@@ -150,6 +164,6 @@ func addPublicRoutes(router *mux.Router, cfg *config.Config, sr *service.Registr
 	publicRouter.
 		Methods(constants.MethodPut).
 		Name(constants.APINameReferralUpdate).
-		Path("/referral/update").
+		Path("/user/referral/update").
 		Handler(handler.ReferralUpdateHandler(cfg, sr))
 }

@@ -18,6 +18,7 @@ const (
 	APINameUserFetchProfile    = "UserFetchProfile"
 	APINameUserUpdateProfile   = "UserUpdateProfile"
 	APINameUserRegister        = "UserRegister"
+	APINameUserDashboard       = "UserDashboard"
 	APINameMentorRegister      = "MentorRegister"
 	APINameCompanyList         = "CompanyList"
 	APINameCompanyUserList     = "CompanyUserList"

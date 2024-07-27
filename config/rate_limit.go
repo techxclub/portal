@@ -20,6 +20,7 @@ type RateLimit struct {
 	UserFetchProfile    RateLimitConfig `yaml:"USER_FETCH_PROFILE" env:",prefix=USER_FETCH_PROFILE_"`
 	UserUpdateProfile   RateLimitConfig `yaml:"USER_UPDATE_PROFILE" env:",prefix=USER_UPDATE_PROFILE_"`
 	UserRegister        RateLimitConfig `yaml:"USER_REGISTER" env:",prefix=USER_REGISTER_"`
+	UserDashboard       RateLimitConfig `yaml:"USER_DASHBOARD" env:",prefix=USER_DASHBOARD_"`
 	CompanyList         RateLimitConfig `yaml:"COMPANY_LIST" env:",prefix=COMPANY_LIST_"`
 	CompanyUserList     RateLimitConfig `yaml:"COMPANY_USER_LIST" env:",prefix=COMPANY_USER_LIST_"`
 	ReferralRequest     RateLimitConfig `yaml:"REFERRAL_REQUEST" env:",prefix=REFERRAL_REQUEST_"`
@@ -53,6 +54,7 @@ func defaultRateLimit() RateLimit {
 		UserFetchProfile:    RateLimitConfig{Enabled: true, Attempts: 100, WindowSecs: 600},
 		UserUpdateProfile:   RateLimitConfig{Enabled: true, Attempts: 100, WindowSecs: 600},
 		UserRegister:        RateLimitConfig{Enabled: true, Attempts: 5, WindowSecs: 3600},
+		UserDashboard:       RateLimitConfig{Enabled: true, Attempts: 5, WindowSecs: 3600},
 		CompanyList:         RateLimitConfig{Enabled: true, Attempts: 100, WindowSecs: 600},
 		CompanyUserList:     RateLimitConfig{Enabled: true, Attempts: 100, WindowSecs: 600},
 		ReferralRequest:     RateLimitConfig{Enabled: true, Attempts: 10, WindowSecs: 600},
@@ -97,6 +99,8 @@ func (rl RateLimit) GetAPIRateLimitConfig(apiName string) RateLimitConfig {
 		return rl.UserUpdateProfile
 	case constants.APINameUserRegister:
 		return rl.UserRegister
+	case constants.APINameUserDashboard:
+		return rl.UserDashboard
 	case constants.APINameCompanyList:
 		return rl.CompanyList
 	case constants.APINameCompanyUserList:
