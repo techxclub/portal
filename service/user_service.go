@@ -24,6 +24,7 @@ type UserService interface {
 	UpdateUser(ctx context.Context, userDetails domain.User) (*domain.User, error)
 	GetUser(ctx context.Context, params domain.FetchUserParams) (*domain.User, error)
 	GetUsers(ctx context.Context, params domain.FetchUserParams) (*domain.Users, error)
+	GetCompaniesAdmin(ctx context.Context, params domain.FetchCompanyParams) (*domain.Companies, error)
 	GetCompanies(ctx context.Context, params domain.FetchCompanyParams) (*domain.Companies, error)
 	GetCompanyUsers(ctx context.Context, params domain.FetchUserParams) (*domain.CompanyUsersService, error)
 }
@@ -189,12 +190,27 @@ func (us userService) GetUsers(ctx context.Context, params domain.FetchUserParam
 	return &filteredUsers, nil
 }
 
+func (us userService) GetCompaniesAdmin(ctx context.Context, params domain.FetchCompanyParams) (*domain.Companies, error) {
+	companies, err := us.registry.CompaniesRepository.FetchCompaniesForParams(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+
+	slices.SortStableFunc(*companies, func(i, j domain.Company) int {
+		return cmp.Compare(i.GetPriority(), j.GetPriority())
+	})
+
+	if len(*companies) == 0 {
+		return nil, errors.ErrNoDataFound
+	}
+	return companies, nil
+}
+
 func (us userService) GetCompanies(ctx context.Context, params domain.FetchCompanyParams) (*domain.Companies, error) {
 	userID := apicontext.RequestContextFromContext(ctx).GetUserUUID()
-	user, _ := us.registry.UsersRepository.FetchUserForParams(ctx, domain.FetchUserParams{UserUUID: userID})
-	// ToDo: Update this flow to be used by only approved users
-	if userID != "" && user == nil {
-		return nil, errors.ErrUserNotFound
+	user, err := us.registry.UsersRepository.FetchUserForParams(ctx, domain.FetchUserParams{UserUUID: userID})
+	if err != nil {
+		return nil, err
 	}
 
 	companies, err := us.registry.CompaniesRepository.FetchCompaniesForParams(ctx, params)
@@ -205,10 +221,6 @@ func (us userService) GetCompanies(ctx context.Context, params domain.FetchCompa
 	slices.SortStableFunc(*companies, func(i, j domain.Company) int {
 		return cmp.Compare(i.GetPriority(), j.GetPriority())
 	})
-
-	if user == nil {
-		return companies, nil
-	}
 
 	filteredCompanies := utils.Filter(*companies, func(company domain.Company) bool {
 		return company.ID != user.CompanyID

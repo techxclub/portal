@@ -53,7 +53,6 @@ type Admin struct {
 }
 
 type GoogleAuth struct {
-	Debug            bool   `yaml:"DEBUG" env:"DEBUG"`
 	ClientState      string `yaml:"CLIENT_STATE" env:"CLIENT_STATE"`
 	ClientID         string `yaml:"CLIENT_ID" env:"CLIENT_ID"`
 	ClientSecret     string `yaml:"CLIENT_SECRET" env:"CLIENT_SECRET"`
@@ -133,7 +132,6 @@ func (cfg *Config) SetDefaults() {
 	}
 
 	cfg.GoogleAuth = GoogleAuth{
-		Debug:            true,
 		ClientState:      "google",
 		ClientID:         "google-client-id",
 		ClientSecret:     "google-client-secret",
@@ -142,7 +140,7 @@ func (cfg *Config) SetDefaults() {
 	}
 
 	cfg.Swagger = Swagger{
-		Enabled: true,
+		Enabled: false,
 		Path:    "./swagger",
 	}
 

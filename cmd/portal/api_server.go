@@ -130,7 +130,6 @@ func startAPIServer(ctx *cli.Context) error {
 
 	// Create router
 	r := router.NewRouter(applicationContext.Config, serviceRegistry)
-
 	r.Use(middleware.RequestContext())
 	r.Use(middleware.RateLimiter(applicationContext.Config, clientRegistry.RateLimiter))
 

@@ -47,6 +47,7 @@ func defaultRateLimit() RateLimit {
 		AdminReferralList:   RateLimitConfig{Enabled: true, Attempts: 100, WindowSecs: 600},
 		AdminReferralUpdate: RateLimitConfig{Enabled: true, Attempts: 100, WindowSecs: 600},
 		AdminReferralExpire: RateLimitConfig{Enabled: true, Attempts: 100, WindowSecs: 600},
+		AdminFetchAuthToken: RateLimitConfig{Enabled: true, Attempts: 100, WindowSecs: 600},
 		GoogleSignIn:        RateLimitConfig{Enabled: true, Attempts: 5, WindowSecs: 600},
 		GenerateOTP:         RateLimitConfig{Enabled: true, Attempts: 5, WindowSecs: 600},
 		ResendOTP:           RateLimitConfig{Enabled: true, Attempts: 5, WindowSecs: 600},

@@ -219,7 +219,7 @@
     "other": "TechX: OTP Verification"
   },
   "user_approval_mail_subject": {
-    "other": "TechX: User Approval"
+    "other": "Congrats, {{.UserName}}! You Can Use Advanced TechX Features"
   },
   "referral_mail_subject": {
     "other": "TechX: Referral Request For {{.RequesterName}}"
