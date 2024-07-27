@@ -11,9 +11,9 @@ type UserProfileResponse struct {
 	composers.UserProfile
 }
 
-func NewUserProfileResponse(_ context.Context, user domain.User) (UserProfileResponse, HTTPMetadata) {
+func NewUserProfileResponse(_ context.Context, user domain.User) (UserProfileResponse, composers.HTTPMetadata) {
 	profile := composers.NewUserProfile(user)
 	return UserProfileResponse{
 		UserProfile: profile,
-	}, HTTPMetadata{}
+	}, composers.HTTPMetadata{}
 }

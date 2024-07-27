@@ -60,19 +60,13 @@ const (
 	ParamPopular         = "popular"
 
 	// Referral Params
-	ParamRequesterID = "requester_user_id"
-	ParamProviderID  = "provider_user_id"
-	ParamJobLink     = "job_link"
-	ParamResumeFile  = "resume_file"
-	ParamMessage     = "message"
-
-	// Third party sms service provider
-	ThirdPartyMsg91  = "msg91"
-	ThirdPartyGomail = "gomail"
-
-	// OTP authorization
-	OTPChannelSMS   = "sms"
-	OTPChannelEmail = "email"
+	ParamRequesterID       = "requester_user_id"
+	ParamProviderID        = "provider_user_id"
+	ParamJobLink           = "job_link"
+	ParamNoticePeriod      = "notice_period"
+	ParamPreferredLocation = "preferred_location"
+	ParamResumeFile        = "resume_file"
+	ParamMessage           = "message"
 
 	OTPStatusGenerated = "generated"
 	OTPStatusPending   = "pending"
@@ -82,10 +76,9 @@ const (
 	// Actions
 	ActionRetryOTP        = "RETRY_OTP"
 	ActionVerifyOTP       = "VERIFY_OTP"
-	ActionSignUp          = "SIGN_UP"
+	ActionSuccess         = "SIGN_UP"
 	ActionPendingApproval = "PENDING_APPROVAL"
 	ActionLogIn           = "LOG_IN"
-	ActionLogInWithGoogle = "LOG_IN_WITH_GOOGLE"
 
 	//	Referral status
 	ReferralStatusPending = "PENDING"

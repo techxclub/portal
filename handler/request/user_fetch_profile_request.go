@@ -9,15 +9,13 @@ import (
 )
 
 type UserFetchProfileRequest struct {
-	BaseUserListRequest
+	UserUUID string
 }
 
 func NewUserFetchProfileRequest(r *http.Request) (*UserFetchProfileRequest, error) {
 	userID := r.Header.Get(constants.HeaderXUserUUID)
 	return &UserFetchProfileRequest{
-		BaseUserListRequest{
-			UserUUID: userID,
-		},
+		UserUUID: userID,
 	}, nil
 }
 
@@ -31,6 +29,6 @@ func (r UserFetchProfileRequest) Validate() error {
 
 func (r UserFetchProfileRequest) ToFetchUserParams() domain.FetchUserParams {
 	return domain.FetchUserParams{
-		UserUUID: r.BaseUserListRequest.UserUUID,
+		UserUUID: r.UserUUID,
 	}
 }

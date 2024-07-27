@@ -3,6 +3,7 @@ package constants
 const (
 	// API Names
 	APINameAdminUserList       = "AdminUserList"
+	APINameAdminUserApprove    = "AdminUserApprove"
 	APINameAdminUserUpdate     = "AdminUserUpdate"
 	APINameAdminCompanyList    = "AdminCompanyList"
 	APINameAdminCompanyUpdate  = "AdminCompanyUpdate"

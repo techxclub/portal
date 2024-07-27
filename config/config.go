@@ -2,8 +2,6 @@ package config
 
 import (
 	"time"
-
-	"github.com/techx/portal/constants"
 )
 
 var cfg *Config
@@ -27,9 +25,10 @@ type Config struct {
 
 	GoogleClient HTTPConfig `yaml:"GOOGLE_CLIENT" env:",prefix=GOOGLE_CLIENT_"`
 
-	ReferralMail MailSMTP `yaml:"REFERRAL_MAIL" env:",prefix=REFERRAL_MAIL_"`
-	OTPMail      MailSMTP `yaml:"OTP_MAIL" env:",prefix=OTP_MAIL_"`
-	Referral     Referral `yaml:"REFERRAL" env:",prefix=REFERRAL_"`
+	ServiceMail MailSMTP `yaml:"SERVICE_MAIL" env:",prefix=SERVICE_MAIL_"`
+	SupportMail MailSMTP `yaml:"SUPPORT_MAIL" env:",prefix=SUPPORT_MAIL_"`
+
+	Referral Referral `yaml:"REFERRAL" env:",prefix=REFERRAL_"`
 
 	ResumeDirectory         string `yaml:"RESUME_DIRECTORY" env:"RESUME_DIRECTORY"`
 	CompanyListLimit        int    `yaml:"COMPANY_LIST_LIMIT" env:"COMPANY_LIST_LIMIT"`
@@ -73,8 +72,9 @@ type Swagger struct {
 }
 
 type Translation struct {
-	FilePath        string `yaml:"FILE_PATH" env:"FILE_PATH"`
 	DefaultLanguage string `yaml:"DEFAULT_LANGUAGE" env:"DEFAULT_LANGUAGE"`
+	JSONDirectory   string `yaml:"JSON_DIRECTORY" env:"JSON_DIRECTORY"`
+	HTMLDirectory   string `yaml:"HTML_DIRECTORY" env:"HTML_DIRECTORY"`
 }
 
 type Log struct {
@@ -84,11 +84,9 @@ type Log struct {
 }
 
 type OTP struct {
-	TTL                     time.Duration `yaml:"TTL" env:"TTL"`
-	MaxRetryCount           int           `yaml:"MAX_RETRY_COUNT" env:"MAX_RETRY_COUNT"`
-	MockingEnabled          bool          `yaml:"MOCKING_ENABLED" env:"MOCKING_ENABLED"`
-	EmailThirdPartyProvider string        `yaml:"EMAIL_THIRD_PARTY_PROVIDER" env:"EMAIL_THIRD_PARTY_PROVIDER"`
-	SMSThirdPartyProvider   string        `yaml:"SMS_THIRD_PARTY_PROVIDER" env:"SMS_THIRD_PARTY_PROVIDER"`
+	TTL            time.Duration `yaml:"TTL" env:"TTL"`
+	MaxRetryCount  int           `yaml:"MAX_RETRY_COUNT" env:"MAX_RETRY_COUNT"`
+	MockingEnabled bool          `yaml:"MOCKING_ENABLED" env:"MOCKING_ENABLED"`
 }
 
 type Referral struct {
@@ -149,8 +147,9 @@ func (cfg *Config) SetDefaults() {
 	}
 
 	cfg.Translation = Translation{
-		FilePath:        "./i18n/definitions",
 		DefaultLanguage: "en",
+		JSONDirectory:   "./resources/json",
+		HTMLDirectory:   "./resources/html",
 	}
 
 	cfg.DB = defaultDBConfig()
@@ -166,11 +165,9 @@ func (cfg *Config) SetDefaults() {
 	}
 
 	cfg.OTP = OTP{
-		TTL:                     10 * time.Minute,
-		MaxRetryCount:           3,
-		MockingEnabled:          false,
-		EmailThirdPartyProvider: constants.ThirdPartyGomail,
-		SMSThirdPartyProvider:   constants.ThirdPartyMsg91,
+		TTL:            10 * time.Minute,
+		MaxRetryCount:  3,
+		MockingEnabled: false,
 	}
 
 	cfg.GoogleClient = HTTPConfig{
@@ -183,24 +180,22 @@ func (cfg *Config) SetDefaults() {
 		ErrorPercentThreshold:  10,
 	}
 
-	cfg.ReferralMail = MailSMTP{
+	cfg.ServiceMail = MailSMTP{
 		SMTPServer:   "smtp.gmail.com",
 		SMTPPort:     587,
 		SMTPUsername: "username",
 		SMTPPassword: "password",
 		Domain:       "domain.com",
-		FromName:     "User Name",
-		FromEmail:    "referral@domain.com",
+		SenderEmail:  "referral@domain.com",
 	}
 
-	cfg.OTPMail = MailSMTP{
+	cfg.SupportMail = MailSMTP{
 		SMTPServer:   "smtp.gmail.com",
 		SMTPPort:     587,
 		SMTPUsername: "username",
 		SMTPPassword: "password",
 		Domain:       "domain.com",
-		FromName:     "User Name",
-		FromEmail:    "support@domain.com",
+		SenderEmail:  "support@domain.com",
 	}
 
 	cfg.Referral = Referral{

@@ -125,6 +125,12 @@
   "err_provider_field_is_empty_message": {
     "other": "Provider field is empty."
   },
+  "err_notice_period_field_is_empty_title": {
+    "other": "Empty Notice Period"
+  },
+  "err_notice_period_field_is_empty_message": {
+    "other": "Notice period field can't be empty."
+  },
   "err_referral_limit_reached_for_requester_title": {
     "other": "Referral Limit Reached"
   },
@@ -209,28 +215,19 @@
   "err_requester_id_required_message": {
     "other": "Please provide a requester ID."
   },
-  "email_otp_mail_subject": {
+  "otp_mail_subject": {
     "other": "TechX: OTP Verification"
   },
-  "email_otp_mail_body": {
-    "other": "<html><body><p>Dear Sir/Madam,</p><p>Your One Time Password (OTP) for Sign Up is:</p><p><span style=\"font-size:30px;\"> <strong>{{.OTP}}</strong></span></p><p>Your otp will expire in 10 mins.</p><p>Do not share your OTP with anyone.</p><p>Warm regards,</p><p>Team TechX</p></body></html>"
+  "user_approval_mail_subject": {
+    "other": "TechX: User Approval"
+  },
+  "referral_mail_subject": {
+    "other": "TechX: Referral Request For {{.RequesterName}}"
   },
   "get_referral_cta_title": {
     "other": "Get Referral"
   },
   "pending_referral_cta_title": {
     "other": "Pending"
-  },
-  "referral_mail_subject": {
-    "other": "TechX: Referral Request For {{.RequesterName}}"
-  },
-  "referral_mail_body_base": {
-    "other": "<p>Hey, {{.ProviderName}}</p><p>We hope you're doing well!</p><p>We are reaching out from the TechX community because one of our members is interested in a job opportunity at your company.</p><p>Requester details:</p><ul><li>Name: {{.RequesterName}}</li><li>Company: {{.RequesterCompany}}</li><li>Email: {{.RequesterEmail}}</li><li>Job Link: {{.JobLink}}</li></ul>"
-  },
-  "referral_mail_body_requester_customer_message": {
-    "other": "<p>Message from requester: {{.RequesterMessage}}</p>"
-  },
-  "referral_mail_body_footer_notes": {
-    "other": "<p>We hope you consider their application!</p><p>Best regards,</p><p>TechX Community</p>"
   }
 }

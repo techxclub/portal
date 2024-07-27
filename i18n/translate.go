@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"path"
 	"path/filepath"
 	"slices"
@@ -17,11 +18,16 @@ import (
 	"golang.org/x/text/language"
 )
 
-const fileSuffix = ".json"
+const (
+	fileSuffixJSON = ".json"
+	fileSuffixHTML = ".html"
+)
 
 type Translator struct {
-	bundle          *i18n.Bundle
 	defaultLanguage language.Tag
+	jsonDirectory   string
+	htmlDirectory   string
+	bundle          *i18n.Bundle
 }
 
 var translator *Translator
@@ -30,18 +36,20 @@ func Initialize(cfg config.Translation) {
 	defaultLanguageTag := language.Make(cfg.DefaultLanguage)
 	translator = &Translator{
 		defaultLanguage: defaultLanguageTag,
+		jsonDirectory:   cfg.JSONDirectory,
+		htmlDirectory:   cfg.HTMLDirectory,
 		bundle:          i18n.NewBundle(defaultLanguageTag),
 	}
 
 	translator.bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 
-	if !filepath.IsAbs(cfg.FilePath) {
-		cfg.FilePath = filepath.Join(utils.GetProjectDirectoryPath(), cfg.FilePath)
+	if !filepath.IsAbs(cfg.JSONDirectory) {
+		cfg.JSONDirectory = filepath.Join(utils.GetProjectDirectoryPath(), cfg.JSONDirectory)
 	}
 
-	files, err := filepath.Glob(path.Join(cfg.FilePath, "*"+fileSuffix))
+	files, err := filepath.Glob(path.Join(cfg.JSONDirectory, "*"+fileSuffixJSON))
 	if err != nil {
-		log.Panic().Msgf("error: %v in loading translation file from path: %s", err, cfg.FilePath)
+		log.Panic().Msgf("error: %v in loading translation file from path: %s", err, cfg.JSONDirectory)
 	}
 
 	for _, file := range files {
@@ -54,7 +62,7 @@ func Initialize(cfg config.Translation) {
 	languageTags := translator.bundle.LanguageTags()
 	if !slices.Contains(languageTags, defaultLanguageTag) {
 		log.Panic().Msgf("tranlation is missing for default language: %s. check translation file: %s is present",
-			defaultLanguageTag.String(), filepath.Join(cfg.FilePath, defaultLanguageTag.String()+fileSuffix))
+			defaultLanguageTag.String(), filepath.Join(cfg.JSONDirectory, defaultLanguageTag.String()+fileSuffixJSON))
 	}
 }
 
@@ -91,6 +99,24 @@ func Translate(ctx context.Context, key string, args ...map[string]interface{}) 
 		return key
 	}
 	return translation
+}
+
+func HTML(_ context.Context, fileName string, args ...map[string]interface{}) string {
+	content, err := os.ReadFile(translator.htmlDirectory + "/" + fileName + fileSuffixHTML)
+	if err != nil {
+		log.Error().Err(err).Msgf("error reading HTML file: %s", fileName)
+		return ""
+	}
+
+	htmlContent := string(content)
+	if len(args) > 0 && args[0] != nil {
+		for key, value := range args[0] {
+			placeholder := fmt.Sprintf("{{.%s}}", key)
+			htmlContent = strings.ReplaceAll(htmlContent, placeholder, fmt.Sprintf("%v", value))
+		}
+	}
+
+	return htmlContent
 }
 
 func getTitleKey(key string) string {

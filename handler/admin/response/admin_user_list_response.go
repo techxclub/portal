@@ -12,7 +12,7 @@ type UserListResponse struct {
 	Users []composers.UserProfile `json:"users"`
 }
 
-func NewUserListResponse(_ context.Context, user []domain.User) (UserListResponse, HTTPMetadata) {
+func NewUserListResponse(_ context.Context, user []domain.User) (UserListResponse, composers.HTTPMetadata) {
 	users := make([]composers.UserProfile, 0, len(user))
 	for _, u := range user {
 		users = append(users, composers.NewUserProfile(u))
@@ -20,5 +20,5 @@ func NewUserListResponse(_ context.Context, user []domain.User) (UserListRespons
 
 	return UserListResponse{
 		Users: users,
-	}, HTTPMetadata{}
+	}, composers.HTTPMetadata{}
 }

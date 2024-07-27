@@ -2,29 +2,38 @@ package builder
 
 import (
 	"context"
+	"crypto/rand"
+	"math/big"
+	"strconv"
 
+	"github.com/go-redis/redis/v8"
+	"github.com/rs/zerolog/log"
 	"github.com/techx/portal/client/cache"
+	"github.com/techx/portal/client/email"
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
 	"github.com/techx/portal/errors"
-	"gopkg.in/gomail.v2"
+)
+
+const (
+	defaultOTP = "972635"
 )
 
 type OTPBuilder interface {
-	SendOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthDetails, error)
-	ResendOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthDetails, error)
+	BuildOTP(ctx context.Context, params domain.OTPRequest) (string, error)
+	RebuildOTP(ctx context.Context, params domain.OTPRequest) (string, error)
 	VerifyOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthDetails, error)
-	Check(ctx context.Context, email string) bool
+	IsOTPVerified(ctx context.Context, email string) bool
 }
 
 type otpBuilder struct {
 	cfg           *config.Config
-	otpMailClient *gomail.Dialer
+	otpMailClient email.Client
 	otpCache      cache.Cache[cache.OTPCache]
 }
 
-func NewOTPBuilder(cfg *config.Config, otpMailClient *gomail.Dialer, otpCache cache.Cache[cache.OTPCache]) OTPBuilder {
+func NewOTPBuilder(cfg *config.Config, otpMailClient email.Client, otpCache cache.Cache[cache.OTPCache]) OTPBuilder {
 	return &otpBuilder{
 		cfg:           cfg,
 		otpMailClient: otpMailClient,
@@ -32,30 +41,32 @@ func NewOTPBuilder(cfg *config.Config, otpMailClient *gomail.Dialer, otpCache ca
 	}
 }
 
-func (ob otpBuilder) SendOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthDetails, error) {
-	if ob.cfg.OTP.MockingEnabled {
-		return ob.mockSendOTP(ctx, params)
+func (ob otpBuilder) BuildOTP(ctx context.Context, params domain.OTPRequest) (string, error) {
+	otp := generateOTP()
+
+	ttl := ob.cfg.OTP.TTL
+	otpCacheValue := &cache.OTPCache{
+		OTP:      otp,
+		Attempts: 0,
 	}
 
-	switch params.Channel {
-	case constants.OTPChannelEmail:
-		return ob.sendEmailOTP(ctx, params)
-	default:
-		return domain.AuthDetails{}, errors.ErrInvalidAuthChannel
+	err := ob.otpCache.Set(ctx, params.Value, otpCacheValue, ttl)
+	if err != nil {
+		log.Error().Err(err).Msgf("Failed to set opt in cache")
+		return "", err
 	}
+
+	return otp, nil
 }
 
-func (ob otpBuilder) ResendOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthDetails, error) {
-	if ob.cfg.OTP.MockingEnabled {
-		return ob.mockSendOTP(ctx, params)
+func (ob otpBuilder) RebuildOTP(ctx context.Context, params domain.OTPRequest) (string, error) {
+	otpCacheValue, err := ob.otpCache.Get(ctx, params.Value)
+	if err != nil {
+		log.Error().Err(err).Msgf("Existing OTP not found in cache, generating new otp")
+		return ob.BuildOTP(ctx, params)
 	}
 
-	switch params.Channel {
-	case constants.OTPChannelEmail:
-		return ob.resendEmailOTP(ctx, params)
-	default:
-		return domain.AuthDetails{}, errors.ErrInvalidAuthChannel
-	}
+	return otpCacheValue.OTP, nil
 }
 
 func (ob otpBuilder) VerifyOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthDetails, error) {
@@ -63,15 +74,29 @@ func (ob otpBuilder) VerifyOTP(ctx context.Context, params domain.OTPRequest) (d
 		return ob.mockVerifyOTP(ctx, params)
 	}
 
-	switch params.Channel {
-	case constants.OTPChannelEmail:
-		return ob.verifyEmailOTP(ctx, params)
-	default:
-		return domain.AuthDetails{}, errors.ErrInvalidAuthChannel
+	if params.OTP == "" {
+		return domain.AuthDetails{}, errors.ErrMissingOTP
 	}
+
+	otpCacheValue, err := ob.otpCache.Get(ctx, params.Value)
+	if err != nil {
+		log.Error().Err(err).Msgf("Failed to get otpCacheValue from cache")
+		return domain.AuthDetails{}, err
+	}
+
+	if otpCacheValue.OTP != params.OTP {
+		ob.updateOTPAttempts(ctx, params.Value, otpCacheValue)
+		return domain.AuthDetails{Status: constants.OTPStatusFailed}, nil
+	}
+
+	if err := ob.updateVerifiedOTP(ctx, params.Value, otpCacheValue); err != nil {
+		return domain.AuthDetails{}, err
+	}
+
+	return domain.AuthDetails{Status: constants.OTPStatusVerified}, nil
 }
 
-func (ob otpBuilder) Check(ctx context.Context, email string) bool {
+func (ob otpBuilder) IsOTPVerified(ctx context.Context, email string) bool {
 	if ob.cfg.OTP.MockingEnabled {
 		return true
 	}
@@ -84,35 +109,33 @@ func (ob otpBuilder) Check(ctx context.Context, email string) bool {
 	return val.Verified
 }
 
-func (ob otpBuilder) sendEmailOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthDetails, error) {
-	switch ob.cfg.OTP.EmailThirdPartyProvider {
-	case constants.ThirdPartyGomail:
-		return ob.sendEmailOTPViaGomail(ctx, params)
-	default:
-		return domain.AuthDetails{}, errors.ErrInvalidEmailProvider
+func (ob otpBuilder) updateOTPAttempts(ctx context.Context, email string, otpCacheValue *cache.OTPCache) {
+	otpCacheValue.Attempts++
+	err := ob.otpCache.Set(ctx, email, otpCacheValue, redis.KeepTTL)
+	if err != nil {
+		log.Error().Err(err).Msgf("Failed to update attempts in cache")
 	}
 }
 
-func (ob otpBuilder) resendEmailOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthDetails, error) {
-	switch ob.cfg.OTP.EmailThirdPartyProvider {
-	case constants.ThirdPartyGomail:
-		return ob.resendEmailOTPViaGomail(ctx, params)
-	default:
-		return domain.AuthDetails{}, errors.ErrInvalidEmailProvider
+func (ob otpBuilder) updateVerifiedOTP(ctx context.Context, email string, otpCacheValue *cache.OTPCache) error {
+	otpCacheValue.Verified = true
+	err := ob.otpCache.Set(ctx, email, otpCacheValue, ob.cfg.OTP.TTL)
+	if err != nil {
+		log.Error().Err(err).Msgf("Failed to store verified status in otp cache")
 	}
+
+	return err
 }
 
-func (ob otpBuilder) verifyEmailOTP(ctx context.Context, params domain.OTPRequest) (domain.AuthDetails, error) {
-	switch ob.cfg.OTP.EmailThirdPartyProvider {
-	case constants.ThirdPartyGomail:
-		return ob.verifyEmailOTPViaGomail(ctx, params)
-	default:
-		return domain.AuthDetails{}, errors.ErrInvalidEmailProvider
+func generateOTP() string {
+	randomNumber, err := rand.Int(rand.Reader, big.NewInt(900000))
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to generate random number")
+		return defaultOTP
 	}
-}
 
-func (ob otpBuilder) mockSendOTP(_ context.Context, _ domain.OTPRequest) (domain.AuthDetails, error) {
-	return domain.AuthDetails{Status: constants.OTPStatusPending}, nil
+	otp := randomNumber.Int64() + 100000
+	return strconv.FormatInt(otp, 10)
 }
 
 func (ob otpBuilder) mockVerifyOTP(_ context.Context, req domain.OTPRequest) (domain.AuthDetails, error) {

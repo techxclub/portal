@@ -31,6 +31,17 @@ func addAdminRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry
 	//		500: ErrorResponse
 	adminRouter.
 		Methods(constants.MethodPut).
+		Name(constants.APINameAdminUserApprove).
+		Path("/user/approve").
+		Handler(admin.UserApproveHandler(cfg, sr))
+
+	//	swagger:route PUT /admin/user/Update admin updateUserDetails
+	//	Responses:
+	//		200: SuccessResponse
+	// 		400: ErrorResponse
+	//		500: ErrorResponse
+	adminRouter.
+		Methods(constants.MethodPut).
 		Name(constants.APINameAdminUserUpdate).
 		Path("/user/update").
 		Handler(admin.UserUpdateHandler(cfg, sr))

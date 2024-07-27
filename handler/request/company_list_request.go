@@ -8,11 +8,11 @@ import (
 )
 
 type CompanyListRequest struct {
-	BaseCompanyListRequest
+	Verified bool
 }
 
 func NewCompanyListRequest(_ *http.Request) (*CompanyListRequest, error) {
-	return &CompanyListRequest{}, nil
+	return &CompanyListRequest{Verified: true}, nil
 }
 
 func (r CompanyListRequest) Validate() error {
@@ -21,6 +21,6 @@ func (r CompanyListRequest) Validate() error {
 
 func (r CompanyListRequest) ToFetchCompanyParams() domain.FetchCompanyParams {
 	return domain.FetchCompanyParams{
-		Verified: utils.ToPtr(true),
+		Verified: utils.ToPtr(r.Verified),
 	}
 }

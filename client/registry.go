@@ -7,19 +7,19 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/techx/portal/client/cache"
 	"github.com/techx/portal/client/db"
+	"github.com/techx/portal/client/email"
 	"github.com/techx/portal/client/google"
 	"github.com/techx/portal/client/ratelimiter"
 	"github.com/techx/portal/config"
-	"gopkg.in/gomail.v2"
 )
 
 type Registry struct {
-	DB                 db.Client
-	RateLimiter        ratelimiter.RateLimiter
-	GoogleClient       google.Client
-	ReferralMailClient *gomail.Dialer
-	OTPMailClient      *gomail.Dialer
-	OTPCache           cache.Cache[cache.OTPCache]
+	DB                db.Client
+	RateLimiter       ratelimiter.RateLimiter
+	GoogleClient      google.Client
+	ServiceMailClient email.Client
+	SupportMailClient email.Client
+	OTPCache          cache.Cache[cache.OTPCache]
 }
 
 func NewRegistry(cfg *config.Config) *Registry {
@@ -28,16 +28,16 @@ func NewRegistry(cfg *config.Config) *Registry {
 	rateLimiter := ratelimiter.NewRateLimiter(redisClient)
 	otpCache := cache.NewOTPCache(redisClient, cfg.Redis)
 	googleClient := google.NewGoogleClient(cfg.GoogleClient)
-	referralMailClient := newGmailClient(cfg.ReferralMail)
-	otpMailClient := newGmailClient(cfg.OTPMail)
+	serviceMailClient := email.NewEmailClient(cfg.ServiceMail)
+	supportMailClient := email.NewEmailClient(cfg.SupportMail)
 
 	return &Registry{
-		DB:                 dbClient,
-		RateLimiter:        rateLimiter,
-		GoogleClient:       googleClient,
-		ReferralMailClient: referralMailClient,
-		OTPMailClient:      otpMailClient,
-		OTPCache:           otpCache,
+		DB:                dbClient,
+		RateLimiter:       rateLimiter,
+		GoogleClient:      googleClient,
+		ServiceMailClient: serviceMailClient,
+		SupportMailClient: supportMailClient,
+		OTPCache:          otpCache,
 	}
 }
 
@@ -62,13 +62,4 @@ func newRedisClient(redisCfg config.Redis) *redis.Client {
 	}
 
 	return client
-}
-
-func newGmailClient(gmailCfg config.MailSMTP) *gomail.Dialer {
-	return gomail.NewDialer(
-		gmailCfg.SMTPServer,
-		gmailCfg.SMTPPort,
-		gmailCfg.FromEmail,
-		gmailCfg.SMTPPassword,
-	)
 }

@@ -16,8 +16,10 @@ const (
 )
 
 type CompanyUser struct {
-	Name              string      `json:"name"`
 	UserUUID          string      `json:"user_uuid"`
+	Name              string      `json:"name"`
+	Gender            string      `json:"gender"`
+	ProfilePicture    string      `json:"profile_picture"`
 	CompanyName       string      `json:"company_name"`
 	Designation       string      `json:"designation"`
 	YearsOfExperience float32     `json:"years_of_experience"`
@@ -40,8 +42,10 @@ func GetCompanyUsers(ctx context.Context, companyUsers domain.CompanyUsersServic
 	companyUsersList := make([]CompanyUser, 0)
 	for _, user := range *companyUsers.Users {
 		companyUsersList = append(companyUsersList, CompanyUser{
-			Name:              user.Name,
 			UserUUID:          user.UserUUID,
+			Name:              user.Name,
+			Gender:            user.Gender,
+			ProfilePicture:    user.ProfilePicture,
 			CompanyName:       user.CompanyName,
 			Designation:       user.Designation,
 			YearsOfExperience: user.YearsOfExperience,

@@ -15,7 +15,7 @@ type RegisterUserV1Response struct {
 	Profile composers.UserProfile `json:"profile"`
 }
 
-func NewRegisterUserV1Response(_ context.Context, registration domain.Registration) (RegisterUserV1Response, HTTPMetadata) {
+func NewRegisterUserV1Response(_ context.Context, registration domain.Registration) (RegisterUserV1Response, composers.HTTPMetadata) {
 	profile := composers.NewUserProfile(*registration.User)
 	respBody := RegisterUserV1Response{
 		Profile: profile,
@@ -24,13 +24,9 @@ func NewRegisterUserV1Response(_ context.Context, registration domain.Registrati
 
 	if !registration.User.IsApproved() {
 		respBody.Action = constants.ActionPendingApproval
-		return respBody, HTTPMetadata{}
+		return respBody, composers.HTTPMetadata{}
 	}
 
-	httpMetadata := HTTPMetadata{
-		Headers: &http.Header{
-			constants.HeaderAuthToken: []string{registration.AuthToken},
-		},
-	}
+	httpMetadata := composers.NewHTTPMetadata(&http.Header{constants.HeaderAuthToken: []string{registration.AuthToken}}, nil)
 	return respBody, httpMetadata
 }

@@ -20,9 +20,11 @@ type Referral struct {
 
 type ReferralParams struct {
 	Referral
-	CompanyName string
-	Message     string
-	ResumeFile  multipart.File
+	CompanyName       string
+	NoticePeriod      string
+	PreferredLocation string
+	Message           string
+	ResumeFile        multipart.File
 }
 
 func (param ReferralParams) ToReferral() Referral {

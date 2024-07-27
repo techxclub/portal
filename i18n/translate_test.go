@@ -21,7 +21,7 @@ type I18nTestSuite struct {
 
 func (s *I18nTestSuite) SetupSuite() {
 	i18n.Initialize(config.Translation{
-		FilePath:        "./i18n/testdata",
+		JSONDirectory:   "./i18n/testdata",
 		DefaultLanguage: "en",
 	})
 }

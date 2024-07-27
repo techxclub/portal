@@ -59,7 +59,7 @@ jobs:
           path: |
             ./out/
             ./swagger/
-            ./i18n/definitions/
+            ./resources/
             ./migrations/
           retention-days: 7
 

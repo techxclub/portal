@@ -7,8 +7,8 @@ import (
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/domain"
 	"github.com/techx/portal/handler"
-	"github.com/techx/portal/handler/request"
-	"github.com/techx/portal/handler/response"
+	"github.com/techx/portal/handler/admin/request"
+	"github.com/techx/portal/handler/admin/response"
 	"github.com/techx/portal/service"
 )
 

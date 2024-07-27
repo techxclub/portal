@@ -5,6 +5,7 @@ import "github.com/techx/portal/constants"
 type RateLimit struct {
 	DefaultConfig       RateLimitConfig `yaml:"DEFAULT_CONFIG" env:"DEFAULT_CONFIG"`
 	AdminUserList       RateLimitConfig `yaml:"ADMIN_USER_LIST" env:",prefix=ADMIN_USER_LIST_"`
+	AdminUserApprove    RateLimitConfig `yaml:"ADMIN_USER_APPROVE" env:",prefix=ADMIN_USER_APPROVE_"`
 	AdminUserUpdate     RateLimitConfig `yaml:"ADMIN_USER_UPDATE" env:",prefix=ADMIN_USER_UPDATE_"`
 	AdminCompanyList    RateLimitConfig `yaml:"ADMIN_COMPANY_LIST" env:",prefix=ADMIN_COMPANY_LIST_"`
 	AdminCompanyUpdate  RateLimitConfig `yaml:"ADMIN_COMPANY_UPDATE" env:",prefix=ADMIN_COMPANY_UPDATE_"`
@@ -38,6 +39,7 @@ func defaultRateLimit() RateLimit {
 	return RateLimit{
 		DefaultConfig:       RateLimitConfig{Enabled: true, Attempts: 10, WindowSecs: 3600},
 		AdminUserList:       RateLimitConfig{Enabled: true, Attempts: 100, WindowSecs: 600},
+		AdminUserApprove:    RateLimitConfig{Enabled: true, Attempts: 100, WindowSecs: 600},
 		AdminUserUpdate:     RateLimitConfig{Enabled: true, Attempts: 100, WindowSecs: 600},
 		AdminCompanyList:    RateLimitConfig{Enabled: true, Attempts: 100, WindowSecs: 600},
 		AdminCompanyUpdate:  RateLimitConfig{Enabled: true, Attempts: 100, WindowSecs: 600},
@@ -65,6 +67,8 @@ func (rl RateLimit) GetAPIRateLimitConfig(apiName string) RateLimitConfig {
 	switch apiName {
 	case constants.APINameAdminUserList:
 		return rl.AdminUserList
+	case constants.APINameAdminUserApprove:
+		return rl.AdminUserApprove
 	case constants.APINameAdminUserUpdate:
 		return rl.AdminUserUpdate
 	case constants.APINameAdminCompanyList:
