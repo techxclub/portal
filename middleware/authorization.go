@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/techx/portal/apicontext"
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
@@ -39,7 +40,9 @@ func Authorization(authConfig config.Auth) mux.MiddlewareFunc {
 			}
 
 			r.Header.Set(constants.HeaderXUserUUID, userUUID)
-			next.ServeHTTP(w, r)
+			reqCtx := apicontext.NewRequestContextFromHTTP(r)
+			ctx := apicontext.NewContextWithRequestContext(r.Context(), reqCtx)
+			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
 }

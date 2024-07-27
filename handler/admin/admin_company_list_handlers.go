@@ -16,7 +16,7 @@ func CompanyListHandler(_ *config.Config, serviceRegistry *service.Registry) htt
 	return handler.Handler(
 		request.NewAdminCompanyListRequest,
 		func(ctx context.Context, req request.AdminCompanyListRequest) (*domain.Companies, error) {
-			return serviceRegistry.UserService.GetCompanies(ctx, req.ToFetchCompanyParams())
+			return serviceRegistry.UserService.GetCompaniesAdmin(ctx, req.ToFetchCompanyParams())
 		},
 		response.NewAdminCompanyListResponse,
 	)
