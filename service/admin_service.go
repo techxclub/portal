@@ -2,11 +2,14 @@ package service
 
 import (
 	"context"
+	"strings"
 
+	"github.com/iancoleman/strcase"
 	"github.com/techx/portal/builder"
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
+	"github.com/techx/portal/errors"
 	"github.com/techx/portal/utils"
 )
 
@@ -35,6 +38,10 @@ func (as adminService) ApproveUser(ctx context.Context, params domain.User) (*do
 		return nil, err
 	}
 
+	if user.Status != constants.StatusPendingApproval {
+		return nil, errors.ErrInvalidUpdateRequest
+	}
+
 	user.Status = constants.StatusApproved
 	err = as.registry.UsersRepository.Update(ctx, user)
 	if err != nil {
@@ -52,6 +59,16 @@ func (as adminService) ApproveUser(ctx context.Context, params domain.User) (*do
 }
 
 func (as adminService) UpdateUsers(ctx context.Context, from, to domain.User) (*domain.EmptyDomain, error) {
+	if to.CompanyName != "" {
+		normalizedCompanyName := strcase.ToScreamingSnake(strings.ToUpper(to.CompanyName))
+		companyDetails, err := as.registry.CompaniesRepository.FetchCompanyForParams(ctx, domain.FetchCompanyParams{NormalizedName: normalizedCompanyName})
+		if err != nil {
+			return nil, err
+		}
+
+		to.CompanyID = companyDetails.ID
+	}
+
 	err := as.registry.UsersRepository.BulkUpdate(ctx, from, to)
 	if err != nil {
 		return nil, err
@@ -61,6 +78,9 @@ func (as adminService) UpdateUsers(ctx context.Context, from, to domain.User) (*
 }
 
 func (as adminService) UpdateCompanyDetails(ctx context.Context, company domain.Company) (*domain.EmptyDomain, error) {
+	if company.DisplayName != "" {
+		company.NormalizedName = strcase.ToScreamingSnake(strings.ToUpper(company.DisplayName))
+	}
 	err := as.registry.CompaniesRepository.UpdateCompany(ctx, &company)
 	if err != nil {
 		return nil, err
