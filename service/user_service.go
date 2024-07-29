@@ -213,6 +213,10 @@ func (us userService) GetCompanies(ctx context.Context, params domain.FetchCompa
 		return nil, err
 	}
 
+	if user.Status != constants.StatusApproved {
+		return nil, errors.ErrUserNotApproved
+	}
+
 	companies, err := us.registry.CompaniesRepository.FetchCompaniesForParams(ctx, params)
 	if err != nil {
 		return nil, err
@@ -234,12 +238,21 @@ func (us userService) GetCompanies(ctx context.Context, params domain.FetchCompa
 }
 
 func (us userService) GetCompanyUsers(ctx context.Context, params domain.FetchUserParams) (*domain.CompanyUsersService, error) {
+	userID := apicontext.RequestContextFromContext(ctx).GetUserUUID()
+	user, err := us.registry.UsersRepository.FetchUserForParams(ctx, domain.FetchUserParams{UserUUID: userID})
+	if err != nil {
+		return nil, err
+	}
+
+	if user.Status != constants.StatusApproved {
+		return nil, errors.ErrUserNotApproved
+	}
+
 	companyUsers, err := us.GetUsers(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	userID := apicontext.RequestContextFromContext(ctx).GetUserUUID()
 	referralParams := domain.ReferralParams{
 		Referral: domain.Referral{
 			RequesterUserUUID: userID,

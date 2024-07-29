@@ -43,6 +43,10 @@ func (r referralService) CreateReferral(ctx context.Context, referralDetails dom
 		return nil, errors.ErrRequesterNotFound
 	}
 
+	if requester.Status != constants.StatusApproved {
+		return nil, errors.ErrUserNotApproved
+	}
+
 	provider, err := r.registry.UsersRepository.FetchUserForParams(ctx, domain.FetchUserParams{
 		UserUUID: referralDetails.ProviderUserUUID,
 	})
