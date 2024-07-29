@@ -11,7 +11,7 @@ jobs:
   test-and-lint:
     runs-on: ubuntu-latest
     name: Test and Lint
-    if: ${{ github.ref != 'refs/heads/master' && !startsWith(github.ref, 'refs/heads/feature/') }}
+    if: ${{ github.ref != 'refs/heads/master' && !startsWith(github.ref, 'refs/heads/feature/') && github.ref != 'refs/heads/production' && !startsWith(github.ref, 'refs/heads/hotfix/') }}
     services:
       redis:
         image: redis
@@ -40,7 +40,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     name: Build
-    if: ${{ github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/feature/') }}
+    if: ${{ github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/feature/') || github.ref == 'refs/heads/production' || startsWith(github.ref, 'refs/heads/hotfix/') }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
