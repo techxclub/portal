@@ -11,7 +11,7 @@ import (
 
 func addOTPRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry) {
 	otpRouter := router.PathPrefix("/public/auth").Subrouter()
-	otpRouter.Use(middleware.Authorization(cfg.Auth))
+	otpRouter.Use(middleware.Authorization(cfg.AuthToken))
 
 	//	swagger:route POST /public/auth/otp/generate public generateOTP
 	//	Responses:

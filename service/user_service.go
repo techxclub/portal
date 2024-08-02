@@ -68,7 +68,7 @@ func (us userService) RegisterUser(ctx context.Context, userDetails domain.User)
 		return nil, err
 	}
 
-	authToken, err := domain.GenerateToken(user.UserUUID, us.cfg.Auth)
+	authToken, err := domain.GenerateToken(user.UserUUID, us.cfg.AuthToken)
 	if err != nil {
 		return nil, err
 	}

@@ -13,18 +13,18 @@ import (
 )
 
 // GenerateToken generates a JWT token for a user
-func GenerateToken(subject string, authConfig config.Auth) (string, error) {
+func GenerateToken(subject string, authConfig config.TokenConfig) (string, error) {
 	now := time.Now()
-	expirationTime := now.Add(authConfig.AuthSoftExpiryDuration)
+	expirationTime := now.Add(authConfig.ExpiryDuration)
 	encryptedSubject, err := encrypt(subject, authConfig.CipherKey)
 	if err != nil {
 		return "", err
 	}
 
 	claims := &jwt.StandardClaims{
-		Id:        authConfig.AuthIssuerUUID,
-		Issuer:    authConfig.AuthIssuer,
-		Audience:  authConfig.AuthAudience,
+		Id:        authConfig.IssuerUUID,
+		Issuer:    authConfig.Issuer,
+		Audience:  authConfig.Audience,
 		Subject:   encryptedSubject,
 		IssuedAt:  now.Unix(),
 		ExpiresAt: expirationTime.Unix(),
@@ -35,7 +35,7 @@ func GenerateToken(subject string, authConfig config.Auth) (string, error) {
 }
 
 // VerifyToken verifies a JWT token and returns the user's phone number
-func VerifyToken(authConfig config.Auth, tokenStr, _ string) (string, error) {
+func VerifyToken(authConfig config.TokenConfig, tokenStr string) (string, error) {
 	claims := &jwt.StandardClaims{}
 	token, err := jwt.ParseWithClaims(tokenStr, claims, func(_ *jwt.Token) (interface{}, error) {
 		return []byte(authConfig.AccessTokenSecret), nil
@@ -48,19 +48,19 @@ func VerifyToken(authConfig config.Auth, tokenStr, _ string) (string, error) {
 		return "", jwt.NewValidationError("token is invalid", jwt.ValidationErrorSignatureInvalid)
 	}
 
-	if !claims.VerifyIssuedAt(time.Now().Add(authConfig.AuthHardExpiryDuration).Unix(), true) {
+	if !claims.VerifyIssuedAt(time.Now().Add(authConfig.ExpiryDuration).Unix(), true) {
 		return "", jwt.NewValidationError("token is expired", jwt.ValidationErrorClaimsInvalid)
 	}
 
-	if !claims.VerifyAudience(authConfig.AuthAudience, true) {
+	if !claims.VerifyAudience(authConfig.Audience, true) {
 		return "", jwt.NewValidationError("invalid audience", jwt.ValidationErrorClaimsInvalid)
 	}
 
-	if !claims.VerifyIssuer(authConfig.AuthIssuer, true) {
+	if !claims.VerifyIssuer(authConfig.Issuer, true) {
 		return "", jwt.NewValidationError("invalid issuer name", jwt.ValidationErrorClaimsInvalid)
 	}
 
-	if claims.Id != authConfig.AuthIssuerUUID {
+	if claims.Id != authConfig.IssuerUUID {
 		return "", jwt.NewValidationError("invalid issuer uuid", jwt.ValidationErrorClaimsInvalid)
 	}
 

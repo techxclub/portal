@@ -29,7 +29,7 @@ func GoogleSignInHandler(cfg *config.Config, serviceRegistry *service.Registry) 
 			return
 		}
 
-		authToken, err := domain.GenerateToken(userProfile.UserUUID, cfg.Auth)
+		authToken, err := domain.GenerateToken(userProfile.UserUUID, cfg.AuthToken)
 		if err != nil {
 			response.InstrumentErrorResponse(r, errors.AsServiceError(errors.ErrGeneratingAuthToken))
 			w.WriteHeader(http.StatusInternalServerError)

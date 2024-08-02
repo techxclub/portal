@@ -5,8 +5,9 @@ type GoogleLogin struct {
 }
 
 type GoogleOAuthExchangeRequest struct {
-	State string `json:"state"`
-	Code  string `json:"code"`
+	InviteCode string `json:"invite_code"`
+	Code       string `json:"code"`
+	OAuthCode  string `json:"oauth_code"`
 }
 
 type OTPRequest struct {

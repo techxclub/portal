@@ -11,7 +11,7 @@ import (
 
 func addPublicRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry) {
 	publicRouter := router.PathPrefix("/public").Subrouter()
-	publicRouter.Use(middleware.Authorization(cfg.Auth))
+	publicRouter.Use(middleware.Authorization(cfg.AuthToken))
 
 	//	swagger:route GET /public/user/fetch/profile public userFetchProfile
 	//	Responses:

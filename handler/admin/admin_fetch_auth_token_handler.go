@@ -23,7 +23,7 @@ func FetchAuthTokenHandler(cfg *config.Config) http.HandlerFunc {
 			return
 		}
 
-		authToken, err := domain.GenerateToken(req.UserUUID, cfg.Auth)
+		authToken, err := domain.GenerateToken(req.UserUUID, cfg.AuthToken)
 		if err != nil {
 			response.InstrumentErrorResponse(r, errors.AsServiceError(errors.ErrGeneratingAuthToken))
 			w.WriteHeader(http.StatusInternalServerError)

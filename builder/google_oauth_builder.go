@@ -39,7 +39,11 @@ func NewGoogleOAuthBuilder(oauthConfig config.GoogleAuth, client googleClient.Cl
 }
 
 func (gb googleOAuthBuilder) BuildGoogleOAuthDetails(ctx context.Context, exchangeReq domain.GoogleOAuthExchangeRequest) (*domain.GoogleOAuthDetails, error) {
-	token, err := gb.getOAuthConfig(ctx).Exchange(ctx, exchangeReq.Code)
+	oauthCode := exchangeReq.Code
+	if exchangeReq.OAuthCode != "" {
+		oauthCode = exchangeReq.OAuthCode
+	}
+	token, err := gb.getOAuthConfig(ctx).Exchange(ctx, oauthCode)
 	if err != nil {
 		return nil, err
 	}
