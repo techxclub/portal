@@ -22,7 +22,7 @@ const (
 )
 
 var (
-	AllowedHeaders = []string{HeaderXUserUUID, HeaderXRequestTraceID, HeaderContentType, HeaderXForwardedFor, HeaderAuthorization, HeaderAuthToken}
+	AllowedHeaders = []string{HeaderXUserUUID, HeaderXRequestTraceID, HeaderContentType, HeaderXForwardedFor, HeaderAuthorization, HeaderAuthToken, HeaderOrigin, HeaderClientID, HeaderPasskey}
 	ExposedHeaders = []string{HeaderAuthToken, HeaderContentType}
 	AllowedMethods = []string{MethodGet, MethodPost, MethodPut, MethodPatch, MethodHead, MethodOptions}
 	AllowedOrigins = []string{"*"}
