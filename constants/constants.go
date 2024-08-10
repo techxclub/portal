@@ -58,6 +58,8 @@ const (
 	ParamPriority        = "priority"
 	ParamVerified        = "verified"
 	ParamPopular         = "popular"
+	ParamCompanyLogoLink = "company_logo_link"
+	ParamCompanyLogoFile = "company_logo_file"
 
 	// Referral Params
 	ParamRequesterID       = "requester_user_id"

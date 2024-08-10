@@ -20,10 +20,10 @@ type Config struct {
 	Log   Log   `yaml:"LOG" env:",prefix=LOG_"`
 	OTP   OTP   `yaml:"OTP" env:",prefix=OTP_"`
 
-	RateLimitEnabled bool      `yaml:"RATE_LIMIT_ENABLED" env:"RATE_LIMIT_ENABLED"`
-	RateLimit        RateLimit `yaml:"RATE_LIMIT" env:",prefix=RATE_LIMIT_"`
-
-	GoogleClient HTTPConfig `yaml:"GOOGLE_CLIENT" env:",prefix=GOOGLE_CLIENT_"`
+	RateLimitEnabled bool         `yaml:"RATE_LIMIT_ENABLED" env:"RATE_LIMIT_ENABLED"`
+	RateLimit        RateLimit    `yaml:"RATE_LIMIT" env:",prefix=RATE_LIMIT_"`
+	AzureStorage     AzureStorage `yaml:"AZURE_STORAGE" env:",prefix=AZURE_STORAGE_"`
+	GoogleClient     HTTPConfig   `yaml:"GOOGLE_CLIENT" env:",prefix=GOOGLE_CLIENT_"`
 
 	ServiceMail MailSMTP `yaml:"SERVICE_MAIL" env:",prefix=SERVICE_MAIL_"`
 	SupportMail MailSMTP `yaml:"SUPPORT_MAIL" env:",prefix=SUPPORT_MAIL_"`
@@ -86,6 +86,11 @@ type OTP struct {
 	TTL            time.Duration `yaml:"TTL" env:"TTL"`
 	MaxRetryCount  int           `yaml:"MAX_RETRY_COUNT" env:"MAX_RETRY_COUNT"`
 	MockingEnabled bool          `yaml:"MOCKING_ENABLED" env:"MOCKING_ENABLED"`
+}
+
+type AzureStorage struct {
+	AccountName      string `yaml:"ACCOUNT_NAME" env:"ACCOUNT_NAME"`
+	ConnectionString string `yaml:"CONNECTION_STRING" env:"CONNECTION_STRING"`
 }
 
 type Referral struct {
@@ -176,6 +181,11 @@ func (cfg *Config) SetDefaults() {
 		RequestVolumeThreshold: 100,
 		SleepWindow:            100,
 		ErrorPercentThreshold:  10,
+	}
+
+	cfg.AzureStorage = AzureStorage{
+		AccountName:      "account-name",
+		ConnectionString: "connection-string",
 	}
 
 	cfg.ServiceMail = MailSMTP{

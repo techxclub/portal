@@ -2,6 +2,8 @@ package router
 
 import (
 	"github.com/gorilla/mux"
+	"github.com/techx/portal/builder"
+	"github.com/techx/portal/client"
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/constants"
 	"github.com/techx/portal/handler/admin"
@@ -9,7 +11,7 @@ import (
 	"github.com/techx/portal/service"
 )
 
-func addAdminRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry) {
+func addAdminRoutes(router *mux.Router, cfg *config.Config, cr *client.Registry, _ *builder.Registry, sr *service.Registry) {
 	adminRouter := router.PathPrefix("/admin").Subrouter()
 	adminRouter.Use(middleware.AdminAuth(cfg))
 
@@ -111,4 +113,26 @@ func addAdminRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry
 		Name(constants.APINameAdminFetchAuthToken).
 		Path("/fetch/auth/token").
 		Handler(admin.FetchAuthTokenHandler(cfg))
+
+	// swagger:route GET /admin/fetch/company/logo admin adminFetchCompanyLogo
+	// Responses:
+	// 	200: SuccessResponse
+	// 	400: ErrorResponse
+	// 	500: ErrorResponse
+	adminRouter.
+		Methods(constants.MethodGet).
+		Name(constants.APINameAdminFetchCompanyLogo).
+		Path("/fetch/company/logo").
+		Handler(admin.FetchCompanyLogoHandler(cfg, cr))
+
+	// swagger:route PUT /admin/upload/company/logo admin adminUploadCompanyLogo
+	// Responses:
+	// 	200: SuccessResponse
+	// 	400: ErrorResponse
+	// 	500: ErrorResponse
+	adminRouter.
+		Methods(constants.MethodPut).
+		Name(constants.APINameAdminUploadCompanyLogo).
+		Path("/upload/company/logo").
+		Handler(admin.UploadCompanyLogoHandler(cfg, cr))
 }
