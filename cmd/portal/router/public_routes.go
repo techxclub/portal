@@ -2,6 +2,8 @@ package router
 
 import (
 	"github.com/gorilla/mux"
+	"github.com/techx/portal/builder"
+	"github.com/techx/portal/client"
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/constants"
 	"github.com/techx/portal/handler"
@@ -9,7 +11,7 @@ import (
 	"github.com/techx/portal/service"
 )
 
-func addPublicRoutes(router *mux.Router, cfg *config.Config, sr *service.Registry) {
+func addPublicRoutes(router *mux.Router, cfg *config.Config, _ *client.Registry, _ *builder.Registry, sr *service.Registry) {
 	publicRouter := router.PathPrefix("/public").Subrouter()
 	publicRouter.Use(middleware.Authorization(cfg.Auth))
 

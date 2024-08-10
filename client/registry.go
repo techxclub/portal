@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/rs/zerolog/log"
+	"github.com/techx/portal/client/azure"
 	"github.com/techx/portal/client/cache"
 	"github.com/techx/portal/client/db"
 	"github.com/techx/portal/client/email"
@@ -20,6 +21,7 @@ type Registry struct {
 	ServiceMailClient email.Client
 	SupportMailClient email.Client
 	OTPCache          cache.Cache[cache.OTPCache]
+	AzureStorage      azure.Client
 }
 
 func NewRegistry(cfg *config.Config) *Registry {
@@ -30,6 +32,7 @@ func NewRegistry(cfg *config.Config) *Registry {
 	googleClient := google.NewGoogleClient(cfg.GoogleClient)
 	serviceMailClient := email.NewEmailClient(cfg.ServiceMail)
 	supportMailClient := email.NewEmailClient(cfg.SupportMail)
+	azureStorage := azure.NewAzureClient(cfg.AzureStorage)
 
 	return &Registry{
 		DB:                dbClient,
@@ -38,6 +41,7 @@ func NewRegistry(cfg *config.Config) *Registry {
 		ServiceMailClient: serviceMailClient,
 		SupportMailClient: supportMailClient,
 		OTPCache:          otpCache,
+		AzureStorage:      azureStorage,
 	}
 }
 

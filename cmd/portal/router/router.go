@@ -4,12 +4,14 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/techx/portal/builder"
+	"github.com/techx/portal/client"
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/middleware"
 	"github.com/techx/portal/service"
 )
 
-func NewRouter(cfg *config.Config, sr *service.Registry) *mux.Router {
+func NewRouter(cfg *config.Config, cr *client.Registry, br *builder.Registry, sr *service.Registry) *mux.Router {
 	router := mux.NewRouter()
 
 	// Enable Swagger if enabled
@@ -17,10 +19,10 @@ func NewRouter(cfg *config.Config, sr *service.Registry) *mux.Router {
 		http.Dir(cfg.Swagger.Path))))
 	router.Use(middleware.RecoverMiddleware())
 
-	addOAuthRoutes(router, cfg, sr)
-	addOTPRoutes(router, cfg, sr)
-	addPublicRoutes(router, cfg, sr)
-	addAdminRoutes(router, cfg, sr)
+	addOAuthRoutes(router, cfg, cr, br, sr)
+	addOTPRoutes(router, cfg, cr, br, sr)
+	addPublicRoutes(router, cfg, cr, br, sr)
+	addAdminRoutes(router, cfg, cr, br, sr)
 
 	return router
 }
