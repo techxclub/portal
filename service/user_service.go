@@ -139,6 +139,14 @@ func (us userService) UpdateUser(ctx context.Context, updatedUser domain.User) (
 		updatedUser.CompanyID = storedUser.CompanyID
 	}
 
+	if updatedUser.InviteCode == "" {
+		inviteCode := storedUser.InviteCode
+		if inviteCode == "" {
+			inviteCode = getRandomInviteCode(updatedUser.Name)
+		}
+		updatedUser.InviteCode = inviteCode
+	}
+
 	if updatedUser.Status == constants.StatusIncompleteProfile && updatedUser.IsProfileComplete() {
 		updatedUser.Status = constants.StatusPendingApproval
 	}
@@ -334,4 +342,14 @@ func (us userService) validateUserUpdateDetails(ctx context.Context, storedUser,
 	}
 
 	return nil
+}
+
+func getRandomInviteCode(name string) string {
+	normalizedName := strings.ToLower(strings.ReplaceAll(name, " ", ""))
+	randomNumber, err := utils.GenerateRandomNumber(3)
+	if err != nil {
+		return normalizedName
+	}
+
+	return normalizedName + randomNumber
 }

@@ -2,9 +2,6 @@ package builder
 
 import (
 	"context"
-	"crypto/rand"
-	"math/big"
-	"strconv"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/rs/zerolog/log"
@@ -14,9 +11,11 @@ import (
 	"github.com/techx/portal/constants"
 	"github.com/techx/portal/domain"
 	"github.com/techx/portal/errors"
+	"github.com/techx/portal/utils"
 )
 
 const (
+	otpLength  = 6
 	defaultOTP = "972635"
 )
 
@@ -128,14 +127,13 @@ func (ob otpBuilder) updateVerifiedOTP(ctx context.Context, email string, otpCac
 }
 
 func generateOTP() string {
-	randomNumber, err := rand.Int(rand.Reader, big.NewInt(900000))
+	otp, err := utils.GenerateRandomNumber(otpLength)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to generate random number")
+		log.Error().Err(err).Msg("Failed to generate OTP")
 		return defaultOTP
 	}
 
-	otp := randomNumber.Int64() + 100000
-	return strconv.FormatInt(otp, 10)
+	return otp
 }
 
 func (ob otpBuilder) mockVerifyOTP(_ context.Context, req domain.OTPRequest) (domain.AuthDetails, error) {

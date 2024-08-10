@@ -11,6 +11,7 @@ type Users []User
 type User struct {
 	UserNumber int64      `db:"user_number"` // Only for internal use
 	UserUUID   string     `db:"user_uuid"`
+	InviteCode string     `db:"invite_code"`
 	CreatedAt  *time.Time `db:"create_time"`
 	UpdatedAt  *time.Time `db:"update_time"`
 	Status     string     `db:"status"`

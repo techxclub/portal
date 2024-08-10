@@ -41,7 +41,7 @@ type UsersReturning struct {
 }
 
 const (
-	interUserQuery           = `INSERT INTO users (create_time, update_time, status, registered_email, name, phone_number, profile_picture, linkedin, gender, company_id, company_name, work_email, designation, years_of_experience, google_auth_details, technical_information, mentor_config) VALUES (:create_time, :update_time, :status, :registered_email, :name, :phone_number, :profile_picture, :linkedin, :gender, :company_id, :company_name, :work_email, :designation, :years_of_experience, :google_auth_details, :technical_information, :mentor_config) RETURNING user_number, user_uuid`
+	insertUserQuery          = `INSERT INTO users (create_time, update_time, status, registered_email, name, phone_number, profile_picture, linkedin, gender, company_id, company_name, work_email, designation, years_of_experience, google_auth_details, technical_information, mentor_config) VALUES (:create_time, :update_time, :status, :registered_email, :name, :phone_number, :profile_picture, :linkedin, :gender, :company_id, :company_name, :work_email, :designation, :years_of_experience, :google_auth_details, :technical_information, :mentor_config) RETURNING user_number, user_uuid`
 	namedUpdateUserBaseQuery = `UPDATE users SET `
 	getUserSelectorFields    = `user_number, user_uuid, create_time, update_time, status, registered_email, name, phone_number, profile_picture, linkedin, gender, company_id, company_name, work_email, designation, years_of_experience, google_auth_details, technical_information, mentor_config`
 
@@ -59,7 +59,7 @@ func (r usersRepository) Insert(ctx context.Context, user domain.User) (*domain.
 	user.CreatedAt = &now
 	user.UpdatedAt = &now
 	err := r.dbClient.DBRunInTxContext(ctx, func(tx *sqlx.Tx) error {
-		return r.dbClient.DBNamedExecReturningInTx(ctx, tx, &returning, interUserQuery, map[string]interface{}{
+		return r.dbClient.DBNamedExecReturningInTx(ctx, tx, &returning, insertUserQuery, map[string]interface{}{
 			constants.ParamCreateTime:           user.CreatedAt,
 			constants.ParamUpdateTime:           user.UpdatedAt,
 			constants.ParamStatus:               user.Status,

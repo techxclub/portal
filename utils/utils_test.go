@@ -1,6 +1,7 @@
 package utils_test
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -46,6 +47,40 @@ func (s *UtilsTestSuite) Test_ParseInt64WithDefault() {
 	for _, tc := range cases {
 		s.Run(tc.name, func() {
 			s.Equal(tc.expected, utils.ParseInt64WithDefault(tc.input, tc.defaultVal))
+		})
+	}
+}
+
+func (s *UtilsTestSuite) TestGenerateRandomNumber() {
+	cases := []struct {
+		name        string
+		length      int
+		expectedLen int
+		expectedErr error
+	}{
+		{
+			name:        "When length is 0",
+			length:      0,
+			expectedLen: 0,
+			expectedErr: errors.New("invalid length"),
+		},
+		{
+			name:        "When length is 1",
+			length:      1,
+			expectedLen: 1,
+		},
+		{
+			name:        "When length is n",
+			length:      10,
+			expectedLen: 10,
+		},
+	}
+
+	for _, tc := range cases {
+		s.Run(tc.name, func() {
+			randomNumber, _ := utils.GenerateRandomNumber(tc.length)
+			actualLen := len(randomNumber)
+			s.Equal(tc.expectedLen, actualLen)
 		})
 	}
 }

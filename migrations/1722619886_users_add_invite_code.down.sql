@@ -1,1 +1,3 @@
-ALTER TABLE users DROP COLUMN invite_code;
+DROP INDEX IF EXISTS users_invite_code_idx;
+ALTER TABLE users
+    DROP COLUMN IF EXISTS invite_code;

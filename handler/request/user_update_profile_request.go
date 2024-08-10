@@ -11,6 +11,7 @@ import (
 
 type UserUpdateProfileRequest struct {
 	UserUUID                string                  `json:"-"`
+	InviteCode              string                  `json:"invite_code"`
 	PersonalInformation     PersonalInformation     `json:"personal_information"`
 	ProfessionalInformation ProfessionalInformation `json:"professional_information"`
 	TechnicalInformation    TechnicalInformation    `json:"technical_information"`
@@ -58,7 +59,8 @@ func (r UserUpdateProfileRequest) Validate() error {
 
 func (r UserUpdateProfileRequest) ToUserDomainObject() domain.User {
 	user := domain.User{
-		UserUUID: r.UserUUID,
+		UserUUID:   r.UserUUID,
+		InviteCode: r.InviteCode,
 		PersonalInformation: domain.PersonalInformation{
 			Name:            r.PersonalInformation.Name,
 			PhoneNumber:     r.PersonalInformation.PhoneNumber,

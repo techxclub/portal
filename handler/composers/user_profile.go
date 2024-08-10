@@ -12,6 +12,7 @@ type UserProfile struct {
 	UserUUID                string                  `json:"user_uuid"`
 	CreatedAt               *time.Time              `json:"created_at"`
 	Status                  string                  `json:"status"`
+	InviteCode              string                  `json:"invite_code"`
 	PersonalInformation     PersonalInformation     `json:"personal_information"`
 	ProfessionalInformation ProfessionalInformation `json:"professional_information"`
 	TechnicalInformation    TechnicalInformation    `json:"technical_information"`
@@ -47,6 +48,7 @@ func NewUserProfile(user domain.User) UserProfile {
 		UserUUID:   user.UserUUID,
 		CreatedAt:  user.CreatedAt,
 		Status:     user.Status,
+		InviteCode: user.InviteCode,
 		PersonalInformation: PersonalInformation{
 			Name:            user.Name,
 			PhoneNumber:     user.PhoneNumber,

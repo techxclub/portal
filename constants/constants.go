@@ -68,6 +68,10 @@ const (
 	ParamResumeFile        = "resume_file"
 	ParamMessage           = "message"
 
+	// Invite Params
+	ParamCode          = "code"
+	ParamInvitedUserID = "invited_user_uuid"
+
 	OTPStatusGenerated = "generated"
 	OTPStatusPending   = "pending"
 	OTPStatusVerified  = "verified"

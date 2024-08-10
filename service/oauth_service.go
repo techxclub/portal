@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 
+	"github.com/rs/zerolog/log"
 	"github.com/techx/portal/builder"
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/domain"
@@ -41,5 +42,22 @@ func (as oauthService) GoogleSignIn(ctx context.Context, exchangeReq domain.Goog
 		return storedProfile, nil
 	}
 
-	return as.registry.UsersRepository.Insert(ctx, *userProfile)
+	user, err := as.registry.UsersRepository.Insert(ctx, *userProfile)
+	if err != nil {
+		return nil, err
+	}
+
+	if exchangeReq.InviteCode != "" {
+		invite := domain.Invite{
+			Code:          exchangeReq.InviteCode,
+			InvitedUserID: user.UserUUID,
+		}
+
+		_, err = as.registry.InvitesRepository.Insert(ctx, invite)
+		if err != nil {
+			log.Err(err).Msg("Failed to insert invite")
+		}
+	}
+
+	return user, nil
 }
