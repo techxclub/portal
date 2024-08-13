@@ -9,19 +9,18 @@ import (
 	"github.com/techx/portal/handler"
 	"github.com/techx/portal/handler/admin/request"
 	"github.com/techx/portal/handler/composers"
+	"github.com/techx/portal/handler/response"
 	"github.com/techx/portal/service"
 )
 
 func UserApproveHandler(_ *config.Config, serviceRegistry *service.Registry) http.HandlerFunc {
 	return handler.Handler(
 		request.NewAdminUserApproveRequest,
-		func(ctx context.Context, req request.AdminUserUpdateParams) (*domain.EmptyDomain, error) {
+		func(ctx context.Context, req request.AdminUserUpdateParams) (*domain.User, error) {
 			user := req.ToUserProfile()
 			return serviceRegistry.AdminService.ApproveUser(ctx, user)
 		},
-		func(ctx context.Context, _ domain.EmptyDomain) (composers.SuccessResponse, composers.HTTPMetadata) {
-			return composers.NewSuccessResponse(ctx)
-		},
+		response.NewUserProfileResponse,
 	)
 }
 

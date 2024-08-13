@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"strings"
 
 	"github.com/iancoleman/strcase"
+	"github.com/rs/zerolog/log"
 	"github.com/techx/portal/builder"
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/constants"
@@ -14,7 +16,7 @@ import (
 )
 
 type AdminService interface {
-	ApproveUser(ctx context.Context, user domain.User) (*domain.EmptyDomain, error)
+	ApproveUser(ctx context.Context, user domain.User) (*domain.User, error)
 	UpdateUsers(ctx context.Context, from, to domain.User) (*domain.EmptyDomain, error)
 	UpdateCompanyDetails(ctx context.Context, company domain.Company) (*domain.EmptyDomain, error)
 	UpdateReferralDetails(ctx context.Context, params *domain.Referral) (*domain.EmptyDomain, error)
@@ -32,7 +34,7 @@ func NewAdminService(cfg *config.Config, registry *builder.Registry) AdminServic
 	}
 }
 
-func (as adminService) ApproveUser(ctx context.Context, params domain.User) (*domain.EmptyDomain, error) {
+func (as adminService) ApproveUser(ctx context.Context, params domain.User) (*domain.User, error) {
 	user, err := as.getUserDetails(ctx, params)
 	if err != nil {
 		return nil, err
@@ -43,6 +45,11 @@ func (as adminService) ApproveUser(ctx context.Context, params domain.User) (*do
 	}
 
 	user.Status = constants.StatusApproved
+	user, err = as.handleCompanyUpdate(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+
 	err = as.registry.UsersRepository.Update(ctx, user)
 	if err != nil {
 		return nil, err
@@ -55,7 +62,7 @@ func (as adminService) ApproveUser(ctx context.Context, params domain.User) (*do
 		return nil, err
 	}
 
-	return &domain.EmptyDomain{}, nil
+	return user, nil
 }
 
 func (as adminService) UpdateUsers(ctx context.Context, from, to domain.User) (*domain.EmptyDomain, error) {
@@ -112,4 +119,30 @@ func (as adminService) getUserDetails(ctx context.Context, params domain.User) (
 	}
 
 	return user, err
+}
+
+func (as adminService) handleCompanyUpdate(ctx context.Context, user *domain.User) (*domain.User, error) {
+	normalizedCompanyName := strcase.ToScreamingSnake(strings.ToUpper(user.CompanyName))
+	companyDetails, err := as.registry.CompaniesRepository.FetchCompanyForParams(ctx, domain.FetchCompanyParams{NormalizedName: normalizedCompanyName})
+	if err != nil && errors.Is(err, sql.ErrNoRows) {
+		var insertErr error
+		companyDetails, insertErr = as.registry.CompaniesRepository.InsertCompany(ctx, domain.Company{
+			NormalizedName: normalizedCompanyName,
+			DisplayName:    user.CompanyName,
+			Verified:       utils.ToPtr(false),
+			Popular:        utils.ToPtr(false),
+			Actor:          constants.ActorAdmin,
+		})
+
+		if insertErr != nil {
+			log.Info().Err(err).Msg("Failed to add new company")
+			return user, err
+		}
+	} else if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return nil, err
+	}
+
+	user.CompanyID = companyDetails.ID
+	user.CompanyName = companyDetails.DisplayName
+	return user, nil
 }
