@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"strings"
 
 	"github.com/iancoleman/strcase"
+	"github.com/rs/zerolog/log"
 	"github.com/techx/portal/builder"
 	"github.com/techx/portal/config"
 	"github.com/techx/portal/constants"
@@ -43,6 +45,11 @@ func (as adminService) ApproveUser(ctx context.Context, params domain.User) (*do
 	}
 
 	user.Status = constants.StatusApproved
+	user, err = as.handleCompanyUpdate(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+
 	err = as.registry.UsersRepository.Update(ctx, user)
 	if err != nil {
 		return nil, err
@@ -112,4 +119,30 @@ func (as adminService) getUserDetails(ctx context.Context, params domain.User) (
 	}
 
 	return user, err
+}
+
+func (as adminService) handleCompanyUpdate(ctx context.Context, user *domain.User) (*domain.User, error) {
+	normalizedCompanyName := strcase.ToScreamingSnake(strings.ToUpper(user.CompanyName))
+	companyDetails, err := as.registry.CompaniesRepository.FetchCompanyForParams(ctx, domain.FetchCompanyParams{NormalizedName: normalizedCompanyName})
+	if err != nil && errors.Is(err, sql.ErrNoRows) {
+		var insertErr error
+		companyDetails, insertErr = as.registry.CompaniesRepository.InsertCompany(ctx, domain.Company{
+			NormalizedName: normalizedCompanyName,
+			DisplayName:    user.CompanyName,
+			Verified:       utils.ToPtr(false),
+			Popular:        utils.ToPtr(false),
+			Actor:          constants.ActorAdmin,
+		})
+
+		if insertErr != nil {
+			log.Info().Err(err).Msg("Failed to add new company")
+			return user, err
+		}
+	} else if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return nil, err
+	}
+
+	user.CompanyID = companyDetails.ID
+	user.CompanyName = companyDetails.DisplayName
+	return user, nil
 }

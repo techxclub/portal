@@ -271,6 +271,10 @@ func (us userService) GetCompanyUsers(ctx context.Context, params domain.FetchUs
 }
 
 func (us userService) handleCompanyUpdate(ctx context.Context, user domain.User) (domain.User, error) {
+	if !user.IsApproved() {
+		return user, nil
+	}
+
 	normalizedCompanyName := strcase.ToScreamingSnake(strings.ToUpper(user.CompanyName))
 	companyDetails, fetchCompanyErr := us.registry.CompaniesRepository.FetchCompanyForParams(ctx, domain.FetchCompanyParams{NormalizedName: normalizedCompanyName})
 	if fetchCompanyErr != nil {
