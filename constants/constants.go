@@ -5,7 +5,8 @@ const (
 	GlobalRateLimitKey = "global_rate_limit"
 
 	// Actors
-	ActorUser = "USER"
+	ActorAdmin = "ADMIN"
+	ActorUser  = "USER"
 
 	// Genders
 	GenderMale = "MALE"
