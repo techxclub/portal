@@ -13,5 +13,5 @@ type AdminCompanyListResponse struct {
 }
 
 func NewAdminCompanyListResponse(_ context.Context, companies domain.Companies) (AdminCompanyListResponse, composers.HTTPMetadata) {
-	return AdminCompanyListResponse{Companies: composers.GetAllCompanies(companies, math.MaxInt8)}, composers.HTTPMetadata{}
+	return AdminCompanyListResponse{Companies: composers.GetAllCompanies(companies, math.MaxInt16)}, composers.HTTPMetadata{}
 }
